@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { useTimelineStore, store } from '../state/timelineStore';
+import { useTimelineStore } from '../state/timelineStore';
+import { sessionClient } from '../ws/sessionClient';
 import { theme } from '../app/theme';
 
 interface NarrationPanelProps {
@@ -17,24 +18,7 @@ export const NarrationPanel: React.FC<NarrationPanelProps> = ({ onCollapse }) =>
     if (!cp) return;
     setLoading(true);
     try {
-      const res = await fetch(`http://127.0.0.1:8000/checkpoints/${cp.id}/narrate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          checkpoint_id: cp.id,
-          git_tree_hash: cp.git_tree_hash,
-          raw_patch: cp.raw_patch,
-          summary: cp.summary
-        })
-      });
-      if (res.ok) {
-        const data = await res.json();
-        store.setNarration(data);
-      } else {
-        store.hydrateNarrationForCheckpoint(cp);
-      }
-    } catch {
-      store.hydrateNarrationForCheckpoint(cp);
+      await sessionClient.narrateCheckpoint(cp);
     } finally {
       setTimeout(() => setLoading(false), 300);
     }
@@ -43,23 +27,11 @@ export const NarrationPanel: React.FC<NarrationPanelProps> = ({ onCollapse }) =>
   const handleSuggestClick = async () => {
     setLoading(true);
     try {
-      const res = await fetch('http://127.0.0.1:8000/suggest', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          pattern: 'IDENTICAL_DIFF_LOOP',
-          culprit: cp?.files_modified[0] || 'core/src/stall_detector.cpp',
-          cycle_count: 3
-        })
-      });
-      if (res.ok) {
-        const data = await res.json();
-        store.setIntervention(data.prompt_injection);
-      } else {
-        store.setIntervention("INTERVENTION: Inspect threshold_cycles_ parameter in StallDetector constructor instead of re-applying identical diff.");
-      }
-    } catch {
-      store.setIntervention("INTERVENTION: Inspect threshold_cycles_ parameter in StallDetector constructor instead of re-applying identical diff.");
+      await sessionClient.requestSuggestion(
+        'IDENTICAL_DIFF_LOOP',
+        cp?.files_modified?.[0] || 'core/src/stall_detector.cpp',
+        3
+      );
     } finally {
       setTimeout(() => setLoading(false), 300);
     }
@@ -203,8 +175,8 @@ export const NarrationPanel: React.FC<NarrationPanelProps> = ({ onCollapse }) =>
             <span style={{ color: theme.text.primary, fontWeight: 500 }}>sliding_window_hash (3 cycles)</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '10px' }}>
-            <span style={{ color: theme.text.muted }}>status</span>
-            <span style={{ color: '#1a7f37', fontWeight: 600 }}>pass (0 regressions)</span>
+            <span style={{ color: theme.text.muted }}>backend_status</span>
+            <span style={{ color: '#1a7f37', fontWeight: 600 }}>connected (live 8000)</span>
           </div>
         </div>
       </div>

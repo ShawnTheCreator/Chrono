@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useTimelineStore, store } from '../state/timelineStore';
+import { sessionClient } from '../ws/sessionClient';
 import { theme } from '../app/theme';
 import { FolderIcon, FileCodeIcon } from '../components/icons';
 
@@ -87,13 +88,23 @@ export const TreePanel: React.FC<TreePanelProps> = ({ onCollapse }) => {
         }
       ]
     },
-    { name: 'CMakeLists.txt', isFolder: false },
-    { name: 'Makefile', isFolder: false }
+    { name: 'CMakeLists.txt', isFolder: false, modified: modifiedFiles.has('CMakeLists.txt') },
+    { name: 'Makefile', isFolder: false, modified: modifiedFiles.has('Makefile') }
   ];
+
+  const treeData = (storeState.sessionTree && storeState.sessionTree.length > 0)
+    ? storeState.sessionTree
+    : defaultTree;
+
+  const handleFileClick = (currentPath: string) => {
+    store.selectFile(currentPath);
+    const sid = storeState.metadata?.session_id || 'chrono-feature-attempt-1';
+    sessionClient.fetchFileDiff(sid, currentPath, cp?.id);
+  };
 
   const renderNode = (node: TreeNode, depth: number = 0, path: string = '') => {
     const currentPath = path ? `${path}/${node.name}` : node.name;
-    const isMod = node.modified;
+    const isMod = node.modified || modifiedFiles.has(currentPath);
     const isSelected = selectedFile === currentPath;
     const isExpanded = expandedFolders[currentPath] !== false;
 
@@ -104,7 +115,7 @@ export const TreePanel: React.FC<TreePanelProps> = ({ onCollapse }) => {
             if (node.isFolder) {
               toggleFolder(currentPath, e);
             } else {
-              store.selectFile(currentPath);
+              handleFileClick(currentPath);
             }
           }}
           style={{
@@ -183,7 +194,7 @@ export const TreePanel: React.FC<TreePanelProps> = ({ onCollapse }) => {
         </span>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <span style={{ fontSize: '10px', color: theme.text.muted, fontFamily: '"JetBrains Mono", monospace' }}>
-            tree:{cp?.git_tree_hash.slice(0, 8) || 'HEAD'}
+            tree:{cp?.git_tree_hash?.slice(0, 8) || 'HEAD'}
           </span>
           {onCollapse && (
             <button
@@ -205,7 +216,7 @@ export const TreePanel: React.FC<TreePanelProps> = ({ onCollapse }) => {
         </div>
       </div>
       <div style={{ flex: 1, overflowY: 'auto', padding: '6px 4px', background: theme.bg.surface }}>
-        {defaultTree.map((n) => renderNode(n))}
+        {treeData.map((n) => renderNode(n))}
       </div>
     </div>
   );

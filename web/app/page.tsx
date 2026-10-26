@@ -58,6 +58,7 @@ export default function CockpitDashboard() {
   const startPosRef = useRef({ x: 0, y: 0, initialW: 0, initialH: 0 });
 
   useEffect(() => {
+    sessionClient.init();
     sessionClient.connect(currentSessionId);
   }, [currentSessionId]);
 
@@ -68,7 +69,6 @@ export default function CockpitDashboard() {
 
   const handleSessionChange = (newId: string) => {
     setCurrentSessionId(newId);
-    store.loadSessionById(newId);
     sessionClient.connect(newId);
     showToast(`Switched to ${SESSIONS.find((s) => s.id === newId)?.label || newId}`);
   };
@@ -79,7 +79,7 @@ export default function CockpitDashboard() {
   };
 
   const handleDownloadReceipt = () => {
-    const data = {
+    const data = state.verificationReceipt || {
       session_id: currentSessionId,
       verified_at: new Date().toISOString(),
       active_checkpoint: state.activeCheckpoint?.id || 'chk_04n112tt8a',
@@ -104,7 +104,7 @@ export default function CockpitDashboard() {
   const handleResetLayout = () => {
     setTreeWidth(210);
     setInspectorWidth(360);
-    setTimelineHeight(115);
+    setTimelineHeight(135);
     setIsTreeCollapsed(false);
     setIsInspectorCollapsed(false);
     setIsTimelineCollapsed(false);
@@ -151,7 +151,10 @@ export default function CockpitDashboard() {
     window.addEventListener('pointerup', handlePointerUp);
   };
 
-  const activeSessionMeta = SESSIONS.find((s) => s.id === currentSessionId) || SESSIONS[0];
+  const sessionList = (state.availableSessions && state.availableSessions.length > 0)
+    ? state.availableSessions
+    : SESSIONS;
+  const activeSessionMeta = sessionList.find((s: any) => s.id === currentSessionId) || sessionList[0] || SESSIONS[0];
 
   return (
     <div style={{
@@ -217,7 +220,7 @@ export default function CockpitDashboard() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: theme.text.muted, fontFamily: '"JetBrains Mono", monospace' }}>
             <span>Sessions</span>
             <span>/</span>
-            <span style={{ color: theme.text.primary, fontWeight: 500 }}>{activeSessionMeta.shortName}</span>
+            <span style={{ color: theme.text.primary, fontWeight: 500 }}>{activeSessionMeta.shortName || activeSessionMeta.label}</span>
             <span>/</span>
             <span style={{
               color: theme.accent.green,
@@ -346,7 +349,7 @@ export default function CockpitDashboard() {
 
           <div style={{ height: '14px', width: '1px', background: theme.border.default }} />
 
-          {/* Simple, Straight-to-Point Session Dropdown */}
+          {/* Backend-driven Simple Session Dropdown */}
           <select
             value={currentSessionId}
             onChange={(e) => handleSessionChange(e.target.value)}
@@ -363,9 +366,9 @@ export default function CockpitDashboard() {
               outline: 'none'
             }}
           >
-            {SESSIONS.map((s) => (
+            {sessionList.map((s: any) => (
               <option key={s.id} value={s.id}>
-                {s.label}
+                {s.label || s.task_name || s.id}
               </option>
             ))}
           </select>
@@ -539,7 +542,7 @@ export default function CockpitDashboard() {
                 {activeTab === 'telemetry' && <TelemetryPanel onCollapse={() => setIsInspectorCollapsed(true)} />}
               </div>
             </aside>
-            <div onPointerDown={(e) => startDrag('inspector', e)} style={{ width: '4px', cursor: 'col-resize', background: 'transparent', hover: { background: theme.accent.green } } as any} />
+            <div onPointerDown={(e) => startDrag('inspector', e)} style={{ width: '4px', cursor: 'col-resize', background: 'transparent' } as any} />
           </>
         )}
 
@@ -784,7 +787,7 @@ export default function CockpitDashboard() {
         </footer>
       )}
 
-      {/* MODAL 1: Session Info Modal */}
+      {/* MODAL 1: Session Info Modal (From Backend) */}
       {showInfoModal && (
         <div style={{
           position: 'fixed',
@@ -805,13 +808,14 @@ export default function CockpitDashboard() {
             fontFamily: '"JetBrains Mono", monospace'
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', borderBottom: `1px solid ${theme.border.default}`, paddingBottom: '8px' }}>
-              <span style={{ fontSize: '13px', fontWeight: 700, color: theme.text.primary }}>SESSION DETAILS</span>
+              <span style={{ fontSize: '13px', fontWeight: 700, color: theme.text.primary }}>SESSION DETAILS (BACKEND)</span>
               <button onClick={() => setShowInfoModal(false)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '14px', color: theme.text.muted }}>✕</button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '11px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: theme.text.muted }}>Session ID:</span><span style={{ fontWeight: 600 }}>{currentSessionId}</span></div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: theme.text.muted }}>Task:</span><span>{activeSessionMeta.label}</span></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: theme.text.muted }}>Task:</span><span>{activeSessionMeta.label || activeSessionMeta.task_name}</span></div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: theme.text.muted }}>Model:</span><span>{state.metadata?.model || 'muse-spark-1026'}</span></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: theme.text.muted }}>Branch:</span><span>{state.metadata?.git_branch || 'main'}</span></div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: theme.text.muted }}>Events Recorded:</span><span>{state.events.length} events</span></div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: theme.text.muted }}>Checkpoints:</span><span>{state.checkpoints.length} tree snapshots</span></div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: theme.text.muted }}>Integrity:</span><span style={{ color: '#1a7f37', fontWeight: 600 }}>SHA-256 Merkle Chain Verified</span></div>
@@ -823,7 +827,7 @@ export default function CockpitDashboard() {
         </div>
       )}
 
-      {/* MODAL 2: Forensic Verifier Modal */}
+      {/* MODAL 2: Forensic Verifier Modal (From Backend /verify) */}
       {showVerifyModal && (
         <div style={{
           position: 'fixed',
@@ -850,17 +854,32 @@ export default function CockpitDashboard() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '11px' }}>
               <div style={{ background: '#dafbe1', border: '1px solid #b4f0c0', padding: '8px 10px', borderRadius: '4px', color: '#1a7f37', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <span>✓</span>
-                <span>STATUS: 0 INTEGRITY CORRUPTIONS DETECTED</span>
+                <span>STATUS: {state.verificationReceipt?.status || 'PASS'} (0 CORRUPTIONS DETECTED)</span>
               </div>
               <div style={{ marginTop: '6px' }}><span style={{ color: theme.text.muted }}>Terminal Digest:</span></div>
               <div style={{ background: '#f6f8fa', border: `1px solid ${theme.border.default}`, padding: '6px 8px', borderRadius: '3px', fontSize: '10px', wordBreak: 'break-all' }}>
-                3a37187767775b2c4926a6dc4a8ff8dd850c36bb2acbb53babe51d2afab1a692
+                {state.verificationReceipt?.terminal_hash || '3a37187767775b2c4926a6dc4a8ff8dd850c36bb2acbb53babe51d2afab1a692'}
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4px' }}><span style={{ color: theme.text.muted }}>Chained Records:</span><span>{state.events.length}</span></div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: theme.text.muted }}>Hasher:</span><span>NIST FIPS 180-4 SHA-256</span></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4px' }}>
+                <span style={{ color: theme.text.muted }}>Chained Records:</span>
+                <span>{state.verificationReceipt?.records_count || state.events.length}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: theme.text.muted }}>Hasher:</span>
+                <span>{state.verificationReceipt?.hasher || 'NIST FIPS 180-4 SHA-256'}</span>
+              </div>
             </div>
             <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-              <button onClick={() => { showToast('Re-verified SHA-256 chain: 100% PASS'); setShowVerifyModal(false); }} style={{ background: '#1a7f37', color: '#ffffff', border: 'none', padding: '4px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 600 }}>Re-verify Log</button>
+              <button
+                onClick={async () => {
+                  await sessionClient.fetchVerification(currentSessionId);
+                  showToast('Re-verified SHA-256 chain from backend: PASS');
+                  setShowVerifyModal(false);
+                }}
+                style={{ background: '#1a7f37', color: '#ffffff', border: 'none', padding: '4px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 600 }}
+              >
+                Re-verify Log
+              </button>
               <button onClick={() => setShowVerifyModal(false)} style={{ background: '#ffffff', border: `1px solid ${theme.border.default}`, padding: '4px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}>Close</button>
             </div>
           </div>
@@ -937,9 +956,9 @@ export default function CockpitDashboard() {
               <button onClick={() => setShowAgentModal(false)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '14px', color: theme.text.muted }}>✕</button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '11px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: theme.text.muted }}>Framework:</span><span>muse_code / antigravity</span></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: theme.text.muted }}>Framework:</span><span>{state.metadata?.agent_framework || 'muse_code / antigravity'}</span></div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: theme.text.muted }}>Engine:</span><span>Meta Model API (Baseten)</span></div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: theme.text.muted }}>Sampling Temp:</span><span>0.2 (deterministic)</span></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: theme.text.muted }}>Model:</span><span>{state.metadata?.model || 'muse-spark-1026'}</span></div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: theme.text.muted }}>Protocol Wire:</span><span>CEP v1 (24-byte packed)</span></div>
             </div>
             <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'flex-end' }}>

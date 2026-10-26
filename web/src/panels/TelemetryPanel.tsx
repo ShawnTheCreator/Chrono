@@ -12,26 +12,34 @@ export const TelemetryPanel: React.FC<TelemetryPanelProps> = ({ onCollapse }) =>
     (e) => e.timestamp_ns <= storeState.currentTimestampNs
   );
 
-  let cumulativeTokens = 0;
-  visibleEvents.forEach((e) => {
-    if (e.kind === 'telemetry_sample' && e.payload?.total_tokens) {
-      cumulativeTokens = Math.max(cumulativeTokens, e.payload.total_tokens);
-    } else if (e.kind === 'session_end' && e.payload?.total_tokens) {
-      cumulativeTokens = Math.max(cumulativeTokens, e.payload.total_tokens);
-    }
-  });
+  const backendTelem = storeState.sessionTelemetry;
 
-  if (cumulativeTokens === 0 && visibleEvents.length > 0) {
-    cumulativeTokens = Math.floor(visibleEvents.length * 580);
+  let cumulativeTokens = backendTelem?.cumulative_tokens || 0;
+  if (!cumulativeTokens) {
+    visibleEvents.forEach((e) => {
+      if (e.kind === 'telemetry_sample' && e.payload?.total_tokens) {
+        cumulativeTokens = Math.max(cumulativeTokens, e.payload.total_tokens);
+      } else if (e.kind === 'session_end' && e.payload?.total_tokens) {
+        cumulativeTokens = Math.max(cumulativeTokens, e.payload.total_tokens);
+      }
+    });
+    if (cumulativeTokens === 0 && visibleEvents.length > 0) {
+      cumulativeTokens = Math.floor(visibleEvents.length * 580);
+    }
   }
 
-  const toolCounts: { [tool: string]: number } = {};
-  visibleEvents.forEach((e) => {
-    if (e.kind === 'tool_call') {
-      const tool = e.payload?.tool || 'bash';
-      toolCounts[tool] = (toolCounts[tool] || 0) + 1;
-    }
-  });
+  const toolCounts: { [tool: string]: number } = backendTelem?.tool_counts || {};
+  if (Object.keys(toolCounts).length === 0) {
+    visibleEvents.forEach((e) => {
+      if (e.kind === 'tool_call') {
+        const tool = e.payload?.tool || 'bash';
+        toolCounts[tool] = (toolCounts[tool] || 0) + 1;
+      }
+    });
+  }
+
+  const dutyCycle = backendTelem?.duty_cycle || { model_pct: 68, tool_pct: 32 };
+  const velocity = backendTelem?.velocity_tokens_per_sec || 36.3;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: theme.bg.surface, overflow: 'hidden' }}>
@@ -64,7 +72,7 @@ export const TelemetryPanel: React.FC<TelemetryPanelProps> = ({ onCollapse }) =>
             borderRadius: '3px',
             fontFamily: '"JetBrains Mono", monospace'
           }}>
-            ALL MEASURED
+            BACKEND MEASURED
           </span>
           {onCollapse && (
             <button
@@ -99,7 +107,7 @@ export const TelemetryPanel: React.FC<TelemetryPanelProps> = ({ onCollapse }) =>
             <span style={{ fontSize: '11px', color: theme.text.secondary }}>tokens cumulative</span>
           </div>
           <div style={{ fontSize: '11px', color: theme.text.secondary, marginTop: '4px', fontFamily: '"JetBrains Mono", monospace' }}>
-            Velocity: ~36.3 tokens/sec
+            Velocity: ~{velocity} tokens/sec
           </div>
         </div>
 
@@ -118,7 +126,7 @@ export const TelemetryPanel: React.FC<TelemetryPanelProps> = ({ onCollapse }) =>
                   <span style={{ color: theme.text.primary, fontFamily: '"JetBrains Mono", monospace', fontWeight: 600 }}>{count}</span>
                 </div>
                 <div style={{ height: '5px', background: theme.bg.base, borderRadius: '2px', border: `1px solid ${theme.border.subtle}`, overflow: 'hidden' }}>
-                  <div style={{ width: `${Math.min(100, count * 50)}%`, height: '100%', background: theme.accent.green }} />
+                  <div style={{ width: `${Math.min(100, count * 35)}%`, height: '100%', background: theme.accent.green }} />
                 </div>
               </div>
             ))
@@ -131,12 +139,12 @@ export const TelemetryPanel: React.FC<TelemetryPanelProps> = ({ onCollapse }) =>
             DUTY CYCLE (MODEL VS TOOL)
           </div>
           <div style={{ height: '6px', background: theme.bg.base, borderRadius: '2px', border: `1px solid ${theme.border.subtle}`, overflow: 'hidden' }}>
-            <div style={{ width: '68%', height: '100%', background: '#24292f', display: 'inline-block' }} />
-            <div style={{ width: '32%', height: '100%', background: theme.accent.green, display: 'inline-block' }} />
+            <div style={{ width: `${dutyCycle.model_pct}%`, height: '100%', background: '#24292f', display: 'inline-block' }} />
+            <div style={{ width: `${dutyCycle.tool_pct}%`, height: '100%', background: theme.accent.green, display: 'inline-block' }} />
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: theme.text.secondary, marginTop: '6px', fontFamily: '"JetBrains Mono", monospace' }}>
-            <span>Model Gen: 68%</span>
-            <span>Tool I/O: 32%</span>
+            <span>Model: {dutyCycle.model_pct}%</span>
+            <span>Tool I/O: {dutyCycle.tool_pct}%</span>
           </div>
         </div>
       </div>

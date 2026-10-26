@@ -17,6 +17,11 @@ export interface TimelineSnapshot {
   isNarrating: boolean;
   activeIntervention: string | null;
   selectedFile: string;
+  availableSessions: any[];
+  sessionTree: any[];
+  sessionTelemetry: any;
+  verificationReceipt: any;
+  activeFileDiff: any;
   version: number;
 }
 
@@ -110,7 +115,7 @@ const DEFAULT_EVENTS: CEPEvent[] = [
 ];
 
 export class TimelineState {
-  currentTimestampNs: number = 320000000000; // Parked at derail checkpoint #4 by default
+  currentTimestampNs: number = 320000000000;
   minTimestampNs: number = 0;
   maxTimestampNs: number = 400000000000;
   isPlaying: boolean = false;
@@ -132,6 +137,17 @@ export class TimelineState {
   isNarrating: boolean = false;
   activeIntervention: string | null = 'INTERVENTION: Inspect threshold_cycles_ parameter in StallDetector constructor instead of re-applying identical diff.';
   selectedFile: string = 'core/src/stall_detector.cpp';
+
+  // Backend hydrated properties
+  availableSessions: any[] = [
+    { id: 'chrono-feature-attempt-1', label: 'Loop Recovery Demo', shortName: 'Loop Recovery', description: 'Automated stall detection & intervention' },
+    { id: 'live-agent-run', label: 'Live Agent Run', shortName: 'Live Agent', description: 'Real recorded session with 832 verified blocks' },
+    { id: 'openrepo-maintenance-run', label: 'Scale Benchmark', shortName: 'Scale Benchmark', description: 'Multi-file connection pool benchmark' }
+  ];
+  sessionTree: any[] = [];
+  sessionTelemetry: any = null;
+  verificationReceipt: any = null;
+  activeFileDiff: any = null;
 
   private listeners: Set<() => void> = new Set();
   private version: number = 0;
@@ -159,6 +175,11 @@ export class TimelineState {
       isNarrating: this.isNarrating,
       activeIntervention: this.activeIntervention,
       selectedFile: this.selectedFile,
+      availableSessions: this.availableSessions,
+      sessionTree: this.sessionTree,
+      sessionTelemetry: this.sessionTelemetry,
+      verificationReceipt: this.verificationReceipt,
+      activeFileDiff: this.activeFileDiff,
       version: this.version
     };
   }
@@ -178,15 +199,36 @@ export class TimelineState {
     this.listeners.forEach((listener) => listener());
   }
 
+  setAvailableSessions(sessions: any[]) {
+    this.availableSessions = sessions;
+    this.notify();
+  }
+
+  setSessionTelemetry(telemetry: any) {
+    this.sessionTelemetry = telemetry;
+    this.notify();
+  }
+
+  setVerificationReceipt(receipt: any) {
+    this.verificationReceipt = receipt;
+    this.notify();
+  }
+
+  setActiveFileDiff(diffData: any) {
+    this.activeFileDiff = diffData;
+    this.notify();
+  }
+
   selectFile(path: string) {
     this.selectedFile = path;
     this.notify();
   }
 
-  setSession(metadata: SessionMetadata, events: CEPEvent[], checkpoints: Checkpoint[]) {
+  setBackendSession(metadata: SessionMetadata, events: CEPEvent[], checkpoints: Checkpoint[], tree: any[]) {
     this.metadata = metadata;
     this.events = events;
     this.checkpoints = checkpoints;
+    this.sessionTree = tree;
 
     if (events.length > 0) {
       this.minTimestampNs = events[0].timestamp_ns;
@@ -198,10 +240,8 @@ export class TimelineState {
       let targetTs = this.minTimestampNs;
       if (metadata.session_id === 'chrono-feature-attempt-1') {
         targetTs = 320000000000;
-      } else if (checkpoints.length >= 4) {
-        targetTs = checkpoints[checkpoints.length - 1].timestamp_ns;
       } else if (checkpoints.length > 0) {
-        targetTs = checkpoints[0].timestamp_ns;
+        targetTs = checkpoints[checkpoints.length - 1].timestamp_ns;
       }
 
       this.seekToTimestamp(targetTs);
@@ -323,8 +363,8 @@ export class TimelineState {
         { seq_id: 1, timestamp_ns: 0, kind: 'session_start', flags: 0, payload: { task: 'Scale Benchmark Run: 1,000,000 queries test' } },
         { seq_id: 2, timestamp_ns: 15000000000, kind: 'tool_call', flags: 0, payload: { tool: 'bash', cmd: './chronod --bench-scale' } },
         { seq_id: 3, timestamp_ns: 20000000000, kind: 'tool_result', flags: 0, payload: { exit_code: 0, output: '1,000,000 events processed in 998ms (1,002,004 eps)' } },
-        { seq_id: 4, timestamp_ns: 120000000000, kind: 'checkpoint', flags: 1, payload: benchCps[0] },
-        { seq_id: 5, timestamp_ns: 280000000000, kind: 'checkpoint', flags: 1, payload: benchCps[1] },
+        { seq_id: 4, timestamp_ns: 12000000000, kind: 'checkpoint', flags: 1, payload: benchCps[0] },
+        { seq_id: 5, timestamp_ns: 28000000000, kind: 'checkpoint', flags: 1, payload: benchCps[1] },
         { seq_id: 6, timestamp_ns: 320000000000, kind: 'session_end', flags: 0, payload: { status: 'completed', total_tokens: 72100 } }
       ];
 
@@ -342,7 +382,6 @@ export class TimelineState {
       this.selectedFile = 'core/include/chrono/ingest.h';
       this.seekToTimestamp(280000000000);
     } else {
-      // Loop recovery demo
       this.metadata = DEFAULT_METADATA;
       this.events = DEFAULT_EVENTS;
       this.checkpoints = DEFAULT_CHECKPOINTS;

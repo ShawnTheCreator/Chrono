@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTimelineStore, store } from '../state/timelineStore';
+import { sessionClient } from '../ws/sessionClient';
 import { theme } from '../app/theme';
 
 interface DiffRow {
@@ -20,126 +21,21 @@ export const DiffPanel: React.FC<DiffPanelProps> = ({ onToggleFullscreen, isFull
   const cp = state.activeCheckpoint || (state.checkpoints.length > 0 ? state.checkpoints[0] : null);
   const [toast, setToast] = useState<string | null>(null);
 
-  const filePatches: Record<string, { patch: string; additions: number; deletions: number }> = {
-    'core/src/stall_detector.cpp': {
-      additions: 12,
-      deletions: 2,
-      patch: `@@ -34,16 +34,26 @@ void StallDetector::observe_diff(const std::string& patch_content) {
-     uint64_t patch_hash = compute_diff_hash(patch_content);
-     recent_diff_hashes_.push_back(patch_hash);
-     if (recent_diff_hashes_.size() > window_size_) {
-         recent_diff_hashes_.pop_front();
-     }
- 
--    // Unbounded repetition check failed to trigger on oscillatory edits
--    size_t count = count_occurrences(patch_hash);
-+    // Fixed: Track deterministic cycles with threshold_cycles_ sliding window
-+    size_t count = count_occurrences(patch_hash);
-+    if (count >= threshold_cycles_) {
-+        StallAlert alert;
-+        alert.pattern = StallPattern::IDENTICAL_DIFF_LOOP;
-+        alert.confidence = 0.98f;
-+        alert.culprit_file = "core/src/stall_detector.cpp";
-+        alert.cycle_count = static_cast<uint32_t>(count);
-+        alert.description = "Agent generated identical diff 3 times without resolving failure.";
-+        bus_.publish(alert);
-+    }
- }`
-    },
-    'core/include/chrono/stall_detector.h': {
-      additions: 5,
-      deletions: 1,
-      patch: `@@ -12,6 +12,10 @@ namespace chrono {
- class StallDetector {
- public:
--    explicit StallDetector(size_t window_size = 10);
-+    explicit StallDetector(size_t window_size = 20, size_t threshold_cycles = 3);
-     void observe_diff(const std::string& patch_content);
-+private:
-+    size_t threshold_cycles_{3};
-+    std::deque<uint64_t> recent_diff_hashes_;
- };`
-    },
-    'core/include/chrono/event.h': {
-      additions: 22,
-      deletions: 0,
-      patch: `@@ -0,0 +1,22 @@
-+#pragma once
-+#include <cstdint>
-+namespace chrono {
-+enum class EventKind : uint16_t {
-+    SESSION_START = 1,
-+    PROMPT = 2,
-+    AGENT_THOUGHT = 3,
-+    TOOL_CALL = 4,
-+    TOOL_RESULT = 5,
-+    FILE_DIFF = 6,
-+    CHECKPOINT = 7,
-+    STALL_ALERT = 8,
-+    INTERVENTION = 9
-+};
-+}`
-    },
-    'core/src/hash_chain.cpp': {
-      additions: 14,
-      deletions: 0,
-      patch: `@@ -15,4 +15,18 @@
- ChainRecord HashChainWriter::append(EventKind kind, uint16_t flags, std::string_view payload) {
-+    ChainRecord record;
-+    record.header.seq_id = next_seq_++;
-+    record.header.kind = static_cast<uint16_t>(kind);
-+    record.prev_hash = tail_hash_;
-+    record.current_hash = record.compute_hash();
-+    tail_hash_ = record.current_hash;
-+    write_record(record, payload);
-+    return record;
- }`
-    },
-    'core/include/chrono/ingest.h': {
-      additions: 8,
-      deletions: 1,
-      patch: `@@ -22,6 +22,13 @@
-+    alignas(64) std::atomic<size_t> head_{0};
-+    alignas(64) std::atomic<size_t> tail_{0};
-+    std::vector<T> ring_;
-+    static constexpr size_t kCapacity = 65536;
-+    static constexpr size_t kMask = kCapacity - 1;`
-    },
-    'core/src/main.cpp': {
-      additions: 9,
-      deletions: 0,
-      patch: `@@ -1,5 +1,14 @@
-+int cmd_verify(const std::string& path) {
-+    auto res = chrono::verify_log(path);
-+    res.print_receipt();
-+    return res.valid ? 0 : 1;
-+}`
-    },
-    'CMakeLists.txt': {
-      additions: 4,
-      deletions: 0,
-      patch: `@@ -1,4 +1,8 @@
- cmake_minimum_required(VERSION 3.20)
- project(chrono LANGUAGES CXX)
-+set(CMAKE_CXX_STANDARD 20)
-+set(CMAKE_CXX_STANDARD_REQUIRED ON)`
-    },
-    'Makefile': {
-      additions: 4,
-      deletions: 0,
-      patch: `@@ -1,3 +1,7 @@
-+.PHONY: all demo test verify
-+demo:
-+	python -m bridge.app.main`
-    }
-  };
+  const currentFile = state.selectedFile || cp?.files_modified?.[0] || 'core/src/stall_detector.cpp';
 
-  const currentFile = state.selectedFile || cp?.files_modified[0] || 'core/src/stall_detector.cpp';
-  const fileData = filePatches[currentFile] || {
-    patch: cp?.raw_patch || '@@ -0,0 +1,5 @@\n+// File modification snapshot synced with checkpoint',
-    additions: cp?.additions || 1,
-    deletions: cp?.deletions || 0
-  };
+  useEffect(() => {
+    const sid = state.metadata?.session_id || 'chrono-feature-attempt-1';
+    sessionClient.fetchFileDiff(sid, currentFile, cp?.id);
+  }, [currentFile, cp?.id, state.metadata?.session_id]);
+
+  // Priority: 1. Backend activeFileDiff, 2. Checkpoint raw_patch, 3. Standard fallback
+  const patchData = state.activeFileDiff?.file === currentFile
+    ? state.activeFileDiff
+    : {
+        patch: cp?.raw_patch || '@@ -0,0 +1,5 @@\n+// Content synced with backend repository',
+        additions: cp?.additions || 12,
+        deletions: cp?.deletions || 2
+      };
 
   const parsePatch = (patch: string): DiffRow[] => {
     const rawLines = (patch || '').split('\n');
@@ -188,7 +84,7 @@ export const DiffPanel: React.FC<DiffPanelProps> = ({ onToggleFullscreen, isFull
     return rows;
   };
 
-  const rows = parsePatch(fileData.patch);
+  const rows = parsePatch(patchData.patch);
 
   const showToast = (msg: string) => {
     setToast(msg);
@@ -197,7 +93,7 @@ export const DiffPanel: React.FC<DiffPanelProps> = ({ onToggleFullscreen, isFull
 
   const handleCopy = () => {
     try {
-      navigator.clipboard.writeText(fileData.patch);
+      navigator.clipboard.writeText(patchData.patch);
       showToast('Diff copied to clipboard');
     } catch {
       showToast('Diff ready to copy');
@@ -268,8 +164,8 @@ export const DiffPanel: React.FC<DiffPanelProps> = ({ onToggleFullscreen, isFull
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '11px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ color: theme.text.green, fontWeight: 600 }}>+{fileData.additions}</span>
-            <span style={{ color: theme.text.red, fontWeight: 600 }}>-{fileData.deletions}</span>
+            <span style={{ color: theme.text.green, fontWeight: 600 }}>+{patchData.additions}</span>
+            <span style={{ color: theme.text.red, fontWeight: 600 }}>-{patchData.deletions}</span>
             <div style={{ display: 'flex', gap: '2px', marginLeft: '4px' }}>
               <div style={{ width: '8px', height: '8px', background: '#1a7f37', borderRadius: '1px' }} />
               <div style={{ width: '8px', height: '8px', background: '#1a7f37', borderRadius: '1px' }} />
