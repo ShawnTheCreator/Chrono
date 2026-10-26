@@ -1,7 +1,14 @@
 import React from 'react';
 import { useTimelineStore, store } from '../state/timelineStore';
 import { theme } from '../app/theme';
-import { ZapIcon } from '../components/icons';
+
+interface DiffRow {
+  oldLine: number | null;
+  newLine: number | null;
+  type: 'add' | 'del' | 'context' | 'hunk';
+  marker: string;
+  code: string;
+}
 
 export const DiffPanel: React.FC = () => {
   const state = useTimelineStore();
@@ -9,154 +16,257 @@ export const DiffPanel: React.FC = () => {
 
   if (!cp) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: theme.bg.surface, justifyContent: 'center', alignItems: 'center', padding: '24px', color: theme.text.muted, fontSize: '13px' }}>
-        <span>No checkpoint selected. Scrub timeline to view code mutations.</span>
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#ffffff', justifyContent: 'center', alignItems: 'center', padding: '24px', color: theme.text.muted, fontSize: '13px', fontFamily: '"JetBrains Mono", monospace' }}>
+        <span>NO CHECKPOINT SELECTED</span>
       </div>
     );
   }
 
-  const patchLines = (cp.raw_patch || '').split('\n');
+  // Parse raw_patch into GitHub-style diff rows
+  const parsePatch = (patch: string): DiffRow[] => {
+    const rawLines = (patch || '').split('\n');
+    const rows: DiffRow[] = [];
+    let oldNum = 34;
+    let newNum = 34;
+
+    for (const line of rawLines) {
+      if (line.startsWith('---') || line.startsWith('+++') || line.startsWith('diff')) {
+        continue;
+      }
+      if (line.startsWith('@@')) {
+        rows.push({
+          oldLine: null,
+          newLine: null,
+          type: 'hunk',
+          marker: '@@',
+          code: line
+        });
+      } else if (line.startsWith('+')) {
+        rows.push({
+          oldLine: null,
+          newLine: newNum++,
+          type: 'add',
+          marker: '+',
+          code: line.slice(1)
+        });
+      } else if (line.startsWith('-')) {
+        rows.push({
+          oldLine: oldNum++,
+          newLine: null,
+          type: 'del',
+          marker: '-',
+          code: line.slice(1)
+        });
+      } else {
+        rows.push({
+          oldLine: oldNum++,
+          newLine: newNum++,
+          type: 'context',
+          marker: ' ',
+          code: line.startsWith(' ') ? line.slice(1) : line
+        });
+      }
+    }
+    return rows;
+  };
+
+  const rows = parsePatch(cp.raw_patch || '');
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: theme.bg.surface, overflow: 'hidden', position: 'relative' }}>
-      {/* Panel Header */}
-      <div style={{ padding: '10px 16px', borderBottom: `1px solid ${theme.border.subtle}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <span style={{ fontSize: '11px', fontWeight: 700, color: theme.accent.blue, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-            DIFF VIEWER
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#ffffff', overflow: 'hidden', position: 'relative' }}>
+      {/* GitHub-style File Header Bar */}
+      <div style={{
+        padding: '8px 16px',
+        borderBottom: `1px solid ${theme.border.default}`,
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        background: theme.bg.chrome,
+        fontFamily: '"JetBrains Mono", monospace'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <span style={{ fontSize: '11px', fontWeight: 600, color: theme.text.muted, letterSpacing: '0.08em' }}>
+            DIFF
           </span>
-          <span style={{ fontSize: '11px', color: theme.accent.blue, fontWeight: 600, background: '#eff6ff', padding: '2px 8px', borderRadius: '4px', border: `1px solid ${theme.border.active}` }}>
+          <span style={{ fontSize: '12px', color: theme.text.primary, fontWeight: 600 }}>
+            {cp.files_modified[0] || 'core/src/stall_detector.cpp'}
+          </span>
+          <span style={{ fontSize: '11px', color: theme.text.secondary }}>
             {cp.id}
           </span>
-          <span style={{ fontSize: '12px', color: theme.text.primary, fontWeight: 500 }}>
-            {cp.summary}
-          </span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '11px', fontFamily: '"JetBrains Mono", monospace' }}>
-          <span style={{ color: theme.text.secondary }}>git:{cp.git_tree_hash.slice(0, 8)}</span>
-          <span style={{ color: '#16a34a', fontWeight: 600, background: '#f0fdf4', padding: '2px 6px', borderRadius: '3px', border: '1px solid #bbf7d0' }}>+{cp.additions}</span>
-          <span style={{ color: '#dc2626', fontWeight: 600, background: '#fef2f2', padding: '2px 6px', borderRadius: '3px', border: '1px solid #fecaca' }}>-{cp.deletions}</span>
-        </div>
-      </div>
 
-      {/* Files List Strip */}
-      <div style={{ padding: '7px 16px', background: '#ffffff', borderBottom: `1px solid ${theme.border.subtle}`, display: 'flex', gap: '8px', overflowX: 'auto', alignItems: 'center' }}>
-        <span style={{ fontSize: '10px', color: theme.text.muted, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>MUTATIONS:</span>
-        {(cp.files_modified || []).map((file, i) => (
-          <span key={i} style={{ fontSize: '11px', color: theme.accent.blue, background: '#eff6ff', border: `1px solid ${theme.border.active}`, padding: '2px 8px', borderRadius: '4px', fontWeight: 500, whiteSpace: 'nowrap' }}>
-            {file}
-          </span>
-        ))}
-      </div>
-
-      {/* Diff Code Container */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '12px 16px 90px 16px', fontFamily: '"JetBrains Mono", monospace', fontSize: '12px', lineHeight: '1.6', background: '#ffffff' }}>
-        {patchLines.map((line, idx) => {
-          let lineBg = 'transparent';
-          let lineFg = '#334155';
-          let borderLeft = '3px solid transparent';
-
-          if (line.startsWith('+') && !line.startsWith('+++')) {
-            lineBg = '#f0fdf4';
-            lineFg = '#15803d';
-            borderLeft = '3px solid #22c55e';
-          } else if (line.startsWith('-') && !line.startsWith('---')) {
-            lineBg = '#fef2f2';
-            lineFg = '#b91c1c';
-            borderLeft = '3px solid #ef4444';
-          } else if (line.startsWith('@@')) {
-            lineBg = '#f0f9ff';
-            lineFg = '#0284c7';
-            borderLeft = '3px solid #38bdf8';
-          } else if (line.startsWith('---') || line.startsWith('+++') || line.startsWith('diff')) {
-            lineFg = theme.text.muted;
-          }
-
-          return (
-            <div
-              key={idx}
-              style={{
-                background: lineBg,
-                color: lineFg,
-                padding: '1px 8px',
-                borderLeft,
-                marginBottom: '1px',
-                borderRadius: '1px',
-                whiteSpace: 'pre-wrap',
-                wordBreak: 'break-all'
-              }}
-            >
-              {line || ' '}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '11px' }}>
+          <span style={{ color: theme.text.muted }}>git:{cp.git_tree_hash.slice(0, 8)}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ color: theme.text.green, fontWeight: 600 }}>+{cp.additions}</span>
+            <span style={{ color: theme.text.red, fontWeight: 600 }}>-{cp.deletions}</span>
+            {/* GitHub diff stat squares (4 green, 1 red) */}
+            <div style={{ display: 'flex', gap: '2px', marginLeft: '4px' }}>
+              <div style={{ width: '8px', height: '8px', background: '#1a7f37', borderRadius: '1px' }} />
+              <div style={{ width: '8px', height: '8px', background: '#1a7f37', borderRadius: '1px' }} />
+              <div style={{ width: '8px', height: '8px', background: '#1a7f37', borderRadius: '1px' }} />
+              <div style={{ width: '8px', height: '8px', background: '#1a7f37', borderRadius: '1px' }} />
+              <div style={{ width: '8px', height: '8px', background: '#cf222e', borderRadius: '1px' }} />
             </div>
-          );
-        })}
+          </div>
+        </div>
       </div>
 
-      {/* Floating Intervention Action Bar */}
+      {/* GitHub-grade Diff Table */}
+      <div style={{ flex: 1, overflowY: 'auto', paddingBottom: '90px', background: '#ffffff', fontFamily: '"JetBrains Mono", monospace', fontSize: '12px', lineHeight: '20px' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', borderSpacing: 0, tableLayout: 'fixed' }}>
+          <colgroup>
+            <col style={{ width: '42px' }} />
+            <col style={{ width: '42px' }} />
+            <col style={{ width: '22px' }} />
+            <col style={{ width: 'auto' }} />
+          </colgroup>
+          <tbody>
+            {rows.map((row, idx) => {
+              if (row.type === 'hunk') {
+                return (
+                  <tr key={idx} style={{ background: '#f6f8fa', color: '#656d76', borderTop: `1px solid ${theme.border.default}`, borderBottom: `1px solid ${theme.border.default}` }}>
+                    <td colSpan={2} style={{ textAlign: 'center', padding: '2px 0', fontSize: '11px', userSelect: 'none', color: '#8c959f' }}>...</td>
+                    <td style={{ textAlign: 'center', padding: '2px 0' }}></td>
+                    <td style={{ padding: '2px 8px', fontSize: '12px', color: '#59636e' }}>{row.code}</td>
+                  </tr>
+                );
+              }
+
+              const isAdd = row.type === 'add';
+              const isDel = row.type === 'del';
+
+              const numBg = isAdd ? '#ccffd8' : (isDel ? '#ffd7d5' : '#ffffff');
+              const numColor = isAdd ? '#1a7f37' : (isDel ? '#cf222e' : '#656d76');
+              const codeBg = isAdd ? '#e6ffec' : (isDel ? '#ffebe9' : '#ffffff');
+              const codeColor = '#1f2328';
+              const markerColor = isAdd ? '#1a7f37' : (isDel ? '#cf222e' : '#656d76');
+
+              return (
+                <tr key={idx} style={{ background: codeBg }}>
+                  {/* Old Line # */}
+                  <td style={{
+                    background: numBg,
+                    color: numColor,
+                    textAlign: 'right',
+                    padding: '0 8px',
+                    fontSize: '11px',
+                    userSelect: 'none',
+                    verticalAlign: 'top',
+                    borderRight: `1px solid ${theme.border.subtle}`
+                  }}>
+                    {row.oldLine !== null ? row.oldLine : ''}
+                  </td>
+
+                  {/* New Line # */}
+                  <td style={{
+                    background: numBg,
+                    color: numColor,
+                    textAlign: 'right',
+                    padding: '0 8px',
+                    fontSize: '11px',
+                    userSelect: 'none',
+                    verticalAlign: 'top',
+                    borderRight: `1px solid ${theme.border.subtle}`
+                  }}>
+                    {row.newLine !== null ? row.newLine : ''}
+                  </td>
+
+                  {/* Gutter Marker (+ / -) */}
+                  <td style={{
+                    background: codeBg,
+                    color: markerColor,
+                    textAlign: 'center',
+                    padding: '0',
+                    fontWeight: 600,
+                    userSelect: 'none',
+                    verticalAlign: 'top'
+                  }}>
+                    {row.marker}
+                  </td>
+
+                  {/* Code Content */}
+                  <td style={{
+                    background: codeBg,
+                    color: codeColor,
+                    padding: '0 8px',
+                    whiteSpace: 'pre',
+                    wordBreak: 'normal',
+                    overflowWrap: 'normal'
+                  }}>
+                    {row.code || ' '}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Floating Intervention Box (Flat, 1px border, mono label, no filled blue SaaS button) */}
       <div style={{
         position: 'absolute',
         bottom: '12px',
         left: '16px',
         right: '16px',
         background: '#ffffff',
-        border: `1px solid ${theme.border.subtle}`,
-        borderRadius: '10px',
-        boxShadow: '0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 4px 6px -2px rgba(15, 23, 42, 0.04)',
+        border: `1px solid ${theme.border.default}`,
+        borderRadius: '6px',
+        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.08)',
         padding: '10px 14px',
         display: 'flex',
         flexDirection: 'column',
-        gap: '8px'
+        gap: '8px',
+        fontFamily: '"JetBrains Mono", monospace'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: '#eff6ff', padding: '2px 8px', borderRadius: '4px', border: '1px solid #bfdbfe' }}>
-            <ZapIcon size={11} color="#2563eb" />
-            <span style={{ fontSize: '10px', fontWeight: 700, color: '#1d4ed8', textTransform: 'uppercase' }}>
-              Intervention
-            </span>
-          </div>
+          <span style={{ fontSize: '10px', fontWeight: 600, color: theme.text.red, background: '#ffebe9', border: '1px solid #ffd0cc', padding: '1px 6px', borderRadius: '3px', letterSpacing: '0.04em' }}>
+            INTERVENTION
+          </span>
           <span style={{ fontSize: '12px', color: theme.text.primary, fontWeight: 500, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {state.activeIntervention || 'Inject course-correction directive to break detected cycle...'}
+            {state.activeIntervention || 'Inspect constructor parameter threshold_cycles_ instead.'}
           </span>
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: `1px solid ${theme.border.hairline}`, paddingTop: '6px' }}>
-          <div style={{ display: 'flex', gap: '10px', fontSize: '11px', color: theme.text.muted }}>
-            <span>@agent</span>
-            <span>#stall-detector</span>
-            <span>3 cycles detected</span>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: `1px solid ${theme.border.subtle}`, paddingTop: '6px' }}>
+          <div style={{ display: 'flex', gap: '12px', fontSize: '11px', color: theme.text.muted }}>
+            <span>target: core/src/stall_detector.cpp</span>
+            <span>trigger: identical_diff_loop (3 cycles)</span>
           </div>
+
           <div style={{ display: 'flex', gap: '8px' }}>
             <button
               onClick={() => store.setIntervention(null)}
               style={{
-                background: '#f8fafc',
-                border: `1px solid ${theme.border.subtle}`,
+                background: '#ffffff',
+                border: `1px solid ${theme.border.default}`,
                 color: theme.text.secondary,
                 fontSize: '11px',
-                fontWeight: 600,
-                padding: '4px 10px',
-                borderRadius: '5px',
-                cursor: 'pointer'
+                fontWeight: 500,
+                padding: '3px 10px',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontFamily: '"JetBrains Mono", monospace'
               }}
             >
-              Discard
+              discard
             </button>
             <button
-              onClick={() => {
-                store.hydrateNarrationForCheckpoint(cp);
-              }}
+              onClick={() => store.hydrateNarrationForCheckpoint(cp)}
               style={{
-                background: theme.accent.blue,
-                border: 'none',
-                color: '#ffffff',
+                background: '#ffffff',
+                border: `1px solid ${theme.border.default}`,
+                color: theme.text.primary,
                 fontSize: '11px',
                 fontWeight: 600,
-                padding: '4px 14px',
-                borderRadius: '5px',
+                padding: '3px 12px',
+                borderRadius: '4px',
                 cursor: 'pointer',
-                boxShadow: '0 1px 2px 0 rgba(37, 99, 235, 0.2)'
+                fontFamily: '"JetBrains Mono", monospace'
               }}
             >
-              Apply Directive
+              apply_directive
             </button>
           </div>
         </div>

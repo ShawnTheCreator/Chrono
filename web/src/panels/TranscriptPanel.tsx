@@ -22,66 +22,68 @@ export const TranscriptPanel: React.FC = () => {
 
   const renderEventItem = (ev: any, idx: number) => {
     const isCurrent = activeEvent?.seq_id === ev.seq_id;
-    let badgeColor = theme.accent.blue;
-    let badgeBg = '#eff6ff';
-    let borderColor = theme.border.subtle;
+    let badgeColor = theme.text.primary;
+    let badgeBg = theme.bg.base;
+    let borderColor = theme.border.default;
+    let cardBg = '#ffffff';
     let title: React.ReactNode = ev.kind;
     let content = '';
 
     if (ev.kind === 'agent_thought') {
-      badgeColor = '#4f46e5';
-      badgeBg = '#eef2ff';
+      badgeColor = theme.text.secondary;
+      badgeBg = theme.bg.base;
       title = 'AGENT REASONING';
       content = ev.payload?.thought || (typeof ev.payload === 'string' ? ev.payload : JSON.stringify(ev.payload));
     } else if (ev.kind === 'tool_call') {
-      badgeColor = '#0369a1';
-      badgeBg = '#f0f9ff';
+      badgeColor = theme.text.primary;
+      badgeBg = theme.bg.base;
       title = `TOOL: ${ev.payload?.tool || 'bash'}`;
       content = ev.payload?.cmd || (ev.payload?.arguments ? JSON.stringify(ev.payload.arguments) : JSON.stringify(ev.payload));
     } else if (ev.kind === 'tool_result') {
       const exitCode = ev.payload?.exit_code ?? 0;
-      badgeColor = exitCode === 0 ? '#15803d' : '#b91c1c';
-      badgeBg = exitCode === 0 ? '#f0fdf4' : '#fef2f2';
-      borderColor = exitCode === 0 ? '#bbf7d0' : '#fecaca';
+      badgeColor = exitCode === 0 ? theme.accent.green : theme.accent.red;
+      badgeBg = exitCode === 0 ? theme.bg.diffAdd : theme.bg.diffDel;
+      borderColor = exitCode === 0 ? theme.border.diffAdd : theme.border.diffDel;
       title = `OUTPUT (exit ${exitCode})`;
       content = ev.payload?.output || (typeof ev.payload === 'string' ? ev.payload : JSON.stringify(ev.payload));
     } else if (ev.kind === 'stall_alert') {
-      badgeColor = '#b91c1c';
-      badgeBg = '#fef2f2';
-      borderColor = '#fca5a5';
+      badgeColor = theme.accent.red;
+      badgeBg = theme.bg.diffDel;
+      borderColor = theme.border.diffDel;
+      cardBg = '#fffcfc';
       title = (
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-          <AlertTriangleIcon size={12} color="#b91c1c" />
-          <span>STALL ALERT: {ev.payload?.pattern || 'LOOP_DETECTED'}</span>
+          <AlertTriangleIcon size={12} color={theme.accent.red} />
+          <span>STALL: {ev.payload?.pattern || 'LOOP_DETECTED'}</span>
         </span>
       );
-      content = ev.payload?.description || 'Agent generated identical diff 3 times without resolving failure.';
+      content = ev.payload?.description || 'Agent generated identical diff 3 times without resolving test failure.';
     } else if (ev.kind === 'intervention') {
-      badgeColor = '#1d4ed8';
-      badgeBg = '#eff6ff';
-      borderColor = '#93c5fd';
+      badgeColor = theme.accent.green;
+      badgeBg = theme.bg.diffAdd;
+      borderColor = theme.border.diffAdd;
       title = (
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-          <ZapIcon size={12} color="#1d4ed8" />
-          <span>COURSE CORRECTION</span>
+          <ZapIcon size={12} color={theme.accent.green} />
+          <span>DIRECTIVE APPLIED</span>
         </span>
       );
       content = ev.payload?.directive || (typeof ev.payload === 'string' ? ev.payload : JSON.stringify(ev.payload));
     } else if (ev.kind === 'checkpoint') {
-      badgeColor = '#2563eb';
-      badgeBg = '#eff6ff';
-      borderColor = '#bfdbfe';
+      badgeColor = theme.text.primary;
+      badgeBg = theme.bg.base;
+      borderColor = theme.border.default;
       title = (
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-          <GitCommitIcon size={12} color="#2563eb" />
+          <GitCommitIcon size={12} color={theme.accent.green} />
           <span>CHECKPOINT: {ev.payload?.id || 'chk'}</span>
         </span>
       );
       content = ev.payload?.summary || 'Committed content-addressed tree snapshot.';
     } else if (ev.kind === 'prompt') {
-      badgeColor = '#2563eb';
-      badgeBg = '#eff6ff';
-      title = 'USER GOAL';
+      badgeColor = theme.text.primary;
+      badgeBg = theme.bg.base;
+      title = 'GOAL SPECIFICATION';
       content = ev.payload?.text || (typeof ev.payload === 'string' ? ev.payload : JSON.stringify(ev.payload));
     } else {
       content = typeof ev.payload === 'string' ? ev.payload : JSON.stringify(ev.payload);
@@ -93,19 +95,35 @@ export const TranscriptPanel: React.FC = () => {
         style={{
           marginBottom: '8px',
           padding: '8px 12px',
-          borderRadius: '6px',
-          background: isCurrent ? '#f8fafc' : '#ffffff',
-          border: isCurrent ? `1px solid ${theme.accent.blue}` : `1px solid ${borderColor}`,
-          boxShadow: isCurrent ? '0 1px 3px rgba(37, 99, 235, 0.12)' : '0 1px 2px rgba(0,0,0,0.02)'
+          borderRadius: '4px',
+          background: isCurrent ? '#f6f8fa' : cardBg,
+          border: `1px solid ${isCurrent ? theme.accent.green : borderColor}`,
+          borderLeft: isCurrent ? `3px solid ${theme.accent.green}` : `1px solid ${borderColor}`,
+          boxShadow: '0 1px 2px rgba(27,31,36,0.04)'
         }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '10px' }}>
-          <span style={{ color: badgeColor, background: badgeBg, padding: '1px 6px', borderRadius: '3px', fontWeight: 700 }}>
+          <span style={{
+            color: badgeColor,
+            background: badgeBg,
+            border: `1px solid ${borderColor}`,
+            padding: '1px 6px',
+            borderRadius: '3px',
+            fontFamily: '"JetBrains Mono", monospace',
+            fontWeight: 600
+          }}>
             {title}
           </span>
-          <span style={{ color: theme.text.muted, fontFamily: 'monospace' }}>#{ev.seq_id}</span>
+          <span style={{ color: theme.text.muted, fontFamily: '"JetBrains Mono", monospace' }}>#{ev.seq_id}</span>
         </div>
-        <div style={{ fontSize: '11px', color: theme.text.primary, whiteSpace: 'pre-wrap', wordBreak: 'break-word', fontFamily: '"JetBrains Mono", monospace', lineHeight: '1.45' }}>
+        <div style={{
+          fontSize: '11px',
+          color: theme.text.primary,
+          whiteSpace: 'pre-wrap',
+          wordBreak: 'break-word',
+          fontFamily: '"JetBrains Mono", monospace',
+          lineHeight: '1.45'
+        }}>
           {content}
         </div>
       </div>
@@ -113,18 +131,41 @@ export const TranscriptPanel: React.FC = () => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#ffffff', overflow: 'hidden' }}>
-      <div style={{ padding: '10px 16px', borderBottom: `1px solid ${theme.border.subtle}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc' }}>
-        <span style={{ fontSize: '11px', fontWeight: 700, color: theme.accent.blue, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: theme.bg.surface, overflow: 'hidden' }}>
+      <div style={{
+        padding: '8px 16px',
+        borderBottom: `1px solid ${theme.border.default}`,
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        background: theme.bg.chrome
+      }}>
+        <span style={{
+          fontSize: '11px',
+          fontWeight: 600,
+          color: theme.text.muted,
+          textTransform: 'uppercase',
+          letterSpacing: '0.08em',
+          fontFamily: '"JetBrains Mono", monospace'
+        }}>
           REASONING TRANSCRIPT
         </span>
-        <span style={{ fontSize: '11px', color: theme.accent.blue, background: '#eff6ff', border: `1px solid ${theme.border.active}`, padding: '1px 6px', borderRadius: '4px', fontWeight: 600 }}>
+        <span style={{
+          fontSize: '11px',
+          color: theme.text.primary,
+          background: theme.bg.surface,
+          border: `1px solid ${theme.border.default}`,
+          padding: '1px 7px',
+          borderRadius: '4px',
+          fontFamily: '"JetBrains Mono", monospace',
+          fontWeight: 500
+        }}>
           {visibleEvents.length} / {store.events.length}
         </span>
       </div>
-      <div ref={listRef} style={{ flex: 1, overflowY: 'auto', padding: '10px 12px', background: '#fbfcfe' }}>
+      <div ref={listRef} style={{ flex: 1, overflowY: 'auto', padding: '10px 12px', background: theme.bg.surface }}>
         {visibleEvents.length === 0 ? (
-          <div style={{ padding: '20px', color: theme.text.muted, fontSize: '12px', textAlign: 'center' }}>
+          <div style={{ padding: '24px', color: theme.text.muted, fontSize: '11px', textAlign: 'center', fontFamily: '"JetBrains Mono", monospace' }}>
             No events prior to scrub point.
           </div>
         ) : (

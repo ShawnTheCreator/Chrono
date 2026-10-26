@@ -122,14 +122,14 @@ export class TimelineState {
   activeEvent: CEPEvent | null = DEFAULT_EVENTS[17];
   stalls: StallAlert[] = [];
   activeNarration: Narration | null = {
-    headline: 'Injected cycle threshold detector to halt repeated diff ping-pong',
-    causal_chain: 'After observing identical compiler errors across 3 consecutive iterations, the agent detected a deterministic loop. This checkpoint registers sliding-window diff hashes to trip circuit breakers.',
-    hypothesis: 'Sliding window of 20 events with SHA-256 diff deduplication will trap oscillatory edits.',
+    headline: 'Track sliding-window diff hashes to trip circuit breaker on cycle threshold',
+    causal_chain: 'Test #4 (test_stall) failed with Exit 1 after 3 identical patch applications to stall_detector.cpp. The agent was repeatedly re-applying the same modification without inspecting threshold_cycles_. This checkpoint registers diff hashes in a bounded deque to trap cyclic edits.',
+    hypothesis: 'Bounded sliding window of 20 diff digests with threshold_cycles_ trap will trip execution circuit breaker on oscillation.',
     verdict: 'FIXED',
     risk_score: 0.12
   };
   isNarrating: boolean = false;
-  activeIntervention: string | null = 'INTERVENTION: Stop repeating diff on file. Inspect constructor parameter threshold_cycles_ instead.';
+  activeIntervention: string | null = 'INTERVENTION: Inspect threshold_cycles_ parameter in StallDetector constructor instead of re-applying identical diff.';
 
   private listeners: Set<() => void> = new Set();
   private version: number = 0;
@@ -247,13 +247,13 @@ export class TimelineState {
   hydrateNarrationForCheckpoint(cp: Checkpoint) {
     if (cp.id === 'chk_04n112tt8a' || cp.summary.includes('identical diff') || cp.summary.includes('sliding window')) {
       this.activeNarration = {
-        headline: 'Injected cycle threshold detector to halt repeated diff ping-pong',
-        causal_chain: 'After observing identical compiler errors across 3 consecutive iterations, the agent detected a deterministic loop. This checkpoint registers sliding-window diff hashes to trip circuit breakers.',
-        hypothesis: 'Sliding window of 20 events with SHA-256 diff deduplication will trap oscillatory edits.',
+        headline: 'Track sliding-window diff hashes to trip circuit breaker on cycle threshold',
+        causal_chain: 'Test #4 (test_stall) failed with Exit 1 after 3 identical patch applications to stall_detector.cpp. The agent was repeatedly re-applying the same modification without inspecting threshold_cycles_. This checkpoint registers diff hashes in a bounded deque to trap cyclic edits.',
+        hypothesis: 'Bounded sliding window of 20 diff digests with threshold_cycles_ trap will trip execution circuit breaker on oscillation.',
         verdict: 'FIXED',
         risk_score: 0.12
       };
-      this.activeIntervention = 'INTERVENTION: Stop repeating diff on file. Inspect constructor parameter threshold_cycles_ instead.';
+      this.activeIntervention = 'INTERVENTION: Inspect threshold_cycles_ parameter in StallDetector constructor instead of re-applying identical diff.';
     } else if (cp.id === 'chk_01h982ka7b') {
       this.activeNarration = {
         headline: 'Declared packed 24-byte wire framing to eliminate alignment discrepancy',

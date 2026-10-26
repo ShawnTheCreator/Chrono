@@ -26,9 +26,9 @@ It provides immutable cryptographic time-travel, sub-millisecond timeline scrubb
 
 <br/>
 
-[![Chrono Cockpit](docs/assets/cockpit_nextjs_light.png)](http://localhost:3000)
+[![Chrono Cockpit](docs/assets/cockpit_github_light.png)](http://localhost:3000)
 
-*Chrono Cockpit (Next.js 14 App Router) paused at derail recovery checkpoint `chk_04n112tt8a` (05:20): blue, light blue, and slate gray UI, real-time diff hydration, sliding-window stall trap, Muse Spark causal explanation, and tamper-verified Merkle chain.*
+*Chrono Cockpit (Next.js 14 App Router) paused at derail recovery checkpoint `chk_04n112tt8a` (05:20): GitHub-grade high-contrast light surface (`#ffffff` / `#f6f8fa`), dual line-number diff viewer (`+` / `-` gutter, 5-square stat bar), deep green (`#1a7f37`) & oxblood red (`#cf222e`) accents, flat monospace buttons, and Muse Spark causal hypothesis.*
 
 </div>
 

@@ -24,55 +24,78 @@ export const TelemetryPanel: React.FC = () => {
   const toolCounts: { [tool: string]: number } = {};
   visibleEvents.forEach((e) => {
     if (e.kind === 'tool_call') {
-      const tool = e.payload?.tool || 'shell';
+      const tool = e.payload?.tool || 'bash';
       toolCounts[tool] = (toolCounts[tool] || 0) + 1;
     }
   });
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#ffffff', overflow: 'hidden' }}>
-      <div style={{ padding: '10px 16px', borderBottom: `1px solid ${theme.border.subtle}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc' }}>
-        <span style={{ fontSize: '11px', fontWeight: 700, color: theme.accent.blue, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: theme.bg.surface, overflow: 'hidden' }}>
+      <div style={{
+        padding: '8px 16px',
+        borderBottom: `1px solid ${theme.border.default}`,
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        background: theme.bg.chrome
+      }}>
+        <span style={{
+          fontSize: '11px',
+          fontWeight: 600,
+          color: theme.text.muted,
+          textTransform: 'uppercase',
+          letterSpacing: '0.08em',
+          fontFamily: '"JetBrains Mono", monospace'
+        }}>
           FLIGHT TELEMETRY
         </span>
-        <span style={{ fontSize: '10px', color: '#16a34a', fontWeight: 600, background: '#f0fdf4', border: '1px solid #bbf7d0', padding: '1px 6px', borderRadius: '3px' }}>
+        <span style={{
+          fontSize: '10px',
+          color: theme.accent.green,
+          fontWeight: 600,
+          background: theme.bg.diffAdd,
+          border: `1px solid ${theme.border.diffAdd}`,
+          padding: '1px 6px',
+          borderRadius: '3px',
+          fontFamily: '"JetBrains Mono", monospace'
+        }}>
           ALL MEASURED
         </span>
       </div>
 
-      <div style={{ flex: 1, overflowY: 'auto', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: '10px', background: '#fbfcfe' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: '10px', background: theme.bg.surface }}>
         {/* Token Velocity Card */}
-        <div style={{ background: '#ffffff', border: `1px solid ${theme.border.subtle}`, borderRadius: '6px', padding: '10px 12px', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
-          <div style={{ fontSize: '10px', color: theme.text.muted, fontWeight: 700, textTransform: 'uppercase', marginBottom: '4px' }}>
+        <div style={{ background: '#ffffff', border: `1px solid ${theme.border.default}`, borderRadius: '4px', padding: '10px 12px', boxShadow: '0 1px 2px rgba(27,31,36,0.04)' }}>
+          <div style={{ fontSize: '10px', color: theme.text.muted, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', fontFamily: '"JetBrains Mono", monospace', marginBottom: '4px' }}>
             TOKEN-BURN VELOCITY
           </div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
-            <span style={{ fontSize: '18px', fontWeight: 800, color: theme.text.primary, fontFamily: 'monospace' }}>
+            <span style={{ fontSize: '18px', fontWeight: 700, color: theme.text.primary, fontFamily: '"JetBrains Mono", monospace' }}>
               {cumulativeTokens.toLocaleString()}
             </span>
             <span style={{ fontSize: '11px', color: theme.text.secondary }}>tokens cumulative</span>
           </div>
-          <div style={{ fontSize: '11px', color: theme.accent.blue, marginTop: '2px', fontWeight: 600 }}>
+          <div style={{ fontSize: '11px', color: theme.text.secondary, marginTop: '4px', fontFamily: '"JetBrains Mono", monospace' }}>
             Velocity: ~36.3 tokens/sec
           </div>
         </div>
 
         {/* Tool Frequency */}
-        <div style={{ background: '#ffffff', border: `1px solid ${theme.border.subtle}`, borderRadius: '6px', padding: '10px 12px', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
-          <div style={{ fontSize: '10px', color: theme.text.muted, fontWeight: 700, textTransform: 'uppercase', marginBottom: '6px' }}>
+        <div style={{ background: '#ffffff', border: `1px solid ${theme.border.default}`, borderRadius: '4px', padding: '10px 12px', boxShadow: '0 1px 2px rgba(27,31,36,0.04)' }}>
+          <div style={{ fontSize: '10px', color: theme.text.muted, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', fontFamily: '"JetBrains Mono", monospace', marginBottom: '8px' }}>
             TOOL FREQUENCY DISTRIBUTION
           </div>
           {Object.keys(toolCounts).length === 0 ? (
-            <div style={{ fontSize: '11px', color: theme.text.muted }}>No tool invocations prior to scrub.</div>
+            <div style={{ fontSize: '11px', color: theme.text.muted, fontFamily: '"JetBrains Mono", monospace' }}>No tool invocations prior to scrub.</div>
           ) : (
             Object.entries(toolCounts).map(([tool, count]) => (
-              <div key={tool} style={{ marginBottom: '6px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginBottom: '2px' }}>
-                  <span style={{ color: theme.text.primary, fontFamily: 'monospace', fontWeight: 600 }}>{tool}</span>
-                  <span style={{ color: theme.accent.blue, fontWeight: 700 }}>{count}</span>
+              <div key={tool} style={{ marginBottom: '8px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginBottom: '3px' }}>
+                  <span style={{ color: theme.text.primary, fontFamily: '"JetBrains Mono", monospace', fontWeight: 500 }}>{tool}</span>
+                  <span style={{ color: theme.text.primary, fontFamily: '"JetBrains Mono", monospace', fontWeight: 600 }}>{count}</span>
                 </div>
-                <div style={{ height: '4px', background: '#e2e8f0', borderRadius: '2px', overflow: 'hidden' }}>
-                  <div style={{ width: `${Math.min(100, count * 50)}%`, height: '100%', background: theme.accent.blue }} />
+                <div style={{ height: '5px', background: theme.bg.base, borderRadius: '2px', border: `1px solid ${theme.border.subtle}`, overflow: 'hidden' }}>
+                  <div style={{ width: `${Math.min(100, count * 50)}%`, height: '100%', background: theme.accent.green }} />
                 </div>
               </div>
             ))
@@ -80,17 +103,17 @@ export const TelemetryPanel: React.FC = () => {
         </div>
 
         {/* Duty Cycle */}
-        <div style={{ background: '#ffffff', border: `1px solid ${theme.border.subtle}`, borderRadius: '6px', padding: '10px 12px', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
-          <div style={{ fontSize: '10px', color: theme.text.muted, fontWeight: 700, textTransform: 'uppercase', marginBottom: '6px' }}>
+        <div style={{ background: '#ffffff', border: `1px solid ${theme.border.default}`, borderRadius: '4px', padding: '10px 12px', boxShadow: '0 1px 2px rgba(27,31,36,0.04)' }}>
+          <div style={{ fontSize: '10px', color: theme.text.muted, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', fontFamily: '"JetBrains Mono", monospace', marginBottom: '8px' }}>
             DUTY CYCLE (MODEL VS TOOL)
           </div>
-          <div style={{ height: '6px', background: '#e2e8f0', borderRadius: '3px', overflow: 'hidden', display: 'flex' }}>
-            <div style={{ width: '68%', background: '#2563eb' }} />
-            <div style={{ width: '32%', background: '#38bdf8' }} />
+          <div style={{ height: '6px', background: theme.bg.base, borderRadius: '2px', border: `1px solid ${theme.border.subtle}`, overflow: 'hidden', display: 'flex' }}>
+            <div style={{ width: '68%', background: '#24292f' }} />
+            <div style={{ width: '32%', background: theme.accent.green }} />
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: theme.text.secondary, marginTop: '4px' }}>
-            <span>● Model Gen: 68%</span>
-            <span>● Tool I/O: 32%</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: theme.text.secondary, marginTop: '6px', fontFamily: '"JetBrains Mono", monospace' }}>
+            <span>Model Gen: 68%</span>
+            <span>Tool I/O: 32%</span>
           </div>
         </div>
       </div>

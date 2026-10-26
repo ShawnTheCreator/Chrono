@@ -18,122 +18,29 @@ export const App: React.FC = () => {
   const [currentSessionId, setCurrentSessionId] = useState('chrono-feature-attempt-1');
 
   useEffect(() => {
-    // Initial load from default committed session
-    const meta = {
-      session_id: 'chrono-feature-attempt-1',
-      task_name: 'Implement Chrono append-only hash chain and LMAX ingest in C++20',
-      model: 'muse-spark-1026',
-      agent_framework: 'muse_code',
-      git_branch: 'feat/hash-chain-ingest'
-    };
-
-    const cps = [
-      {
-        id: 'chk_01h982ka7b',
-        git_tree_hash: 'e69de29bb2d1d6434b8b29ae775ad8c2e48c5391',
-        event_offset: 7,
-        timestamp_ns: 60000000000,
-        files_modified: ['core/include/chrono/event.h'],
-        additions: 45,
-        deletions: 0,
-        summary: 'feat(core): declare Event wire framing and EventKind enum',
-        raw_patch: '--- /dev/null\n+++ b/core/include/chrono/event.h\n@@ -0,0 +1,45 @@\n+#pragma once\n+#include <cstdint>\n+namespace chrono {\n+enum class EventKind : uint16_t {\n+    SESSION_START = 1,\n+    PROMPT = 2,\n+    AGENT_THOUGHT = 3,\n+    TOOL_CALL = 4,\n+    TOOL_RESULT = 5,\n+    FILE_DIFF = 6,\n+    CHECKPOINT = 7,\n+    STALL_ALERT = 8,\n+    INTERVENTION = 9\n+};\n+}'
-      },
-      {
-        id: 'chk_02m881lp9c',
-        git_tree_hash: '7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b',
-        event_offset: 10,
-        timestamp_ns: 130000000000,
-        files_modified: ['core/include/chrono/hash_chain.h', 'core/src/hash_chain.cpp'],
-        additions: 110,
-        deletions: 4,
-        summary: 'feat(core): implement SHA-256 append-only log with tamper verification',
-        raw_patch: '--- a/core/src/hash_chain.cpp\n+++ b/core/src/hash_chain.cpp\n@@ -15,4 +15,22 @@\n ChainRecord HashChainWriter::append(EventKind kind, uint16_t flags, std::string_view payload) {\n+    ChainRecord record;\n+    record.header.seq_id = next_seq_++;\n+    record.header.kind = static_cast<uint16_t>(kind);\n+    record.prev_hash = tail_hash_;\n+    record.current_hash = record.compute_hash();\n+    tail_hash_ = record.current_hash;\n+    write_record(record, payload);\n+    return record;\n }'
-      },
-      {
-        id: 'chk_03k990qq2d',
-        git_tree_hash: '3f4e5d6c7b8a90123456789abcdef0123456789a',
-        event_offset: 13,
-        timestamp_ns: 240000000000,
-        files_modified: ['core/include/chrono/ingest.h', 'core/src/ingest.cpp'],
-        additions: 88,
-        deletions: 12,
-        summary: 'feat(core): build LMAX lockless SPSC ring buffer for burst ingest',
-        raw_patch: '--- a/core/include/chrono/ingest.h\n+++ b/core/include/chrono/ingest.h\n@@ -25,5 +25,12 @@\n+    alignas(64) std::atomic<size_t> head_{0};\n+    alignas(64) std::atomic<size_t> tail_{0};\n+    std::vector<T> ring_;\n+    static constexpr size_t kCapacity = 65536;\n+    static constexpr size_t kMask = kCapacity - 1;'
-      },
-      {
-        id: 'chk_04n112tt8a',
-        git_tree_hash: 'c1d2e3f4a5b678901234567890abcdef12345678',
-        event_offset: 18,
-        timestamp_ns: 320000000000,
-        files_modified: ['core/src/stall_detector.cpp'],
-        additions: 64,
-        deletions: 18,
-        summary: 'fix(core): recover from identical diff oscillation by tuning sliding window',
-        raw_patch: '--- a/core/src/stall_detector.cpp\n+++ b/core/src/stall_detector.cpp\n@@ -34,16 +34,26 @@ void StallDetector::observe_diff(const std::string& patch_content) {\n     uint64_t patch_hash = compute_diff_hash(patch_content);\n     recent_diff_hashes_.push_back(patch_hash);\n     if (recent_diff_hashes_.size() > window_size_) {\n         recent_diff_hashes_.pop_front();\n     }\n \n-    // Unbounded repetition check failed to trigger on oscillatory edits\n-    size_t count = count_occurrences(patch_hash);\n+    // Fixed: Track deterministic cycles with threshold_cycles_ sliding window\n+    size_t count = count_occurrences(patch_hash);\n+    if (count >= threshold_cycles_) {\n+        StallAlert alert;\n+        alert.pattern = StallPattern::IDENTICAL_DIFF_LOOP;\n+        alert.confidence = 0.98f;\n+        alert.culprit_file = "core/src/stall_detector.cpp";\n+        alert.cycle_count = static_cast<uint32_t>(count);\n+        alert.description = "Agent generated identical diff 3 times without resolving failure.";\n+        bus_.publish(alert);\n+    }\n }'
-      },
-      {
-        id: 'chk_05p443vv1b',
-        git_tree_hash: '9876543210abcdef0123456789abcdef01234567',
-        event_offset: 19,
-        timestamp_ns: 360000000000,
-        files_modified: ['core/src/main.cpp', 'core/tests/test_hash_chain.cpp'],
-        additions: 75,
-        deletions: 6,
-        summary: 'feat(core): ship chronod verification daemon and green test suite',
-        raw_patch: '--- a/core/src/main.cpp\n+++ b/core/src/main.cpp\n@@ -1,5 +1,15 @@\n+int cmd_verify(const std::string& path) {\n+    auto res = chrono::verify_log(path);\n+    res.print_receipt();\n+    return res.valid ? 0 : 1;\n+}'
-      }
-    ];
-
-    const mockEvents = [
-      { seq_id: 1, timestamp_ns: 0, kind: 'session_start', flags: 0, payload: { task: meta.task_name } },
-      { seq_id: 2, timestamp_ns: 5000000000, kind: 'prompt', flags: 0, payload: { text: 'Build the core flight recorder for Chrono.' } },
-      { seq_id: 3, timestamp_ns: 12000000000, kind: 'agent_thought', flags: 0, payload: { thought: 'I will inspect the CMake project and design the packed wire framing.' } },
-      { seq_id: 4, timestamp_ns: 18000000000, kind: 'tool_call', flags: 0, payload: { tool: 'bash', cmd: 'cmake -B build -G Ninja' } },
-      { seq_id: 5, timestamp_ns: 22000000000, kind: 'tool_result', flags: 0, payload: { exit_code: 0, output: 'Configuring done (0.4s)' } },
-      { seq_id: 6, timestamp_ns: 45000000000, kind: 'file_diff', flags: 0, payload: { path: 'core/include/chrono/event.h' } },
-      { seq_id: 7, timestamp_ns: 60000000000, kind: 'checkpoint', flags: 1, payload: cps[0] },
-      { seq_id: 8, timestamp_ns: 85000000000, kind: 'agent_thought', flags: 0, payload: { thought: 'Writing hash_chain.h and hash_chain.cpp. Computing SHA-256 over header + prev_hash + payload.' } },
-      { seq_id: 9, timestamp_ns: 110000000000, kind: 'file_diff', flags: 0, payload: { path: 'core/src/hash_chain.cpp' } },
-      { seq_id: 10, timestamp_ns: 130000000000, kind: 'checkpoint', flags: 1, payload: cps[1] },
-      { seq_id: 11, timestamp_ns: 170000000000, kind: 'telemetry_sample', flags: 0, payload: { total_tokens: 11600 } },
-      { seq_id: 12, timestamp_ns: 210000000000, kind: 'file_diff', flags: 0, payload: { path: 'core/include/chrono/ingest.h' } },
-      { seq_id: 13, timestamp_ns: 240000000000, kind: 'checkpoint', flags: 1, payload: cps[2] },
-      { seq_id: 14, timestamp_ns: 280000000000, kind: 'tool_call', flags: 0, payload: { tool: 'bash', cmd: 'ctest --output-on-failure' } },
-      { seq_id: 15, timestamp_ns: 285000000000, kind: 'tool_result', flags: 0, payload: { exit_code: 1, output: '1/4 Test #4: test_stall FAILED' } },
-      { seq_id: 16, timestamp_ns: 290000000000, kind: 'stall_alert', flags: 2, payload: { pattern: 'IDENTICAL_DIFF_LOOP', description: 'Agent generated identical diff 3 times.' } },
-      { seq_id: 17, timestamp_ns: 300000000000, kind: 'intervention', flags: 0, payload: { directive: 'Stop repeating diff. Inspect threshold_cycles_.' } },
-      { seq_id: 18, timestamp_ns: 320000000000, kind: 'checkpoint', flags: 1, payload: cps[3] },
-      { seq_id: 19, timestamp_ns: 360000000000, kind: 'checkpoint', flags: 1, payload: cps[4] },
-      { seq_id: 20, timestamp_ns: 400000000000, kind: 'session_end', flags: 0, payload: { total_tokens: 48250 } }
-    ];
-
-    store.setSession(meta as any, mockEvents as any, cps as any);
-
-    // Try live bridge connection if bridge is running
     sessionClient.connect(currentSessionId);
   }, [currentSessionId]);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', width: '100vw', height: '100vh', background: theme.bg.base, color: theme.text.primary, overflow: 'hidden' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', width: '100vw', height: '100vh', background: theme.bg.surface, color: theme.text.primary, overflow: 'hidden' }}>
       {/* Top Navbar */}
-      <header style={{ height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', background: theme.bg.surface, borderBottom: `1px solid ${theme.border.subtle}` }}>
+      <header style={{ height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', background: theme.bg.chrome, borderBottom: `1px solid ${theme.border.default}` }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '15px', fontWeight: 800, letterSpacing: '0.12em', color: theme.accent.amber }}>CHRONO</span>
-            <span style={{ fontSize: '10px', background: '#251b0a', color: theme.accent.amber, padding: '2px 6px', borderRadius: '3px', fontWeight: 600 }}>COCKPIT</span>
+            <span style={{ fontSize: '15px', fontWeight: 800, letterSpacing: '0.12em', color: theme.text.primary }}>CHRONO</span>
+            <span style={{ fontSize: '10px', background: theme.bg.base, color: theme.text.secondary, padding: '2px 6px', borderRadius: '3px', fontWeight: 600 }}>COCKPIT</span>
           </div>
 
-          <div style={{ height: '16px', width: '1px', background: theme.border.hairline }} />
+          <div style={{ height: '16px', width: '1px', background: theme.border.default }} />
 
           {/* Session Switcher */}
           <select
             value={currentSessionId}
             onChange={(e) => setCurrentSessionId(e.target.value)}
             style={{
-              background: theme.bg.elevated,
+              background: theme.bg.surface,
               color: theme.text.primary,
-              border: `1px solid ${theme.border.hairline}`,
+              border: `1px solid ${theme.border.default}`,
               padding: '4px 10px',
               borderRadius: '4px',
               fontSize: '11px',
@@ -150,18 +57,17 @@ export const App: React.FC = () => {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: theme.accent.emerald }}>
-            <span>●</span>
-            <span>SHA-256 HASH CHAIN VERIFIED</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: theme.accent.green }}>
+            <span>flight-recorder:active</span>
           </div>
-          <div style={{ fontSize: '11px', color: theme.text.muted, background: theme.bg.elevated, padding: '3px 8px', borderRadius: '3px' }}>
+          <div style={{ fontSize: '11px', color: theme.text.muted, background: theme.bg.base, padding: '3px 8px', borderRadius: '3px' }}>
             C++20 FLIGHT RECORDER
           </div>
         </div>
       </header>
 
       {/* Main Multi-Panel Cockpit */}
-      <main style={{ flex: 1, display: 'grid', gridTemplateColumns: '240px 1fr 340px 280px', gap: '1px', background: theme.border.subtle, overflow: 'hidden' }}>
+      <main style={{ flex: 1, display: 'grid', gridTemplateColumns: '240px 1fr 340px 280px', gap: '1px', background: theme.border.default, overflow: 'hidden' }}>
         {/* Col 1: File Tree */}
         <TreePanel />
 
@@ -172,14 +78,14 @@ export const App: React.FC = () => {
         <NarrationPanel />
 
         {/* Col 4: Reasoning Transcript & Telemetry Split */}
-        <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr', gap: '1px', background: theme.border.subtle, overflow: 'hidden' }}>
+        <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr', gap: '1px', background: theme.border.default, overflow: 'hidden' }}>
           <TranscriptPanel />
           <TelemetryPanel />
         </div>
       </main>
 
       {/* Bottom 60fps Scrubber Timeline */}
-      <footer style={{ borderTop: `1px solid ${theme.border.subtle}` }}>
+      <footer style={{ borderTop: `1px solid ${theme.border.default}` }}>
         <CanvasTimeline />
       </footer>
     </div>

@@ -38,7 +38,7 @@ export const CanvasTimeline: React.FC = () => {
     ctx.fillRect(0, 0, width, height);
 
     // Border line at top
-    ctx.strokeStyle = '#e2e8f0';
+    ctx.strokeStyle = '#d0d7de';
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(0, 0.5);
@@ -52,18 +52,13 @@ export const CanvasTimeline: React.FC = () => {
       return (norm * width * zoom) + panOffset;
     };
 
-    const xToTs = (x: number) => {
-      const norm = (x - panOffset) / (width * zoom);
-      return state.minTimestampNs + Math.round(norm * range);
-    };
-
     // Track lane
     const trackY = 32;
     const trackH = 34;
 
-    ctx.fillStyle = '#f8fafc';
+    ctx.fillStyle = '#f6f8fa';
     ctx.fillRect(0, trackY, width, trackH);
-    ctx.strokeStyle = '#e2e8f0';
+    ctx.strokeStyle = '#d0d7de';
     ctx.strokeRect(0, trackY, width, trackH);
 
     // Render Event Heatmap bars
@@ -84,14 +79,14 @@ export const CanvasTimeline: React.FC = () => {
     for (let i = 0; i < bucketCount; i++) {
       if (buckets[i] > 0) {
         const barH = (buckets[i] / maxB) * (trackH - 4);
-        ctx.fillStyle = buckets[i] > 2 ? '#2563eb' : '#93c5fd';
+        ctx.fillStyle = buckets[i] > 2 ? '#1a7f37' : '#8c959f';
         ctx.fillRect(i * 4, trackY + trackH - barH - 2, 3, barH);
       }
     }
 
     // Ruler Ticks
-    ctx.strokeStyle = '#cbd5e1';
-    ctx.fillStyle = '#64748b';
+    ctx.strokeStyle = '#d0d7de';
+    ctx.fillStyle = '#656d76';
     ctx.font = '10px "JetBrains Mono", monospace';
     ctx.textAlign = 'center';
 
@@ -121,14 +116,14 @@ export const CanvasTimeline: React.FC = () => {
         if (isSelected) {
           ctx.beginPath();
           ctx.arc(0, 0, 10, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(37, 99, 235, 0.2)';
+          ctx.fillStyle = 'rgba(26, 127, 55, 0.15)';
           ctx.fill();
-          ctx.strokeStyle = '#2563eb';
+          ctx.strokeStyle = '#1a7f37';
           ctx.lineWidth = 1.5;
           ctx.stroke();
         }
 
-        ctx.fillStyle = isSelected ? '#2563eb' : '#64748b';
+        ctx.fillStyle = isSelected ? '#1a7f37' : '#656d76';
         ctx.beginPath();
         ctx.rotate(Math.PI / 4);
         const size = isSelected ? 8 : 6;
@@ -144,7 +139,7 @@ export const CanvasTimeline: React.FC = () => {
       .forEach((stall) => {
         const sx = tsToX(stall.timestamp_ns);
         if (sx >= -20 && sx <= width + 20) {
-          ctx.fillStyle = '#ef4444';
+          ctx.fillStyle = '#cf222e';
           ctx.beginPath();
           ctx.arc(sx, trackY + trackH / 2, 7, 0, Math.PI * 2);
           ctx.fill();
@@ -156,10 +151,10 @@ export const CanvasTimeline: React.FC = () => {
         }
       });
 
-    // Draw Playhead needle
+    // Draw Playhead needle (Charcoal / slate)
     const playX = tsToX(state.currentTimestampNs);
     if (playX >= -10 && playX <= width + 10) {
-      ctx.strokeStyle = '#2563eb';
+      ctx.strokeStyle = '#1f2328';
       ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.moveTo(playX, 0);
@@ -167,7 +162,7 @@ export const CanvasTimeline: React.FC = () => {
       ctx.stroke();
 
       // Scrubber handle pill at bottom
-      ctx.fillStyle = '#2563eb';
+      ctx.fillStyle = '#1f2328';
       ctx.beginPath();
       ctx.roundRect(playX - 6, trackY - 4, 12, 10, 3);
       ctx.fill();
@@ -262,42 +257,95 @@ export const CanvasTimeline: React.FC = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', width: '100%', height: '110px', background: '#ffffff' }}>
       {/* Top Header Bar */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 16px', borderBottom: `1px solid ${theme.border.subtle}`, background: '#f8fafc' }}>
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '6px 16px',
+        borderBottom: `1px solid ${theme.border.default}`,
+        background: theme.bg.chrome
+      }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <ClockIcon size={13} color="#2563eb" />
-            <span style={{ fontSize: '11px', fontWeight: 700, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+            <ClockIcon size={13} color={theme.text.muted} />
+            <span style={{
+              fontSize: '11px',
+              fontWeight: 600,
+              color: theme.text.muted,
+              textTransform: 'uppercase',
+              letterSpacing: '0.08em',
+              fontFamily: '"JetBrains Mono", monospace'
+            }}>
               TIMELINE SCRUBBER
             </span>
           </div>
-          <span style={{ fontSize: '11px', color: theme.text.primary, fontFamily: 'monospace', fontWeight: 600 }}>
+          <span style={{ fontSize: '11px', color: theme.text.primary, fontFamily: '"JetBrains Mono", monospace', fontWeight: 600 }}>
             {formatTime(state.currentTimestampNs)} / {formatTime(state.maxTimestampNs)}
           </span>
           {state.activeCheckpoint && (
-            <span style={{ fontSize: '11px', color: theme.accent.blue, background: '#eff6ff', border: `1px solid ${theme.border.active}`, padding: '2px 8px', borderRadius: '4px', fontWeight: 600 }}>
-              CP: {state.activeCheckpoint.id} ({state.activeCheckpoint.summary})
+            <span style={{
+              fontSize: '11px',
+              color: theme.accent.green,
+              background: theme.bg.diffAdd,
+              border: `1px solid ${theme.border.diffAdd}`,
+              padding: '1px 8px',
+              borderRadius: '4px',
+              fontFamily: '"JetBrains Mono", monospace',
+              fontWeight: 600
+            }}>
+              checkpoint: {state.activeCheckpoint.id} ({state.activeCheckpoint.summary})
             </span>
           )}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <button
             onClick={() => setZoom((z) => Math.max(1.0, z * 0.8))}
-            style={{ background: '#ffffff', border: `1px solid ${theme.border.subtle}`, color: theme.text.primary, padding: '3px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 500 }}
+            style={{
+              background: '#ffffff',
+              border: `1px solid ${theme.border.default}`,
+              color: theme.text.primary,
+              padding: '3px 8px',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '11px',
+              fontFamily: '"JetBrains Mono", monospace',
+              fontWeight: 500
+            }}
           >
-            - Zoom
+            - zoom
           </button>
-          <span style={{ fontSize: '11px', color: theme.text.secondary, fontFamily: 'monospace' }}>{zoom.toFixed(1)}x</span>
+          <span style={{ fontSize: '11px', color: theme.text.secondary, fontFamily: '"JetBrains Mono", monospace' }}>{zoom.toFixed(1)}x</span>
           <button
             onClick={() => setZoom((z) => Math.min(20.0, z * 1.25))}
-            style={{ background: '#ffffff', border: `1px solid ${theme.border.subtle}`, color: theme.text.primary, padding: '3px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 500 }}
+            style={{
+              background: '#ffffff',
+              border: `1px solid ${theme.border.default}`,
+              color: theme.text.primary,
+              padding: '3px 8px',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '11px',
+              fontFamily: '"JetBrains Mono", monospace',
+              fontWeight: 500
+            }}
           >
-            + Zoom
+            + zoom
           </button>
           <button
             onClick={() => { setZoom(1.0); setPanOffset(0); }}
-            style={{ background: '#ffffff', border: `1px solid ${theme.border.subtle}`, color: theme.text.primary, padding: '3px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 500 }}
+            style={{
+              background: '#ffffff',
+              border: `1px solid ${theme.border.default}`,
+              color: theme.text.primary,
+              padding: '3px 8px',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '11px',
+              fontFamily: '"JetBrains Mono", monospace',
+              fontWeight: 500
+            }}
           >
-            Reset
+            reset
           </button>
         </div>
       </div>
