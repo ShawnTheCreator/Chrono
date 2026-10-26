@@ -29,21 +29,46 @@ export const CanvasTimeline: React.FC<CanvasTimelineProps> = ({ onToggleCollapse
     return `${String(hours).padStart(2, '0')}:${String(remMins).padStart(2, '0')}:${String(remSecs).padStart(2, '0')}.${String(ms).padStart(3, '0')}`;
   };
 
+  const formatMinSec = (ns: number) => {
+    const relNs = Math.max(0, ns - state.minTimestampNs);
+    const totalSecs = Math.floor(relNs / 1_000_000_000);
+    const mins = Math.floor(totalSecs / 60);
+    const secs = totalSecs % 60;
+    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  };
+
   const draw = useCallback(() => {
     if (isCollapsed) return;
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    const container = containerRef.current;
+    if (!canvas || !container) return;
+
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const width = canvas.width;
-    const height = canvas.height;
+    // Retina / High-DPI support: render at native display pixel density
+    const dpr = typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1;
+    const width = container.clientWidth;
+    const height = container.clientHeight;
 
-    // Clear background
+    if (width <= 0 || height <= 0) return;
+
+    const pixelWidth = Math.round(width * dpr);
+    const pixelHeight = Math.round(height * dpr);
+
+    if (canvas.width !== pixelWidth || canvas.height !== pixelHeight) {
+      canvas.width = pixelWidth;
+      canvas.height = pixelHeight;
+    }
+
+    ctx.save();
+    ctx.scale(dpr, dpr);
+
+    // Clean background
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, width, height);
 
-    // Border line at top
+    // Hairline top border
     ctx.strokeStyle = '#d0d7de';
     ctx.lineWidth = 1;
     ctx.beginPath();
@@ -58,141 +83,262 @@ export const CanvasTimeline: React.FC<CanvasTimelineProps> = ({ onToggleCollapse
       return (norm * width * zoom) + panOffset;
     };
 
-    // Track lane
-    const trackY = 28;
-    const trackH = Math.max(24, height - 36);
+    // Track lane dimensions
+    const rulerH = 20;
+    const trackY = rulerH + 2;
+    const trackH = Math.max(38, height - trackY - 6);
+    const laneCenterY = trackY + trackH / 2;
 
+    // Subtle track background with soft border
     ctx.fillStyle = '#f6f8fa';
     ctx.fillRect(0, trackY, width, trackH);
     ctx.strokeStyle = '#d0d7de';
+    ctx.lineWidth = 1;
     ctx.strokeRect(0, trackY, width, trackH);
 
-    // Render Event Heatmap bars
-    const bucketCount = Math.floor(width / 4);
-    const buckets = new Float32Array(bucketCount);
+    // Center baseline across track
+    ctx.strokeStyle = 'rgba(208, 215, 222, 0.7)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, Math.floor(laneCenterY) + 0.5);
+    ctx.lineTo(width, Math.floor(laneCenterY) + 0.5);
+    ctx.stroke();
 
-    state.events.forEach((ev) => {
-      const x = tsToX(ev.timestamp_ns);
-      const bIdx = Math.floor(x / 4);
-      if (bIdx >= 0 && bIdx < bucketCount) {
-        buckets[bIdx] += (ev.kind === 'tool_call' ? 1.5 : (ev.kind === 'file_diff' ? 2.0 : 1.0));
-      }
-    });
-
-    let maxB = 1;
-    for (let i = 0; i < bucketCount; i++) if (buckets[i] > maxB) maxB = buckets[i];
-
-    for (let i = 0; i < bucketCount; i++) {
-      if (buckets[i] > 0) {
-        const barH = (buckets[i] / maxB) * (trackH - 4);
-        ctx.fillStyle = buckets[i] > 2 ? '#1a7f37' : '#8c959f';
-        ctx.fillRect(i * 4, trackY + trackH - barH - 2, 3, barH);
-      }
-    }
-
-    // Ruler Ticks
-    ctx.strokeStyle = '#d0d7de';
-    ctx.fillStyle = '#656d76';
-    ctx.font = '10px "JetBrains Mono", monospace';
-    ctx.textAlign = 'center';
-
+    // RULER TICKS & SUBTLE VERTICAL GRID
     const tickIntervalNs = Math.max(1_000_000_000, Math.floor(range / (10 * zoom)));
     const startTick = Math.floor(state.minTimestampNs / tickIntervalNs) * tickIntervalNs;
+
+    ctx.font = '500 10px "JetBrains Mono", monospace';
+    ctx.textAlign = 'center';
 
     for (let t = startTick; t <= state.maxTimestampNs; t += tickIntervalNs) {
       const tx = tsToX(t);
       if (tx >= -50 && tx <= width + 50) {
+        // Vertical grid hairline across track
+        ctx.strokeStyle = 'rgba(208, 215, 222, 0.35)';
+        ctx.lineWidth = 1;
         ctx.beginPath();
-        ctx.moveTo(tx, 0);
-        ctx.lineTo(tx, 12);
+        ctx.moveTo(Math.floor(tx) + 0.5, trackY);
+        ctx.lineTo(Math.floor(tx) + 0.5, trackY + trackH);
         ctx.stroke();
-        ctx.fillText(formatTime(t), tx, 22);
+
+        // Top ruler mark
+        ctx.strokeStyle = '#8c959f';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(Math.floor(tx) + 0.5, 0);
+        ctx.lineTo(Math.floor(tx) + 0.5, 8);
+        ctx.stroke();
+
+        // Timestamp label
+        ctx.fillStyle = '#656d76';
+        ctx.fillText(formatTime(t), tx, 16);
       }
     }
 
-    // Draw Checkpoint Markers (Diamonds on the track)
-    state.checkpoints.forEach((cp) => {
+    // HIGH-QUALITY ACTIVITY VISUALIZATION (Clean event capsules along track)
+    // Draw subtle activity density curve across track
+    const samples = 64;
+    const sampleWidth = width / samples;
+    const curve = new Float32Array(samples);
+
+    state.events.forEach((ev) => {
+      const x = tsToX(ev.timestamp_ns);
+      const sIdx = Math.floor(x / sampleWidth);
+      if (sIdx >= 0 && sIdx < samples) {
+        curve[sIdx] += (ev.kind === 'tool_call' ? 1.5 : (ev.kind === 'file_diff' ? 2.0 : 1.0));
+      }
+    });
+
+    let maxVal = 1.0;
+    for (let i = 0; i < samples; i++) if (curve[i] > maxVal) maxVal = curve[i];
+
+    // Smooth gradient wave
+    const waveGrad = ctx.createLinearGradient(0, trackY + 4, 0, trackY + trackH);
+    waveGrad.addColorStop(0, 'rgba(26, 127, 55, 0.16)');
+    waveGrad.addColorStop(1, 'rgba(26, 127, 55, 0.01)');
+
+    ctx.beginPath();
+    ctx.moveTo(0, trackY + trackH - 1);
+    for (let i = 0; i < samples; i++) {
+      const x = i * sampleWidth + sampleWidth / 2;
+      const normalizedH = (curve[i] / maxVal) * (trackH * 0.45);
+      ctx.lineTo(x, trackY + trackH - normalizedH - 2);
+    }
+    ctx.lineTo(width, trackY + trackH - 1);
+    ctx.closePath();
+    ctx.fillStyle = waveGrad;
+    ctx.fill();
+
+    // Draw individual crisp event markers (capsules) along bottom of track
+    state.events.forEach((ev) => {
+      const ex = tsToX(ev.timestamp_ns);
+      if (ex >= -10 && ex <= width + 10) {
+        const isTool = ev.kind === 'tool_call' || ev.kind === 'tool_result';
+        const isDiff = ev.kind === 'file_diff';
+        const barH = isTool ? 14 : (isDiff ? 18 : 8);
+
+        ctx.fillStyle = isTool ? 'rgba(26, 127, 55, 0.7)' : (isDiff ? 'rgba(9, 105, 218, 0.65)' : 'rgba(101, 109, 118, 0.4)');
+        ctx.beginPath();
+        ctx.roundRect(Math.floor(ex) - 1.5, trackY + trackH - barH - 2, 3, barH, 1.5);
+        ctx.fill();
+      }
+    });
+
+    // DRAW CHECKPOINT MARKERS (High-resolution vector diamonds on centerline)
+    state.checkpoints.forEach((cp, idx) => {
       const cx = tsToX(cp.timestamp_ns);
-      if (cx >= -20 && cx <= width + 20) {
+      if (cx >= -30 && cx <= width + 30) {
         const isSelected = state.activeCheckpoint?.id === cp.id;
         ctx.save();
-        ctx.translate(cx, trackY + trackH / 2);
+        ctx.translate(cx, laneCenterY);
 
-        // Glow halo if active
         if (isSelected) {
+          // Soft ambient pulse halo
           ctx.beginPath();
-          ctx.arc(0, 0, 9, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(26, 127, 55, 0.15)';
+          ctx.arc(0, 0, 11, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(26, 127, 55, 0.18)';
           ctx.fill();
           ctx.strokeStyle = '#1a7f37';
           ctx.lineWidth = 1.5;
           ctx.stroke();
+
+          // Active diamond
+          ctx.save();
+          ctx.rotate(Math.PI / 4);
+          ctx.fillStyle = '#1a7f37';
+          ctx.beginPath();
+          ctx.roundRect(-5, -5, 10, 10, 1.5);
+          ctx.fill();
+          ctx.restore();
+
+          // Crisp white center dot
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.arc(0, 0, 1.8, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Bottom label pill
+          ctx.fillStyle = '#dafbe1';
+          ctx.strokeStyle = '#b4f0c0';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.roundRect(-18, 10, 36, 13, 3);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.fillStyle = '#1a7f37';
+          ctx.font = '600 9px "JetBrains Mono", monospace';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(`cp_${idx + 1}`, 0, 16.5);
+        } else {
+          // Inactive diamond
+          ctx.save();
+          ctx.rotate(Math.PI / 4);
+          ctx.fillStyle = '#59636e';
+          ctx.beginPath();
+          ctx.roundRect(-4, -4, 8, 8, 1);
+          ctx.fill();
+          ctx.restore();
+
+          // Inactive bottom label
+          ctx.fillStyle = '#656d76';
+          ctx.font = '500 9px "JetBrains Mono", monospace';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(`cp_${idx + 1}`, 0, 15);
         }
 
-        ctx.fillStyle = isSelected ? '#1a7f37' : '#656d76';
-        ctx.beginPath();
-        ctx.rotate(Math.PI / 4);
-        const size = isSelected ? 8 : 6;
-        ctx.rect(-size / 2, -size / 2, size, size);
-        ctx.fill();
         ctx.restore();
       }
     });
 
-    // Draw Stall Alerts
+    // DRAW STALL ALERTS (High-res drop-shadow badge)
     state.events
       .filter((e) => e.kind === 'stall_alert')
       .forEach((stall) => {
         const sx = tsToX(stall.timestamp_ns);
         if (sx >= -20 && sx <= width + 20) {
+          ctx.save();
+          ctx.translate(sx, laneCenterY);
+
+          // Subtle shadow
+          ctx.shadowColor = 'rgba(207, 34, 46, 0.35)';
+          ctx.shadowBlur = 6;
+
           ctx.fillStyle = '#cf222e';
           ctx.beginPath();
-          ctx.arc(sx, trackY + trackH / 2, 7, 0, Math.PI * 2);
+          ctx.arc(0, 0, 8.5, 0, Math.PI * 2);
           ctx.fill();
+
+          ctx.shadowBlur = 0;
           ctx.fillStyle = '#ffffff';
-          ctx.font = 'bold 9px monospace';
+          ctx.font = 'bold 10px "JetBrains Mono", monospace';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
-          ctx.fillText('!', sx, trackY + trackH / 2);
+          ctx.fillText('!', 0, 0.5);
+
+          // Top label
+          ctx.fillStyle = '#cf222e';
+          ctx.font = '700 8px "JetBrains Mono", monospace';
+          ctx.fillText('STALL', 0, -12);
+
+          ctx.restore();
         }
       });
 
-    // Draw Playhead needle
+    // DRAW PLAYHEAD NEEDLE (Precision vector needle with top badge)
     const playX = tsToX(state.currentTimestampNs);
-    if (playX >= -10 && playX <= width + 10) {
-      ctx.strokeStyle = '#1f2328';
-      ctx.lineWidth = 2;
+    if (playX >= -30 && playX <= width + 30) {
+      ctx.save();
+
+      // Top floating pill badge
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.18)';
+      ctx.shadowBlur = 4;
+      ctx.shadowOffsetY = 1;
+
+      ctx.fillStyle = '#1f2328';
       ctx.beginPath();
-      ctx.moveTo(playX, 0);
+      ctx.roundRect(playX - 22, 2, 44, 16, 3);
+      ctx.fill();
+
+      ctx.shadowBlur = 0;
+
+      // Time stamp inside pill
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '600 9px "JetBrains Mono", monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(formatMinSec(state.currentTimestampNs), playX, 10);
+
+      // Vertical needle line
+      ctx.strokeStyle = '#1f2328';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(playX, 18);
       ctx.lineTo(playX, height);
       ctx.stroke();
 
-      // Scrubber handle pill at bottom
+      // Bottom needle dot
       ctx.fillStyle = '#1f2328';
       ctx.beginPath();
-      ctx.roundRect(playX - 6, trackY - 4, 12, 10, 3);
+      ctx.arc(playX, height - 4, 2.5, 0, Math.PI * 2);
       ctx.fill();
 
-      ctx.fillStyle = '#ffffff';
-      ctx.beginPath();
-      ctx.arc(playX, trackY + 1, 2, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.restore();
     }
+
+    ctx.restore();
   }, [state, zoom, panOffset, isCollapsed]);
 
   useEffect(() => {
     const handleResize = () => {
-      const canvas = canvasRef.current;
-      const container = containerRef.current;
-      if (canvas && container) {
-        canvas.width = container.clientWidth;
-        canvas.height = container.clientHeight;
-        draw();
-      }
+      draw();
     };
 
-    handleResize();
     window.addEventListener('resize', handleResize);
+    draw();
     return () => window.removeEventListener('resize', handleResize);
   }, [draw, isCollapsed]);
 
@@ -212,14 +358,14 @@ export const CanvasTimeline: React.FC<CanvasTimelineProps> = ({ onToggleCollapse
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const range = Math.max(1, state.maxTimestampNs - state.minTimestampNs);
-    const norm = (x - panOffset) / (canvas.width * zoom);
+    const norm = (x - panOffset) / (canvas.clientWidth * zoom);
     const ts = state.minTimestampNs + Math.round(norm * range);
 
-    // Check if clicked near a checkpoint diamond (within 12px)
+    // Check if clicked near a checkpoint diamond (within 16px)
     let clickedCp = null;
     for (const cp of state.checkpoints) {
-      const cx = (((cp.timestamp_ns - state.minTimestampNs) / range) * canvas.width * zoom) + panOffset;
-      if (Math.abs(cx - x) <= 12) {
+      const cx = (((cp.timestamp_ns - state.minTimestampNs) / range) * canvas.clientWidth * zoom) + panOffset;
+      if (Math.abs(cx - x) <= 16) {
         clickedCp = cp;
         break;
       }
@@ -242,7 +388,7 @@ export const CanvasTimeline: React.FC<CanvasTimelineProps> = ({ onToggleCollapse
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const range = Math.max(1, state.maxTimestampNs - state.minTimestampNs);
-    const norm = (x - panOffset) / (canvas.width * zoom);
+    const norm = (x - panOffset) / (canvas.clientWidth * zoom);
     const ts = state.minTimestampNs + Math.round(norm * range);
     store.seekToTimestamp(ts);
   };
@@ -261,19 +407,20 @@ export const CanvasTimeline: React.FC<CanvasTimelineProps> = ({ onToggleCollapse
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', width: '100%', height: '100%', background: '#ffffff' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', width: '100%', height: '100%', background: '#ffffff', overflow: 'hidden' }}>
       {/* Top Header Bar */}
       <div style={{
+        height: '32px',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: '5px 14px',
+        padding: '0 12px',
         borderBottom: `1px solid ${theme.border.default}`,
         background: theme.bg.chrome,
         flexShrink: 0
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, overflow: 'hidden' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flexShrink: 0 }}>
             <ClockIcon size={13} color={theme.text.muted} />
             <span style={{
               fontSize: '11px',
@@ -286,7 +433,7 @@ export const CanvasTimeline: React.FC<CanvasTimelineProps> = ({ onToggleCollapse
               TIMELINE
             </span>
           </div>
-          <span style={{ fontSize: '11px', color: theme.text.primary, fontFamily: '"JetBrains Mono", monospace', fontWeight: 600 }}>
+          <span style={{ fontSize: '11px', color: theme.text.primary, fontFamily: '"JetBrains Mono", monospace', fontWeight: 600, flexShrink: 0 }}>
             {formatTime(state.currentTimestampNs)} / {formatTime(state.maxTimestampNs)}
           </span>
           {state.activeCheckpoint && (
@@ -298,7 +445,11 @@ export const CanvasTimeline: React.FC<CanvasTimelineProps> = ({ onToggleCollapse
               padding: '1px 8px',
               borderRadius: '4px',
               fontFamily: '"JetBrains Mono", monospace',
-              fontWeight: 600
+              fontWeight: 600,
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              maxWidth: '360px'
             }}>
               {state.activeCheckpoint.id} ({state.activeCheckpoint.summary})
             </span>
@@ -306,7 +457,7 @@ export const CanvasTimeline: React.FC<CanvasTimelineProps> = ({ onToggleCollapse
         </div>
 
         {/* Action Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flexShrink: 0 }}>
           {/* Play / Pause Button */}
           <button
             onClick={() => store.togglePlay()}
@@ -432,7 +583,7 @@ export const CanvasTimeline: React.FC<CanvasTimelineProps> = ({ onToggleCollapse
 
       {/* Canvas Scrubber Track */}
       {!isCollapsed && (
-        <div ref={containerRef} style={{ flex: 1, position: 'relative', width: '100%', cursor: 'ew-resize' }}>
+        <div ref={containerRef} style={{ flex: 1, position: 'relative', width: '100%', minHeight: '50px', cursor: 'ew-resize' }}>
           <canvas
             ref={canvasRef}
             onPointerDown={handlePointerDown}

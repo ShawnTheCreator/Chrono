@@ -37,7 +37,7 @@ export default function CockpitDashboard() {
   // Screen sizing & collapsing state ("collapsed and moved and stuff")
   const [treeWidth, setTreeWidth] = useState(210);
   const [inspectorWidth, setInspectorWidth] = useState(360);
-  const [timelineHeight, setTimelineHeight] = useState(115);
+  const [timelineHeight, setTimelineHeight] = useState(135);
   const [isTreeCollapsed, setIsTreeCollapsed] = useState(false);
   const [isInspectorCollapsed, setIsInspectorCollapsed] = useState(false);
   const [isTimelineCollapsed, setIsTimelineCollapsed] = useState(false);
