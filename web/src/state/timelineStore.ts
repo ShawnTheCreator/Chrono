@@ -357,6 +357,7 @@ export const store = new TimelineState();
 export function useTimelineStore(): TimelineSnapshot {
   return useSyncExternalStore(
     (callback) => store.subscribe(callback),
+    () => store.getSnapshot(),
     () => store.getSnapshot()
   );
 }

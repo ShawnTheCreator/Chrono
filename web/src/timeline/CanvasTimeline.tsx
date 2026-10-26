@@ -33,11 +33,11 @@ export const CanvasTimeline: React.FC = () => {
     const height = canvas.height;
 
     // Clear background
-    ctx.fillStyle = theme.bg.surface;
+    ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, width, height);
 
     // Border line at top
-    ctx.strokeStyle = theme.border.hairline;
+    ctx.strokeStyle = '#e2e8f0';
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(0, 0.5);
@@ -47,16 +47,23 @@ export const CanvasTimeline: React.FC = () => {
     const range = Math.max(1, state.maxTimestampNs - state.minTimestampNs);
 
     const tsToX = (ts: number) => {
-      const normalized = (ts - state.minTimestampNs) / range;
-      return (normalized * width * zoom) - panOffset;
+      const norm = (ts - state.minTimestampNs) / range;
+      return (norm * width * zoom) + panOffset;
     };
 
-    // Draw Event Density Heatmap Track (height 28 to 58)
-    const trackY = 32;
-    const trackH = 26;
+    const xToTs = (x: number) => {
+      const norm = (x - panOffset) / (width * zoom);
+      return state.minTimestampNs + Math.round(norm * range);
+    };
 
-    ctx.fillStyle = '#0a0d14';
+    // Track lane
+    const trackY = 32;
+    const trackH = 34;
+
+    ctx.fillStyle = '#f8fafc';
     ctx.fillRect(0, trackY, width, trackH);
+    ctx.strokeStyle = '#e2e8f0';
+    ctx.strokeRect(0, trackY, width, trackH);
 
     // Render Event Heatmap bars
     const bucketCount = Math.floor(width / 4);
@@ -76,14 +83,14 @@ export const CanvasTimeline: React.FC = () => {
     for (let i = 0; i < bucketCount; i++) {
       if (buckets[i] > 0) {
         const barH = (buckets[i] / maxB) * (trackH - 4);
-        ctx.fillStyle = buckets[i] > 2 ? theme.accent.amber : '#27354a';
+        ctx.fillStyle = buckets[i] > 2 ? '#2563eb' : '#93c5fd';
         ctx.fillRect(i * 4, trackY + trackH - barH - 2, 3, barH);
       }
     }
 
     // Ruler Ticks
-    ctx.strokeStyle = theme.border.hairline;
-    ctx.fillStyle = theme.text.muted;
+    ctx.strokeStyle = '#cbd5e1';
+    ctx.fillStyle = '#64748b';
     ctx.font = '10px "JetBrains Mono", monospace';
     ctx.textAlign = 'center';
 
@@ -109,138 +116,162 @@ export const CanvasTimeline: React.FC = () => {
         ctx.save();
         ctx.translate(cx, trackY + trackH / 2);
 
-        // Glow if active
+        // Glow halo if active
         if (isSelected) {
-          ctx.shadowColor = theme.accent.cyan;
-          ctx.shadowBlur = 12;
+          ctx.beginPath();
+          ctx.arc(0, 0, 10, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(37, 99, 235, 0.2)';
+          ctx.fill();
+          ctx.strokeStyle = '#2563eb';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
         }
 
-        ctx.fillStyle = isSelected ? theme.accent.cyan : '#475569';
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = isSelected ? 2 : 1;
-
+        ctx.fillStyle = isSelected ? '#2563eb' : '#64748b';
         ctx.beginPath();
-        ctx.moveTo(0, -7);
-        ctx.lineTo(7, 0);
-        ctx.lineTo(0, 7);
-        ctx.lineTo(-7, 0);
-        ctx.closePath();
+        ctx.rotate(Math.PI / 4);
+        const size = isSelected ? 8 : 6;
+        ctx.rect(-size / 2, -size / 2, size, size);
         ctx.fill();
-        ctx.stroke();
-
         ctx.restore();
       }
     });
 
-    // Draw Stall Alerts (Red warning hazard circles)
-    state.events.filter((e) => e.kind === 'stall_alert').forEach((st) => {
-      const sx = tsToX(st.timestamp_ns);
-      if (sx >= -20 && sx <= width + 20) {
-        ctx.save();
-        ctx.fillStyle = theme.accent.ruby;
-        ctx.shadowColor = theme.accent.ruby;
-        ctx.shadowBlur = 10;
-        ctx.beginPath();
-        ctx.arc(sx, trackY + trackH / 2, 7, 0, Math.PI * 2);
-        ctx.fill();
+    // Draw Stall Alerts
+    state.events
+      .filter((e) => e.kind === 'stall_alert')
+      .forEach((stall) => {
+        const sx = tsToX(stall.timestamp_ns);
+        if (sx >= -20 && sx <= width + 20) {
+          ctx.fillStyle = '#ef4444';
+          ctx.beginPath();
+          ctx.arc(sx, trackY + trackH / 2, 7, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 9px monospace';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('!', sx, trackY + trackH / 2);
+        }
+      });
 
-        // White exclamation mark
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 9px monospace';
-        ctx.textAlign = 'center';
-        ctx.fillText('!', sx, trackY + trackH / 2 + 3);
-        ctx.restore();
-      }
-    });
+    // Draw Playhead needle
+    const playX = tsToX(state.currentTimestampNs);
+    if (playX >= -10 && playX <= width + 10) {
+      // Glow
+      ctx.strokeStyle = '#2563eb';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(playX, 0);
+      ctx.lineTo(playX, height);
+      ctx.stroke();
 
-    // Playhead Scrubber Cursor
-    const playheadX = tsToX(state.currentTimestampNs);
-    ctx.strokeStyle = theme.accent.amber;
-    ctx.lineWidth = 2;
-    ctx.shadowColor = theme.accent.amber;
-    ctx.shadowBlur = 14;
+      // Scrubber handle pill at bottom
+      ctx.fillStyle = '#2563eb';
+      ctx.beginPath();
+      ctx.roundRect(playX - 6, trackY - 4, 12, 10, 3);
+      ctx.fill();
 
-    ctx.beginPath();
-    ctx.moveTo(playheadX, 0);
-    ctx.lineTo(playheadX, height);
-    ctx.stroke();
-
-    // Playhead Head Indicator (Cap)
-    ctx.fillStyle = theme.accent.amber;
-    ctx.beginPath();
-    ctx.moveTo(playheadX - 6, 0);
-    ctx.lineTo(playheadX + 6, 0);
-    ctx.lineTo(playheadX, 10);
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.shadowBlur = 0;
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(playX, trackY + 1, 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
   }, [state, zoom, panOffset]);
 
   useEffect(() => {
     const handleResize = () => {
-      if (containerRef.current && canvasRef.current) {
-        canvasRef.current.width = containerRef.current.clientWidth;
-        canvasRef.current.height = containerRef.current.clientHeight;
+      const canvas = canvasRef.current;
+      const container = containerRef.current;
+      if (canvas && container) {
+        canvas.width = container.clientWidth;
+        canvas.height = container.clientHeight;
         draw();
       }
     };
+
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [draw]);
 
   useEffect(() => {
-    draw();
-  }, [draw, state.currentTimestampNs]);
-
-  const seekFromX = (clientX: number) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = clientX - rect.left;
-    const range = Math.max(1, state.maxTimestampNs - state.minTimestampNs);
-    const ts = state.minTimestampNs + ((x + panOffset) / (canvas.width * zoom)) * range;
-    store.seekToTimestamp(ts);
-  };
+    let animId: number;
+    const renderLoop = () => {
+      draw();
+      animId = requestAnimationFrame(renderLoop);
+    };
+    animId = requestAnimationFrame(renderLoop);
+    return () => cancelAnimationFrame(animId);
+  }, [draw]);
 
   const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const range = Math.max(1, state.maxTimestampNs - state.minTimestampNs);
+    const norm = (x - panOffset) / (canvas.width * zoom);
+    const ts = state.minTimestampNs + Math.round(norm * range);
+
+    // Check if clicked near a checkpoint diamond (within 12px)
+    let clickedCp = null;
+    for (const cp of state.checkpoints) {
+      const cx = (((cp.timestamp_ns - state.minTimestampNs) / range) * canvas.width * zoom) + panOffset;
+      if (Math.abs(cx - x) <= 12) {
+        clickedCp = cp;
+        break;
+      }
+    }
+
+    if (clickedCp) {
+      store.selectCheckpoint(clickedCp);
+    } else {
+      store.seekToTimestamp(ts);
+    }
+
     setIsDragging(true);
     canvas.setPointerCapture(e.pointerId);
-    seekFromX(e.clientX);
   };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
     if (!isDragging) return;
-    seekFromX(e.clientX);
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const range = Math.max(1, state.maxTimestampNs - state.minTimestampNs);
+    const norm = (x - panOffset) / (canvas.width * zoom);
+    const ts = state.minTimestampNs + Math.round(norm * range);
+    store.seekToTimestamp(ts);
   };
 
   const handlePointerUp = (e: React.PointerEvent<HTMLCanvasElement>) => {
     setIsDragging(false);
-    canvasRef.current?.releasePointerCapture(e.pointerId);
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {}
   };
 
-  const handleWheel = (e: React.WheelEvent) => {
+  const handleWheel = (e: React.WheelEvent<HTMLCanvasElement>) => {
     e.preventDefault();
     const zoomFactor = e.deltaY < 0 ? 1.15 : 0.85;
     setZoom((z) => Math.max(1.0, Math.min(20.0, z * zoomFactor)));
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', width: '100%', height: '110px', background: theme.bg.surface }}>
+    <div style={{ display: 'flex', flexDirection: 'column', width: '100%', height: '110px', background: '#ffffff' }}>
       {/* Top Header Bar */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 16px', borderBottom: `1px solid ${theme.border.subtle}`, background: '#090b10' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 16px', borderBottom: `1px solid ${theme.border.subtle}`, background: '#f8fafc' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span style={{ fontSize: '11px', fontWeight: 700, color: theme.accent.amber, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+          <span style={{ fontSize: '11px', fontWeight: 700, color: theme.accent.blue, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
             ● SCRUBBER (60 FPS)
           </span>
           <span style={{ fontSize: '11px', color: theme.text.primary, fontFamily: 'monospace', fontWeight: 600 }}>
             {formatTime(state.currentTimestampNs)} / {formatTime(state.maxTimestampNs)}
           </span>
           {state.activeCheckpoint && (
-            <span style={{ fontSize: '11px', color: theme.accent.cyan, background: 'rgba(56, 189, 248, 0.1)', border: '1px solid rgba(56, 189, 248, 0.25)', padding: '2px 8px', borderRadius: '4px', fontWeight: 600 }}>
+            <span style={{ fontSize: '11px', color: theme.accent.blue, background: '#eff6ff', border: `1px solid ${theme.border.active}`, padding: '2px 8px', borderRadius: '4px', fontWeight: 600 }}>
               CP: {state.activeCheckpoint.id} ({state.activeCheckpoint.summary})
             </span>
           )}
@@ -248,20 +279,20 @@ export const CanvasTimeline: React.FC = () => {
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <button
             onClick={() => setZoom((z) => Math.max(1.0, z * 0.8))}
-            style={{ background: theme.bg.elevated, border: `1px solid ${theme.border.hairline}`, color: theme.text.primary, padding: '2px 8px', borderRadius: '3px', cursor: 'pointer', fontSize: '11px' }}
+            style={{ background: '#ffffff', border: `1px solid ${theme.border.subtle}`, color: theme.text.primary, padding: '3px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 500 }}
           >
             - Zoom
           </button>
-          <span style={{ fontSize: '11px', color: theme.text.muted, fontFamily: 'monospace' }}>{zoom.toFixed(1)}x</span>
+          <span style={{ fontSize: '11px', color: theme.text.secondary, fontFamily: 'monospace' }}>{zoom.toFixed(1)}x</span>
           <button
             onClick={() => setZoom((z) => Math.min(20.0, z * 1.25))}
-            style={{ background: theme.bg.elevated, border: `1px solid ${theme.border.hairline}`, color: theme.text.primary, padding: '2px 8px', borderRadius: '3px', cursor: 'pointer', fontSize: '11px' }}
+            style={{ background: '#ffffff', border: `1px solid ${theme.border.subtle}`, color: theme.text.primary, padding: '3px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 500 }}
           >
             + Zoom
           </button>
           <button
             onClick={() => { setZoom(1.0); setPanOffset(0); }}
-            style={{ background: theme.bg.elevated, border: `1px solid ${theme.border.hairline}`, color: theme.text.primary, padding: '2px 8px', borderRadius: '3px', cursor: 'pointer', fontSize: '11px' }}
+            style={{ background: '#ffffff', border: `1px solid ${theme.border.subtle}`, color: theme.text.primary, padding: '3px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 500 }}
           >
             Reset
           </button>

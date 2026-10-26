@@ -13,7 +13,7 @@ export const NarrationPanel: React.FC = () => {
     if (!cp) return;
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:8000/checkpoints/${cp.id}/narrate`, {
+      const res = await fetch(`http://127.0.0.1:8000/checkpoints/${cp.id}/narrate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -39,7 +39,7 @@ export const NarrationPanel: React.FC = () => {
   const handleSuggestClick = async () => {
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:8000/suggest', {
+      const res = await fetch('http://127.0.0.1:8000/suggest', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -62,11 +62,11 @@ export const NarrationPanel: React.FC = () => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: theme.bg.surface, overflow: 'hidden' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#ffffff', overflow: 'hidden' }}>
       {/* Header */}
-      <div style={{ padding: '10px 16px', borderBottom: `1px solid ${theme.border.subtle}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#0a0c12' }}>
+      <div style={{ padding: '10px 16px', borderBottom: `1px solid ${theme.border.subtle}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '11px', fontWeight: 700, color: theme.accent.violet, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+          <span style={{ fontSize: '11px', fontWeight: 700, color: theme.accent.blue, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
             🧠 FLIGHT INSTRUCTOR (MUSE SPARK)
           </span>
         </div>
@@ -75,14 +75,15 @@ export const NarrationPanel: React.FC = () => {
             onClick={handleWhyClick}
             disabled={!cp || loading}
             style={{
-              background: theme.accent.cyan,
-              color: '#07080b',
+              background: theme.accent.blue,
+              color: '#ffffff',
               border: 'none',
-              padding: '3px 10px',
-              borderRadius: '3px',
+              padding: '4px 12px',
+              borderRadius: '4px',
               fontSize: '11px',
-              fontWeight: 700,
-              cursor: (!cp || loading) ? 'not-allowed' : 'pointer'
+              fontWeight: 600,
+              cursor: (!cp || loading) ? 'not-allowed' : 'pointer',
+              boxShadow: '0 1px 2px rgba(37, 99, 235, 0.2)'
             }}
           >
             {loading ? 'Analyzing...' : 'Why?'}
@@ -90,75 +91,83 @@ export const NarrationPanel: React.FC = () => {
           <button
             onClick={handleSuggestClick}
             style={{
-              background: theme.accent.amber,
-              color: '#07080b',
+              background: '#0284c7',
+              color: '#ffffff',
               border: 'none',
-              padding: '3px 10px',
-              borderRadius: '3px',
+              padding: '4px 12px',
+              borderRadius: '4px',
               fontSize: '11px',
-              fontWeight: 700,
-              cursor: 'pointer'
+              fontWeight: 600,
+              cursor: 'pointer',
+              boxShadow: '0 1px 2px rgba(2, 132, 199, 0.2)'
             }}
           >
-            Suggest Intervention
+            Suggest
           </button>
         </div>
       </div>
 
-      {/* Narration Content */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: '12px', background: '#08090d' }}>
-        {narration ? (
-          <div style={{ background: '#0d1017', padding: '14px', borderRadius: '4px', border: `1px solid ${theme.border.hairline}` }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', alignItems: 'center' }}>
-              <span style={{ fontSize: '11px', fontWeight: 700, color: theme.accent.cyan, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                CAUSAL NARRATION
-              </span>
-              <span style={{
-                fontSize: '10px',
-                fontWeight: 700,
-                color: narration.verdict === 'FIXED' ? theme.accent.emerald : theme.accent.ruby,
-                background: narration.verdict === 'FIXED' ? 'rgba(52, 211, 153, 0.12)' : 'rgba(244, 63, 94, 0.12)',
-                padding: '2px 8px',
-                borderRadius: '3px',
-                border: narration.verdict === 'FIXED' ? '1px solid rgba(52, 211, 153, 0.3)' : '1px solid rgba(244, 63, 94, 0.3)'
-              }}>
-                {narration.verdict} (Risk: {(narration.risk_score * 100).toFixed(0)}%)
-              </span>
-            </div>
-            <div style={{ fontSize: '13px', fontWeight: 700, color: theme.text.primary, marginBottom: '8px', lineHeight: '1.4' }}>
-              {narration.headline}
-            </div>
-            <div style={{ fontSize: '12px', color: theme.text.secondary, lineHeight: '1.6', marginBottom: '10px', fontFamily: '"Inter", sans-serif' }}>
-              {narration.causal_chain}
-            </div>
-            <div style={{ fontSize: '11px', color: theme.accent.amber, background: 'rgba(229, 169, 60, 0.08)', border: '1px solid rgba(229, 169, 60, 0.2)', padding: '8px 10px', borderRadius: '3px', lineHeight: '1.4' }}>
-              <strong>Hypothesis:</strong> {narration.hypothesis}
-            </div>
+      {/* Main Content */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: '12px', background: '#ffffff' }}>
+        {!narration ? (
+          <div style={{ padding: '24px', border: `1px dashed ${theme.border.subtle}`, borderRadius: '6px', textAlign: 'center', color: theme.text.muted, fontSize: '12px' }}>
+            Click &quot;Why?&quot; to ask Muse Spark to construct the causal explanation behind this checkpoint.
           </div>
         ) : (
-          <div style={{ background: '#0d1017', padding: '14px', borderRadius: '4px', border: `1px dashed ${theme.border.hairline}`, color: theme.text.muted, fontSize: '12px' }}>
-            Click <strong>"Why?"</strong> to ask Muse Spark to construct the causal explanation behind this checkpoint.
-          </div>
+          <>
+            {/* Causal Narration Card */}
+            <div style={{ background: '#f8fafc', border: `1px solid ${theme.border.subtle}`, borderRadius: '8px', padding: '12px 14px', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <span style={{ fontSize: '10px', fontWeight: 700, color: theme.accent.blue, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  CAUSAL NARRATION
+                </span>
+                <span style={{
+                  fontSize: '10px',
+                  fontWeight: 700,
+                  padding: '1px 6px',
+                  borderRadius: '3px',
+                  background: '#f0fdf4',
+                  color: '#15803d',
+                  border: '1px solid #bbf7d0'
+                }}>
+                  {narration.verdict} (Risk: {(narration.risk_score * 100).toFixed(0)}%)
+                </span>
+              </div>
+              <div style={{ fontSize: '13px', fontWeight: 700, color: theme.text.primary, marginBottom: '6px', lineHeight: '1.4' }}>
+                {narration.headline}
+              </div>
+              <div style={{ fontSize: '12px', color: theme.text.secondary, lineHeight: '1.5' }}>
+                {narration.causal_chain}
+              </div>
+
+              {narration.hypothesis && (
+                <div style={{ marginTop: '10px', padding: '8px 10px', background: '#eff6ff', border: `1px solid ${theme.border.active}`, borderRadius: '4px', fontSize: '11px', color: '#1e40af', lineHeight: '1.45' }}>
+                  <span style={{ fontWeight: 700 }}>Hypothesis: </span>
+                  {narration.hypothesis}
+                </div>
+              )}
+            </div>
+
+            {/* Course-Correction Directive */}
+            {intervention && (
+              <div style={{ background: '#eff6ff', border: `1px solid ${theme.border.active}`, borderRadius: '8px', padding: '12px 14px' }}>
+                <div style={{ fontSize: '10px', fontWeight: 700, color: '#1d4ed8', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  ⚡ COURSE-CORRECTION DIRECTIVE
+                </div>
+                <div style={{ fontSize: '12px', color: '#1e40af', fontWeight: 600, lineHeight: '1.45' }}>
+                  {intervention}
+                </div>
+              </div>
+            )}
+          </>
         )}
 
-        {/* Intervention Box */}
-        {intervention && (
-          <div style={{ background: '#181014', padding: '14px', borderRadius: '4px', border: `1px solid ${theme.accent.ruby}` }}>
-            <div style={{ fontSize: '11px', fontWeight: 700, color: theme.accent.ruby, marginBottom: '6px', letterSpacing: '0.05em' }}>
-              ⚡ COURSE-CORRECTION DIRECTIVE
-            </div>
-            <div style={{ fontSize: '12px', color: '#fecdd3', fontFamily: '"JetBrains Mono", monospace', whiteSpace: 'pre-wrap', lineHeight: '1.5' }}>
-              {intervention}
-            </div>
+        {/* Forensic Proof Receipt */}
+        <div style={{ marginTop: 'auto', padding: '10px 12px', background: '#f8fafc', border: `1px solid ${theme.border.subtle}`, borderRadius: '6px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '10px', fontWeight: 700, color: '#15803d', textTransform: 'uppercase', marginBottom: '2px' }}>
+            <span>🔒 FORENSIC PROOF: IMMUTABLE LOG</span>
           </div>
-        )}
-
-        {/* Cryptographic Receipt Badge */}
-        <div style={{ marginTop: 'auto', background: '#071610', padding: '10px 12px', borderRadius: '4px', border: `1px solid ${theme.accent.emerald}` }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: theme.accent.emerald, fontWeight: 700 }}>
-            <span>🔒</span> FORENSIC PROOF: IMMUTABLE LOG
-          </div>
-          <div style={{ fontSize: '10px', color: '#6ee7b7', fontFamily: 'monospace', marginTop: '4px' }}>
+          <div style={{ fontSize: '11px', color: theme.text.secondary }}>
             SHA-256 Merkle Chain Verified (Zero Tampering Detected)
           </div>
         </div>

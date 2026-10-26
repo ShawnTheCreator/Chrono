@@ -26,9 +26,9 @@ It provides immutable cryptographic time-travel, sub-millisecond timeline scrubb
 
 <br/>
 
-[![Chrono Cockpit](docs/assets/cockpit_loop_recovery.png)](http://localhost:5173)
+[![Chrono Cockpit](docs/assets/cockpit_nextjs_light.png)](http://localhost:3000)
 
-*Chrono Cockpit paused at derail recovery checkpoint `chk_04n112tt8a` (05:20): real-time diff hydration, sliding-window stall trap, Muse Spark causal explanation, and tamper-verified Merkle chain.*
+*Chrono Cockpit (Next.js 14 App Router) paused at derail recovery checkpoint `chk_04n112tt8a` (05:20): blue, light blue, and slate gray UI, real-time diff hydration, sliding-window stall trap, Muse Spark causal explanation, and tamper-verified Merkle chain.*
 
 </div>
 
@@ -126,10 +126,10 @@ make test
 # Terminal 1: Launch Bridge
 cd bridge && uvicorn app.main:app --port 8000 --reload
 
-# Terminal 2: Launch Cockpit
+# Terminal 2: Launch Next.js Cockpit
 cd web && npm run dev
 ```
-Open [http://localhost:5173](http://localhost:5173) in your browser.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 

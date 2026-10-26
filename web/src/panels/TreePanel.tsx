@@ -65,52 +65,66 @@ export const TreePanel: React.FC = () => {
         }
       ]
     },
-    { name: 'CMakeLists.txt', isFolder: false, modified: modifiedFiles.has('CMakeLists.txt') },
+    { name: 'CMakeLists.txt', isFolder: false },
     { name: 'Makefile', isFolder: false }
   ];
 
-  const renderNode = (node: TreeNode, depth: number = 0) => {
+  const renderNode = (node: TreeNode, depth: number = 0, path: string = '') => {
+    const currentPath = path ? `${path}/${node.name}` : node.name;
+    const isMod = node.modified;
+
     return (
-      <div key={node.name} style={{ marginLeft: `${depth * 14}px` }}>
+      <div key={currentPath}>
         <div
-          onClick={() => !node.isFolder && setSelectedFile(node.name)}
+          onClick={() => !node.isFolder && setSelectedFile(currentPath)}
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '6px',
-            padding: '3px 8px',
-            borderRadius: '4px',
-            cursor: node.isFolder ? 'default' : 'pointer',
+            justifyContent: 'space-between',
+            padding: '4px 8px',
+            paddingLeft: `${depth * 14 + 10}px`,
             fontSize: '11px',
-            background: selectedFile === node.name ? theme.bg.elevated : 'transparent',
-            color: node.modified ? theme.accent.amber : (node.isFolder ? theme.text.secondary : theme.text.primary)
+            cursor: node.isFolder ? 'default' : 'pointer',
+            background: isMod ? '#eff6ff' : (selectedFile === currentPath ? '#f1f5f9' : 'transparent'),
+            color: isMod ? '#1d4ed8' : (node.isFolder ? theme.text.secondary : theme.text.primary),
+            fontWeight: (isMod || node.isFolder) ? 600 : 400,
+            borderRadius: '4px',
+            marginBottom: '1px'
           }}
         >
-          <span>{node.isFolder ? '📁' : '📄'}</span>
-          <span style={{ fontWeight: node.modified ? 700 : 400 }}>{node.name}</span>
-          {node.modified && (
-            <span style={{ fontSize: '9px', background: 'rgba(229, 169, 60, 0.15)', color: theme.accent.amber, padding: '1px 5px', borderRadius: '3px', marginLeft: 'auto', fontWeight: 700 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ color: node.isFolder ? '#64748b' : (isMod ? '#2563eb' : '#94a3b8') }}>
+              {node.isFolder ? '📁' : '📄'}
+            </span>
+            <span>{node.name}</span>
+          </div>
+          {isMod && (
+            <span style={{ fontSize: '9px', fontWeight: 700, background: '#fef3c7', color: '#b45309', border: '1px solid #fde68a', padding: '1px 5px', borderRadius: '3px' }}>
               MOD
             </span>
           )}
         </div>
-        {node.children && node.children.map((c) => renderNode(c, depth + 1))}
+        {node.children && (
+          <div>
+            {node.children.map((child) => renderNode(child, depth + 1, currentPath))}
+          </div>
+        )}
       </div>
     );
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: theme.bg.surface, overflow: 'hidden' }}>
-      <div style={{ padding: '10px 16px', borderBottom: `1px solid ${theme.border.subtle}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#0a0c12' }}>
-        <span style={{ fontSize: '11px', fontWeight: 700, color: theme.accent.cyan, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#ffffff', borderRight: `1px solid ${theme.border.subtle}`, overflow: 'hidden' }}>
+      <div style={{ padding: '10px 14px', borderBottom: `1px solid ${theme.border.subtle}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc' }}>
+        <span style={{ fontSize: '11px', fontWeight: 700, color: theme.accent.blue, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
           TREE SNAPSHOT
         </span>
         <span style={{ fontSize: '10px', color: theme.text.muted, fontFamily: 'monospace' }}>
-          tree:{cp ? cp.git_tree_hash.slice(0, 8) : 'HEAD'}
+          tree:{cp?.git_tree_hash.slice(0, 8) || 'HEAD'}
         </span>
       </div>
-      <div style={{ flex: 1, overflowY: 'auto', padding: '10px 8px', background: '#08090d' }}>
-        {defaultTree.map((n) => renderNode(n, 0))}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '8px 4px', background: '#ffffff' }}>
+        {defaultTree.map((n) => renderNode(n))}
       </div>
     </div>
   );
