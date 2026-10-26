@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { store } from '../state/timelineStore';
+import { useTimelineStore } from '../state/timelineStore';
 import { theme } from '../app/theme';
 
 interface TreeNode {
@@ -11,7 +11,8 @@ interface TreeNode {
 
 export const TreePanel: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
-  const cp = store.activeCheckpoint;
+  const store = useTimelineStore();
+  const cp = store.activeCheckpoint || (store.checkpoints.length > 0 ? store.checkpoints[0] : null);
   const modifiedFiles = new Set(cp?.files_modified || []);
 
   const defaultTree: TreeNode[] = [
@@ -86,9 +87,9 @@ export const TreePanel: React.FC = () => {
           }}
         >
           <span>{node.isFolder ? '📁' : '📄'}</span>
-          <span style={{ fontWeight: node.modified ? 600 : 400 }}>{node.name}</span>
+          <span style={{ fontWeight: node.modified ? 700 : 400 }}>{node.name}</span>
           {node.modified && (
-            <span style={{ fontSize: '9px', background: 'rgba(229, 169, 60, 0.15)', color: theme.accent.amber, padding: '1px 5px', borderRadius: '3px', marginLeft: 'auto' }}>
+            <span style={{ fontSize: '9px', background: 'rgba(229, 169, 60, 0.15)', color: theme.accent.amber, padding: '1px 5px', borderRadius: '3px', marginLeft: 'auto', fontWeight: 700 }}>
               MOD
             </span>
           )}
@@ -100,15 +101,15 @@ export const TreePanel: React.FC = () => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: theme.bg.surface, overflow: 'hidden' }}>
-      <div style={{ padding: '10px 16px', borderBottom: `1px solid ${theme.border.subtle}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ fontSize: '11px', fontWeight: 600, color: theme.accent.cyan, textTransform: 'uppercase' }}>
+      <div style={{ padding: '10px 16px', borderBottom: `1px solid ${theme.border.subtle}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#0a0c12' }}>
+        <span style={{ fontSize: '11px', fontWeight: 700, color: theme.accent.cyan, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
           TREE SNAPSHOT
         </span>
-        <span style={{ fontSize: '10px', color: theme.text.muted }}>
-          Git Tree: {cp ? cp.git_tree_hash.slice(0, 8) : 'HEAD'}
+        <span style={{ fontSize: '10px', color: theme.text.muted, fontFamily: 'monospace' }}>
+          tree:{cp ? cp.git_tree_hash.slice(0, 8) : 'HEAD'}
         </span>
       </div>
-      <div style={{ flex: 1, overflowY: 'auto', padding: '10px 8px' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '10px 8px', background: '#08090d' }}>
         {defaultTree.map((n) => renderNode(n, 0))}
       </div>
     </div>

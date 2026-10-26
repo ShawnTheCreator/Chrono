@@ -3,33 +3,42 @@
     "id": "chk_day1_core",
     "git_tree_hash": "d86ac7b1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7",
     "event_offset": 120,
-    "timestamp_ns": 1730000000000000000,
-    "files_modified": ["core/include/chrono/hash_chain.h", "core/src/hash_chain.cpp"],
+    "timestamp_ns": 1793004970000000000,
+    "files_modified": [
+      "core/include/chrono/hash_chain.h",
+      "core/src/hash_chain.cpp"
+    ],
     "additions": 140,
     "deletions": 0,
     "summary": "feat(core): append-only SHA-256 Merkle chain and tamper verifier",
-    "raw_patch": "--- /dev/null\n+++ b/core/include/chrono/hash_chain.h\n@@ -0,0 +1,50 @@\n+#pragma once\n+struct ChainRecord { EventWireHeader header; crypto::Digest prev_hash; crypto::Digest current_hash; };"
+    "raw_patch": "--- /dev/null\n+++ b/core/include/chrono/hash_chain.h\n@@ -0,0 +1,50 @@\n+#pragma once\n+#include <chrono/sha256.h>\n+namespace chrono {\n+struct ChainRecord {\n+    EventWireHeader header;\n+    crypto::Digest prev_hash;\n+    crypto::Digest current_hash;\n+};\n+class HashChainWriter {\n+public:\n+    ChainRecord append(EventKind kind, uint16_t flags, std::string_view payload);\n+    bool verify_chain() const;\n+};\n+}"
   },
   {
     "id": "chk_day1_ingest",
-    "git_tree_hash": "9f8e7d6c5b4a32109876543210fedcba98765432",
-    "event_offset": 350,
-    "timestamp_ns": 1730003000000000000,
-    "files_modified": ["core/include/chrono/ingest.h", "core/src/ingest.cpp"],
-    "additions": 92,
+    "git_tree_hash": "a4b5c6d7e8f90123456789abcdef0123456789ab",
+    "event_offset": 400,
+    "timestamp_ns": 1793008500000000000,
+    "files_modified": [
+      "core/include/chrono/ingest.h",
+      "core/src/ingest.cpp"
+    ],
+    "additions": 96,
     "deletions": 8,
     "summary": "feat(core): LMAX lockless SPSC ring buffer (1M events/sec, zero drops)",
-    "raw_patch": "--- a/core/include/chrono/ingest.h\n+++ b/core/include/chrono/ingest.h\n@@ -10,6 +10,12 @@\n+alignas(64) std::atomic<size_t> head_;\n+alignas(64) std::atomic<size_t> tail_;"
+    "raw_patch": "--- a/core/include/chrono/ingest.h\n+++ b/core/include/chrono/ingest.h\n@@ -28,8 +28,16 @@\n+    alignas(64) std::atomic<size_t> head_{0};\n+    alignas(64) std::atomic<size_t> tail_{0};\n+    alignas(64) std::atomic<size_t> dropped_count_{0};\n+    std::vector<T> ring_;\n+    static constexpr size_t kCapacity = 65536;\n+    static constexpr size_t kMask = kCapacity - 1;"
   },
   {
     "id": "chk_day1_adapter",
-    "git_tree_hash": "3a37187767775b2c4926a6dc4a8ff8dd850c36bb",
-    "event_offset": 620,
-    "timestamp_ns": 1730007000000000000,
-    "files_modified": ["adapters/muse_code/session_watcher.py"],
-    "additions": 150,
-    "deletions": 20,
+    "git_tree_hash": "f1e2d3c4b5a698701234567890abcdef12345678",
+    "event_offset": 750,
+    "timestamp_ns": 1793013200000000000,
+    "files_modified": [
+      "adapters/muse_code/session_watcher.py",
+      "adapters/protocol.md"
+    ],
+    "additions": 182,
+    "deletions": 14,
     "summary": "feat(adapters): real-time transcript normalizer for CEP v1 stream",
-    "raw_patch": "--- a/adapters/muse_code/session_watcher.py\n+++ b/adapters/muse_code/session_watcher.py\n@@ -30,6 +30,15 @@\n+def normalize_muse_events(raw, seq_id):\n+    if event_type == 'PLANNER_RESPONSE':\n+        emit_agent_thought(thinking)"
+    "raw_patch": "--- a/adapters/muse_code/session_watcher.py\n+++ b/adapters/muse_code/session_watcher.py\n@@ -50,12 +50,24 @@ def normalize_agent_event(raw_event: dict) -> bytes:\n+    seq_id = next_seq_id()\n+    timestamp_ns = time.time_ns()\n+    payload_bytes = json.dumps(raw_event).encode('utf-8')\n+    wire_header = struct.pack(\"<QQHHII\", 0x43455031, seq_id, ...)\n+    return wire_header + payload_bytes"
   }
 ]

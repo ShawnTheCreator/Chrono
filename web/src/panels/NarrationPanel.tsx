@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { store } from '../state/timelineStore';
+import { useTimelineStore, store } from '../state/timelineStore';
 import { theme } from '../app/theme';
 
 export const NarrationPanel: React.FC = () => {
   const [loading, setLoading] = useState(false);
-  const [intervention, setIntervention] = useState<string | null>(null);
-  const cp = store.activeCheckpoint;
-  const narration = store.activeNarration;
+  const state = useTimelineStore();
+  const cp = state.activeCheckpoint || (state.checkpoints.length > 0 ? state.checkpoints[0] : null);
+  const narration = state.activeNarration;
+  const intervention = state.activeIntervention;
 
   const handleWhyClick = async () => {
     if (!cp) return;
@@ -26,23 +27,10 @@ export const NarrationPanel: React.FC = () => {
         const data = await res.json();
         store.setNarration(data);
       } else {
-        // Fallback simulation
-        store.setNarration({
-          headline: `Enforced invariant contract on ${cp.files_modified[0] || 'workspace'}`,
-          causal_chain: 'The agent detected struct packing alignment errors across platform boundaries and updated wire definitions to ensure deterministic serialization.',
-          hypothesis: 'Explicit struct padding prevents silent memory corruption in the SPSC ring buffer.',
-          verdict: 'FIXED',
-          risk_score: 0.05
-        });
+        store.hydrateNarrationForCheckpoint(cp);
       }
     } catch {
-      store.setNarration({
-        headline: `Enforced invariant contract on ${cp?.files_modified[0] || 'workspace'}`,
-        causal_chain: 'The agent detected struct packing alignment errors across platform boundaries and updated wire definitions to ensure deterministic serialization.',
-        hypothesis: 'Explicit struct padding prevents silent memory corruption in the SPSC ring buffer.',
-        verdict: 'FIXED',
-        risk_score: 0.05
-      });
+      store.hydrateNarrationForCheckpoint(cp);
     } finally {
       setLoading(false);
     }
@@ -62,12 +50,12 @@ export const NarrationPanel: React.FC = () => {
       });
       if (res.ok) {
         const data = await res.json();
-        setIntervention(data.prompt_injection);
+        store.setIntervention(data.prompt_injection);
       } else {
-        setIntervention("INTERVENTION: Stop repeating diff on file. Inspect constructor parameter threshold_cycles_ instead.");
+        store.setIntervention("INTERVENTION: Stop repeating diff on file. Inspect constructor parameter threshold_cycles_ instead.");
       }
     } catch {
-      setIntervention("INTERVENTION: Stop repeating diff on file. Inspect constructor parameter threshold_cycles_ instead.");
+      store.setIntervention("INTERVENTION: Stop repeating diff on file. Inspect constructor parameter threshold_cycles_ instead.");
     } finally {
       setLoading(false);
     }
@@ -76,9 +64,9 @@ export const NarrationPanel: React.FC = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: theme.bg.surface, overflow: 'hidden' }}>
       {/* Header */}
-      <div style={{ padding: '10px 16px', borderBottom: `1px solid ${theme.border.subtle}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ padding: '10px 16px', borderBottom: `1px solid ${theme.border.subtle}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#0a0c12' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '11px', fontWeight: 600, color: theme.accent.violet, textTransform: 'uppercase' }}>
+          <span style={{ fontSize: '11px', fontWeight: 700, color: theme.accent.violet, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
             🧠 FLIGHT INSTRUCTOR (MUSE SPARK)
           </span>
         </div>
@@ -93,7 +81,7 @@ export const NarrationPanel: React.FC = () => {
               padding: '3px 10px',
               borderRadius: '3px',
               fontSize: '11px',
-              fontWeight: 600,
+              fontWeight: 700,
               cursor: (!cp || loading) ? 'not-allowed' : 'pointer'
             }}
           >
@@ -108,7 +96,7 @@ export const NarrationPanel: React.FC = () => {
               padding: '3px 10px',
               borderRadius: '3px',
               fontSize: '11px',
-              fontWeight: 600,
+              fontWeight: 700,
               cursor: 'pointer'
             }}
           >
@@ -118,59 +106,60 @@ export const NarrationPanel: React.FC = () => {
       </div>
 
       {/* Narration Content */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: '12px', background: '#08090d' }}>
         {narration ? (
-          <div style={{ background: theme.bg.base, padding: '14px', borderRadius: '4px', border: `1px solid ${theme.border.hairline}` }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-              <span style={{ fontSize: '11px', fontWeight: 600, color: theme.accent.cyan }}>
+          <div style={{ background: '#0d1017', padding: '14px', borderRadius: '4px', border: `1px solid ${theme.border.hairline}` }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', alignItems: 'center' }}>
+              <span style={{ fontSize: '11px', fontWeight: 700, color: theme.accent.cyan, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 CAUSAL NARRATION
               </span>
               <span style={{
                 fontSize: '10px',
-                fontWeight: 600,
+                fontWeight: 700,
                 color: narration.verdict === 'FIXED' ? theme.accent.emerald : theme.accent.ruby,
-                background: narration.verdict === 'FIXED' ? 'rgba(52, 211, 153, 0.1)' : 'rgba(244, 63, 94, 0.1)',
-                padding: '2px 6px',
-                borderRadius: '3px'
+                background: narration.verdict === 'FIXED' ? 'rgba(52, 211, 153, 0.12)' : 'rgba(244, 63, 94, 0.12)',
+                padding: '2px 8px',
+                borderRadius: '3px',
+                border: narration.verdict === 'FIXED' ? '1px solid rgba(52, 211, 153, 0.3)' : '1px solid rgba(244, 63, 94, 0.3)'
               }}>
                 {narration.verdict} (Risk: {(narration.risk_score * 100).toFixed(0)}%)
               </span>
             </div>
-            <div style={{ fontSize: '13px', fontWeight: 600, color: theme.text.primary, marginBottom: '8px' }}>
+            <div style={{ fontSize: '13px', fontWeight: 700, color: theme.text.primary, marginBottom: '8px', lineHeight: '1.4' }}>
               {narration.headline}
             </div>
-            <div style={{ fontSize: '12px', color: theme.text.secondary, lineHeight: '1.6', marginBottom: '10px' }}>
+            <div style={{ fontSize: '12px', color: theme.text.secondary, lineHeight: '1.6', marginBottom: '10px', fontFamily: '"Inter", sans-serif' }}>
               {narration.causal_chain}
             </div>
-            <div style={{ fontSize: '11px', color: theme.accent.amber, background: 'rgba(229, 169, 60, 0.08)', padding: '6px 10px', borderRadius: '3px' }}>
+            <div style={{ fontSize: '11px', color: theme.accent.amber, background: 'rgba(229, 169, 60, 0.08)', border: '1px solid rgba(229, 169, 60, 0.2)', padding: '8px 10px', borderRadius: '3px', lineHeight: '1.4' }}>
               <strong>Hypothesis:</strong> {narration.hypothesis}
             </div>
           </div>
         ) : (
-          <div style={{ background: theme.bg.base, padding: '14px', borderRadius: '4px', border: `1px dashed ${theme.border.hairline}`, color: theme.text.muted, fontSize: '12px' }}>
+          <div style={{ background: '#0d1017', padding: '14px', borderRadius: '4px', border: `1px dashed ${theme.border.hairline}`, color: theme.text.muted, fontSize: '12px' }}>
             Click <strong>"Why?"</strong> to ask Muse Spark to construct the causal explanation behind this checkpoint.
           </div>
         )}
 
         {/* Intervention Box */}
         {intervention && (
-          <div style={{ background: '#181216', padding: '14px', borderRadius: '4px', border: `1px solid ${theme.accent.ruby}` }}>
-            <div style={{ fontSize: '11px', fontWeight: 600, color: theme.accent.ruby, marginBottom: '6px' }}>
+          <div style={{ background: '#181014', padding: '14px', borderRadius: '4px', border: `1px solid ${theme.accent.ruby}` }}>
+            <div style={{ fontSize: '11px', fontWeight: 700, color: theme.accent.ruby, marginBottom: '6px', letterSpacing: '0.05em' }}>
               ⚡ COURSE-CORRECTION DIRECTIVE
             </div>
-            <div style={{ fontSize: '12px', color: '#fecdd3', fontFamily: '"JetBrains Mono", monospace', whiteSpace: 'pre-wrap' }}>
+            <div style={{ fontSize: '12px', color: '#fecdd3', fontFamily: '"JetBrains Mono", monospace', whiteSpace: 'pre-wrap', lineHeight: '1.5' }}>
               {intervention}
             </div>
           </div>
         )}
 
         {/* Cryptographic Receipt Badge */}
-        <div style={{ marginTop: 'auto', background: '#0a1612', padding: '10px 12px', borderRadius: '4px', border: `1px solid ${theme.accent.emerald}` }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: theme.accent.emerald, fontWeight: 600 }}>
+        <div style={{ marginTop: 'auto', background: '#071610', padding: '10px 12px', borderRadius: '4px', border: `1px solid ${theme.accent.emerald}` }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: theme.accent.emerald, fontWeight: 700 }}>
             <span>🔒</span> FORENSIC PROOF: IMMUTABLE LOG
           </div>
           <div style={{ fontSize: '10px', color: '#6ee7b7', fontFamily: 'monospace', marginTop: '4px' }}>
-            SHA-256 Merkle Chain Verified (Zero Tampering)
+            SHA-256 Merkle Chain Verified (Zero Tampering Detected)
           </div>
         </div>
       </div>

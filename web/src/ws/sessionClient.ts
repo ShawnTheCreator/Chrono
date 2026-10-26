@@ -16,7 +16,9 @@ export class SessionClient {
         fetch(`http://localhost:8000/sessions/${sessionId}/events?limit=2000`)
           .then((r) => r.json())
           .then((evData) => {
-            store.setSession(data.metadata || { session_id: sessionId }, evData.events || [], data.checkpoints || []);
+            if (evData && Array.isArray(evData.events) && evData.events.length > 0) {
+              store.setSession(data.metadata || { session_id: sessionId }, evData.events, data.checkpoints || []);
+            }
           });
       })
       .catch(() => {

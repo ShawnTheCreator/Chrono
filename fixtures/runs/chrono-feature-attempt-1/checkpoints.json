@@ -2,56 +2,56 @@
   {
     "id": "chk_01h982ka7b",
     "git_tree_hash": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
-    "event_offset": 12,
-    "timestamp_ns": 320000000000,
+    "event_offset": 7,
+    "timestamp_ns": 60000000000,
     "files_modified": ["core/include/chrono/event.h"],
     "additions": 45,
     "deletions": 0,
     "summary": "feat(core): declare Event wire framing and EventKind enum",
-    "raw_patch": "--- /dev/null\n+++ b/core/include/chrono/event.h\n@@ -0,0 +1,45 @@\n+#pragma once\n+#include <cstdint>\n+namespace chrono { enum class EventKind : uint16_t { ... }; }"
+    "raw_patch": "--- /dev/null\n+++ b/core/include/chrono/event.h\n@@ -0,0 +1,45 @@\n+#pragma once\n+#include <cstdint>\n+namespace chrono {\n+enum class EventKind : uint16_t {\n+    SESSION_START = 1,\n+    PROMPT = 2,\n+    AGENT_THOUGHT = 3,\n+    TOOL_CALL = 4,\n+    TOOL_RESULT = 5,\n+    FILE_DIFF = 6,\n+    CHECKPOINT = 7,\n+    STALL_ALERT = 8,\n+    INTERVENTION = 9\n+};\n+}"
   },
   {
     "id": "chk_02m881lp9c",
     "git_tree_hash": "7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b",
-    "event_offset": 36,
-    "timestamp_ns": 780000000000,
+    "event_offset": 10,
+    "timestamp_ns": 130000000000,
     "files_modified": ["core/include/chrono/hash_chain.h", "core/src/hash_chain.cpp"],
     "additions": 110,
     "deletions": 4,
     "summary": "feat(core): implement SHA-256 append-only log with tamper verification",
-    "raw_patch": "--- a/core/src/hash_chain.cpp\n+++ b/core/src/hash_chain.cpp\n@@ -15,4 +15,22 @@\n+ChainRecord HashChainWriter::append(EventKind kind, uint16_t flags, std::string_view payload) {\n+    record.current_hash = record.compute_hash();\n+    tail_hash_ = record.current_hash;\n+}"
+    "raw_patch": "--- a/core/src/hash_chain.cpp\n+++ b/core/src/hash_chain.cpp\n@@ -15,4 +15,22 @@\n ChainRecord HashChainWriter::append(EventKind kind, uint16_t flags, std::string_view payload) {\n+    ChainRecord record;\n+    record.header.seq_id = next_seq_++;\n+    record.header.kind = static_cast<uint16_t>(kind);\n+    record.prev_hash = tail_hash_;\n+    record.current_hash = record.compute_hash();\n+    tail_hash_ = record.current_hash;\n+    write_record(record, payload);\n+    return record;\n }"
   },
   {
     "id": "chk_03k990qq2d",
     "git_tree_hash": "3f4e5d6c7b8a90123456789abcdef0123456789a",
-    "event_offset": 64,
-    "timestamp_ns": 1420000000000,
+    "event_offset": 13,
+    "timestamp_ns": 240000000000,
     "files_modified": ["core/include/chrono/ingest.h", "core/src/ingest.cpp"],
     "additions": 88,
     "deletions": 12,
     "summary": "feat(core): build LMAX lockless SPSC ring buffer for burst ingest",
-    "raw_patch": "--- a/core/include/chrono/ingest.h\n+++ b/core/include/chrono/ingest.h\n@@ -25,5 +25,12 @@\n+alignas(64) std::atomic<size_t> head_;\n+alignas(64) std::atomic<size_t> tail_;\n+std::vector<T> ring_;"
+    "raw_patch": "--- a/core/include/chrono/ingest.h\n+++ b/core/include/chrono/ingest.h\n@@ -25,5 +25,12 @@\n+    alignas(64) std::atomic<size_t> head_{0};\n+    alignas(64) std::atomic<size_t> tail_{0};\n+    std::vector<T> ring_;\n+    static constexpr size_t kCapacity = 65536;\n+    static constexpr size_t kMask = kCapacity - 1;"
   },
   {
     "id": "chk_04n112tt8a",
     "git_tree_hash": "c1d2e3f4a5b678901234567890abcdef12345678",
-    "event_offset": 92,
-    "timestamp_ns": 1980000000000,
+    "event_offset": 18,
+    "timestamp_ns": 320000000000,
     "files_modified": ["core/src/stall_detector.cpp"],
     "additions": 64,
     "deletions": 18,
     "summary": "fix(core): recover from identical diff oscillation by tuning sliding window",
-    "raw_patch": "--- a/core/src/stall_detector.cpp\n+++ b/core/src/stall_detector.cpp\n@@ -34,6 +34,14 @@\n+if (count >= threshold_cycles_) {\n+    alert.pattern = StallPattern::IDENTICAL_DIFF_LOOP;\n+    alert.confidence = 0.98;\n+}"
+    "raw_patch": "--- a/core/src/stall_detector.cpp\n+++ b/core/src/stall_detector.cpp\n@@ -34,16 +34,26 @@ void StallDetector::observe_diff(const std::string& patch_content) {\n     uint64_t patch_hash = compute_diff_hash(patch_content);\n     recent_diff_hashes_.push_back(patch_hash);\n     if (recent_diff_hashes_.size() > window_size_) {\n         recent_diff_hashes_.pop_front();\n     }\n \n-    // Unbounded repetition check failed to trigger on oscillatory edits\n-    size_t count = count_occurrences(patch_hash);\n+    // Fixed: Track deterministic cycles with threshold_cycles_ sliding window\n+    size_t count = count_occurrences(patch_hash);\n+    if (count >= threshold_cycles_) {\n+        StallAlert alert;\n+        alert.pattern = StallPattern::IDENTICAL_DIFF_LOOP;\n+        alert.confidence = 0.98f;\n+        alert.culprit_file = \"core/src/stall_detector.cpp\";\n+        alert.cycle_count = static_cast<uint32_t>(count);\n+        alert.description = \"Agent generated identical diff 3 times without resolving failure.\";\n+        bus_.publish(alert);\n+    }\n }"
   },
   {
     "id": "chk_05p443vv1b",
     "git_tree_hash": "9876543210abcdef0123456789abcdef01234567",
-    "event_offset": 120,
-    "timestamp_ns": 2450000000000,
+    "event_offset": 19,
+    "timestamp_ns": 360000000000,
     "files_modified": ["core/src/main.cpp", "core/tests/test_hash_chain.cpp"],
     "additions": 75,
     "deletions": 6,
     "summary": "feat(core): ship chronod verification daemon and green test suite",
-    "raw_patch": "--- a/core/src/main.cpp\n+++ b/core/src/main.cpp\n@@ -1,5 +1,15 @@\n+int cmd_verify(const std::string& path) {\n+    auto res = verify_log(path);\n+    res.print_receipt();\n+    return res.valid ? 0 : 1;\n+}"
+    "raw_patch": "--- a/core/src/main.cpp\n+++ b/core/src/main.cpp\n@@ -1,5 +1,15 @@\n+int cmd_verify(const std::string& path) {\n+    auto res = chrono::verify_log(path);\n+    res.print_receipt();\n+    return res.valid ? 0 : 1;\n+}"
   }
 ]

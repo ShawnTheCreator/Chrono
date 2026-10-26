@@ -1,27 +1,26 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { store } from '../state/timelineStore';
+import { useTimelineStore, store } from '../state/timelineStore';
 import { theme } from '../app/theme';
 
 export const CanvasTimeline: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [zoom, setZoom] = useState(1.0); // 1.0 = fit whole run
+  const [zoom, setZoom] = useState(1.0);
   const [panOffset, setPanOffset] = useState(0);
 
-  const [, setTick] = useState(0);
-
-  useEffect(() => {
-    return store.subscribe(() => setTick((t) => t + 1));
-  }, []);
+  const state = useTimelineStore();
 
   const formatTime = (ns: number) => {
-    const totalMs = Math.floor(ns / 1_000_000);
+    const relNs = Math.max(0, ns - state.minTimestampNs);
+    const totalMs = Math.floor(relNs / 1_000_000);
     const secs = Math.floor(totalMs / 1000);
     const ms = totalMs % 1000;
     const mins = Math.floor(secs / 60);
     const remSecs = secs % 60;
-    return `${String(mins).padStart(2, '0')}:${String(remSecs).padStart(2, '0')}.${String(ms).padStart(3, '0')}`;
+    const hours = Math.floor(mins / 60);
+    const remMins = mins % 60;
+    return `${String(hours).padStart(2, '0')}:${String(remMins).padStart(2, '0')}:${String(remSecs).padStart(2, '0')}.${String(ms).padStart(3, '0')}`;
   };
 
   const draw = useCallback(() => {
@@ -45,30 +44,25 @@ export const CanvasTimeline: React.FC = () => {
     ctx.lineTo(width, 0.5);
     ctx.stroke();
 
-    const range = Math.max(1, store.maxTimestampNs - store.minTimestampNs);
+    const range = Math.max(1, state.maxTimestampNs - state.minTimestampNs);
 
     const tsToX = (ts: number) => {
-      const normalized = (ts - store.minTimestampNs) / range;
+      const normalized = (ts - state.minTimestampNs) / range;
       return (normalized * width * zoom) - panOffset;
     };
 
-    const xToTs = (x: number) => {
-      const normalized = (x + panOffset) / (width * zoom);
-      return store.minTimestampNs + normalized * range;
-    };
-
-    // Draw Event Density Heatmap Track (height 20 to 55)
+    // Draw Event Density Heatmap Track (height 28 to 58)
     const trackY = 32;
     const trackH = 26;
 
-    ctx.fillStyle = '#0f131c';
+    ctx.fillStyle = '#0a0d14';
     ctx.fillRect(0, trackY, width, trackH);
 
     // Render Event Heatmap bars
     const bucketCount = Math.floor(width / 4);
     const buckets = new Float32Array(bucketCount);
 
-    store.events.forEach((ev) => {
+    state.events.forEach((ev) => {
       const x = tsToX(ev.timestamp_ns);
       const bIdx = Math.floor(x / 4);
       if (bIdx >= 0 && bIdx < bucketCount) {
@@ -82,7 +76,7 @@ export const CanvasTimeline: React.FC = () => {
     for (let i = 0; i < bucketCount; i++) {
       if (buckets[i] > 0) {
         const barH = (buckets[i] / maxB) * (trackH - 4);
-        ctx.fillStyle = buckets[i] > 3 ? theme.accent.amber : '#27354a';
+        ctx.fillStyle = buckets[i] > 2 ? theme.accent.amber : '#27354a';
         ctx.fillRect(i * 4, trackY + trackH - barH - 2, 3, barH);
       }
     }
@@ -94,9 +88,9 @@ export const CanvasTimeline: React.FC = () => {
     ctx.textAlign = 'center';
 
     const tickIntervalNs = Math.max(1_000_000_000, Math.floor(range / (10 * zoom)));
-    const startTick = Math.floor(store.minTimestampNs / tickIntervalNs) * tickIntervalNs;
+    const startTick = Math.floor(state.minTimestampNs / tickIntervalNs) * tickIntervalNs;
 
-    for (let t = startTick; t <= store.maxTimestampNs; t += tickIntervalNs) {
+    for (let t = startTick; t <= state.maxTimestampNs; t += tickIntervalNs) {
       const tx = tsToX(t);
       if (tx >= -50 && tx <= width + 50) {
         ctx.beginPath();
@@ -108,17 +102,17 @@ export const CanvasTimeline: React.FC = () => {
     }
 
     // Draw Checkpoint Markers (Diamonds on the track)
-    store.checkpoints.forEach((cp) => {
+    state.checkpoints.forEach((cp) => {
       const cx = tsToX(cp.timestamp_ns);
       if (cx >= -20 && cx <= width + 20) {
-        const isSelected = store.activeCheckpoint?.id === cp.id;
+        const isSelected = state.activeCheckpoint?.id === cp.id;
         ctx.save();
         ctx.translate(cx, trackY + trackH / 2);
 
         // Glow if active
         if (isSelected) {
           ctx.shadowColor = theme.accent.cyan;
-          ctx.shadowBlur = 10;
+          ctx.shadowBlur = 12;
         }
 
         ctx.fillStyle = isSelected ? theme.accent.cyan : '#475569';
@@ -138,27 +132,33 @@ export const CanvasTimeline: React.FC = () => {
       }
     });
 
-    // Draw Stall Alerts (Red warning flags)
-    store.events.filter((e) => e.kind === 'stall_alert').forEach((st) => {
+    // Draw Stall Alerts (Red warning hazard circles)
+    state.events.filter((e) => e.kind === 'stall_alert').forEach((st) => {
       const sx = tsToX(st.timestamp_ns);
       if (sx >= -20 && sx <= width + 20) {
         ctx.save();
         ctx.fillStyle = theme.accent.ruby;
         ctx.shadowColor = theme.accent.ruby;
-        ctx.shadowBlur = 8;
+        ctx.shadowBlur = 10;
         ctx.beginPath();
-        ctx.arc(sx, trackY + trackH / 2, 6, 0, Math.PI * 2);
+        ctx.arc(sx, trackY + trackH / 2, 7, 0, Math.PI * 2);
         ctx.fill();
+
+        // White exclamation mark
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 9px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('!', sx, trackY + trackH / 2 + 3);
         ctx.restore();
       }
     });
 
     // Playhead Scrubber Cursor
-    const playheadX = tsToX(store.currentTimestampNs);
+    const playheadX = tsToX(state.currentTimestampNs);
     ctx.strokeStyle = theme.accent.amber;
     ctx.lineWidth = 2;
     ctx.shadowColor = theme.accent.amber;
-    ctx.shadowBlur = 12;
+    ctx.shadowBlur = 14;
 
     ctx.beginPath();
     ctx.moveTo(playheadX, 0);
@@ -175,7 +175,7 @@ export const CanvasTimeline: React.FC = () => {
     ctx.fill();
 
     ctx.shadowBlur = 0;
-  }, [zoom, panOffset]);
+  }, [state, zoom, panOffset]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -192,30 +192,29 @@ export const CanvasTimeline: React.FC = () => {
 
   useEffect(() => {
     draw();
-  }, [draw, store.currentTimestampNs]);
+  }, [draw, state.currentTimestampNs]);
+
+  const seekFromX = (clientX: number) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = clientX - rect.left;
+    const range = Math.max(1, state.maxTimestampNs - state.minTimestampNs);
+    const ts = state.minTimestampNs + ((x + panOffset) / (canvas.width * zoom)) * range;
+    store.seekToTimestamp(ts);
+  };
 
   const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     setIsDragging(true);
     canvas.setPointerCapture(e.pointerId);
-
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const range = Math.max(1, store.maxTimestampNs - store.minTimestampNs);
-    const ts = store.minTimestampNs + ((x + panOffset) / (canvas.width * zoom)) * range;
-    store.seekToTimestamp(ts);
+    seekFromX(e.clientX);
   };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
     if (!isDragging) return;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const range = Math.max(1, store.maxTimestampNs - store.minTimestampNs);
-    const ts = store.minTimestampNs + ((x + panOffset) / (canvas.width * zoom)) * range;
-    store.seekToTimestamp(ts);
+    seekFromX(e.clientX);
   };
 
   const handlePointerUp = (e: React.PointerEvent<HTMLCanvasElement>) => {
@@ -232,17 +231,17 @@ export const CanvasTimeline: React.FC = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', width: '100%', height: '110px', background: theme.bg.surface }}>
       {/* Top Header Bar */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 16px', borderBottom: `1px solid ${theme.border.subtle}` }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 16px', borderBottom: `1px solid ${theme.border.subtle}`, background: '#090b10' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span style={{ fontSize: '11px', fontWeight: 600, color: theme.accent.amber, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            ● LIVE SCRUBBER (60 FPS)
+          <span style={{ fontSize: '11px', fontWeight: 700, color: theme.accent.amber, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+            ● SCRUBBER (60 FPS)
           </span>
-          <span style={{ fontSize: '11px', color: theme.text.secondary }}>
-            {formatTime(store.currentTimestampNs)} / {formatTime(store.maxTimestampNs)}
+          <span style={{ fontSize: '11px', color: theme.text.primary, fontFamily: 'monospace', fontWeight: 600 }}>
+            {formatTime(state.currentTimestampNs)} / {formatTime(state.maxTimestampNs)}
           </span>
-          {store.activeCheckpoint && (
-            <span style={{ fontSize: '11px', color: theme.accent.cyan, background: '#0e2439', padding: '2px 8px', borderRadius: '4px' }}>
-              CP: {store.activeCheckpoint.id} ({store.activeCheckpoint.summary})
+          {state.activeCheckpoint && (
+            <span style={{ fontSize: '11px', color: theme.accent.cyan, background: 'rgba(56, 189, 248, 0.1)', border: '1px solid rgba(56, 189, 248, 0.25)', padding: '2px 8px', borderRadius: '4px', fontWeight: 600 }}>
+              CP: {state.activeCheckpoint.id} ({state.activeCheckpoint.summary})
             </span>
           )}
         </div>
@@ -253,7 +252,7 @@ export const CanvasTimeline: React.FC = () => {
           >
             - Zoom
           </button>
-          <span style={{ fontSize: '11px', color: theme.text.muted }}>{zoom.toFixed(1)}x</span>
+          <span style={{ fontSize: '11px', color: theme.text.muted, fontFamily: 'monospace' }}>{zoom.toFixed(1)}x</span>
           <button
             onClick={() => setZoom((z) => Math.min(20.0, z * 1.25))}
             style={{ background: theme.bg.elevated, border: `1px solid ${theme.border.hairline}`, color: theme.text.primary, padding: '2px 8px', borderRadius: '3px', cursor: 'pointer', fontSize: '11px' }}

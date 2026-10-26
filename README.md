@@ -24,6 +24,12 @@ It provides immutable cryptographic time-travel, sub-millisecond timeline scrubb
  (Zero-Lock Ingest)    (Muse Code Taps)      (Causal Narration)    (60fps Canvas Scrubber)
 ```
 
+<br/>
+
+[![Chrono Cockpit](docs/assets/cockpit_loop_recovery.png)](http://localhost:5173)
+
+*Chrono Cockpit paused at derail recovery checkpoint `chk_04n112tt8a` (05:20): real-time diff hydration, sliding-window stall trap, Muse Spark causal explanation, and tamper-verified Merkle chain.*
+
 </div>
 
 ---

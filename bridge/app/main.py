@@ -94,36 +94,30 @@ def list_sessions():
                     })
     return {"sessions": sessions}
 
+def read_json_safe(path: pathlib.Path):
+    if not path.exists():
+        return None
+    raw = path.read_bytes()
+    if raw.startswith(b'\xff\xfe') or raw.startswith(b'\xfe\xff'):
+        return json.loads(raw.decode('utf-16'))
+    # Strip UTF-8 BOM if present
+    if raw.startswith(b'\xef\xbb\xbf'):
+        raw = raw[3:]
+    return json.loads(raw.decode('utf-8', errors='replace'))
+
 @app.get("/sessions/{session_id}")
 def get_session(session_id: str):
     if session_id == "live-agent-run":
-        meta_file = FIXTURES_RECORDED / "run_meta.json"
-        checkpoints_file = FIXTURES_RECORDED / "checkpoints.json"
-        meta = {}
-        checkpoints = []
-        if meta_file.exists():
-            with open(meta_file, "r", encoding="utf-8") as f:
-                meta = json.load(f)
-        if checkpoints_file.exists():
-            with open(checkpoints_file, "r", encoding="utf-8") as f:
-                checkpoints = json.load(f)
+        meta = read_json_safe(FIXTURES_RECORDED / "run_meta.json") or {}
+        checkpoints = read_json_safe(FIXTURES_RECORDED / "checkpoints.json") or []
         return {"metadata": meta, "checkpoints": checkpoints}
 
     session_dir = FIXTURES_RUNS / session_id
     if not session_dir.exists():
         raise HTTPException(status_code=404, detail="Session not found")
 
-    meta_file = session_dir / "run_meta.json"
-    meta = {}
-    if meta_file.exists():
-        with open(meta_file, "r", encoding="utf-8") as f:
-            meta = json.load(f)
-
-    checkpoints_file = session_dir / "checkpoints.json"
-    checkpoints = []
-    if checkpoints_file.exists():
-        with open(checkpoints_file, "r", encoding="utf-8") as f:
-            checkpoints = json.load(f)
+    meta = read_json_safe(session_dir / "run_meta.json") or {}
+    checkpoints = read_json_safe(session_dir / "checkpoints.json") or []
 
     return {"metadata": meta, "checkpoints": checkpoints}
 
@@ -131,11 +125,9 @@ def get_session(session_id: str):
 def get_events(session_id: str, limit: int = Query(1000, le=5000), offset: int = 0):
     if session_id == "live-agent-run":
         json_file = FIXTURES_RECORDED / "live-agent-run.json"
-        if json_file.exists():
-            with open(json_file, "r", encoding="utf-8") as f:
-                all_events = json.load(f)
-            paged = all_events[offset : offset + limit]
-            return {"session_id": session_id, "offset": offset, "count": len(paged), "events": paged}
+        all_events = read_json_safe(json_file) or []
+        paged = all_events[offset : offset + limit]
+        return {"session_id": session_id, "offset": offset, "count": len(paged), "events": paged}
 
     session_dir = FIXTURES_RUNS / session_id
     events_file = session_dir / "events.jsonl"
