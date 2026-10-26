@@ -2,10 +2,14 @@ import React from 'react';
 import { useTimelineStore } from '../state/timelineStore';
 import { theme } from '../app/theme';
 
-export const TelemetryPanel: React.FC = () => {
-  const store = useTimelineStore();
-  const visibleEvents = store.events.filter(
-    (e) => e.timestamp_ns <= store.currentTimestampNs
+interface TelemetryPanelProps {
+  onCollapse?: () => void;
+}
+
+export const TelemetryPanel: React.FC<TelemetryPanelProps> = ({ onCollapse }) => {
+  const storeState = useTimelineStore();
+  const visibleEvents = storeState.events.filter(
+    (e) => e.timestamp_ns <= storeState.currentTimestampNs
   );
 
   let cumulativeTokens = 0;
@@ -32,7 +36,7 @@ export const TelemetryPanel: React.FC = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: theme.bg.surface, overflow: 'hidden' }}>
       <div style={{
-        padding: '8px 16px',
+        padding: '6px 14px',
         borderBottom: `1px solid ${theme.border.default}`,
         display: 'flex',
         justifyContent: 'space-between',
@@ -49,18 +53,37 @@ export const TelemetryPanel: React.FC = () => {
         }}>
           FLIGHT TELEMETRY
         </span>
-        <span style={{
-          fontSize: '10px',
-          color: theme.accent.green,
-          fontWeight: 600,
-          background: theme.bg.diffAdd,
-          border: `1px solid ${theme.border.diffAdd}`,
-          padding: '1px 6px',
-          borderRadius: '3px',
-          fontFamily: '"JetBrains Mono", monospace'
-        }}>
-          ALL MEASURED
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{
+            fontSize: '10px',
+            color: theme.accent.green,
+            fontWeight: 600,
+            background: theme.bg.diffAdd,
+            border: `1px solid ${theme.border.diffAdd}`,
+            padding: '1px 6px',
+            borderRadius: '3px',
+            fontFamily: '"JetBrains Mono", monospace'
+          }}>
+            ALL MEASURED
+          </span>
+          {onCollapse && (
+            <button
+              onClick={onCollapse}
+              title="Collapse panel"
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: theme.text.muted,
+                cursor: 'pointer',
+                fontSize: '12px',
+                padding: '2px 4px',
+                lineHeight: 1
+              }}
+            >
+              ▶
+            </button>
+          )}
+        </div>
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: '10px', background: theme.bg.surface }}>
@@ -107,9 +130,9 @@ export const TelemetryPanel: React.FC = () => {
           <div style={{ fontSize: '10px', color: theme.text.muted, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', fontFamily: '"JetBrains Mono", monospace', marginBottom: '8px' }}>
             DUTY CYCLE (MODEL VS TOOL)
           </div>
-          <div style={{ height: '6px', background: theme.bg.base, borderRadius: '2px', border: `1px solid ${theme.border.subtle}`, overflow: 'hidden', display: 'flex' }}>
-            <div style={{ width: '68%', background: '#24292f' }} />
-            <div style={{ width: '32%', background: theme.accent.green }} />
+          <div style={{ height: '6px', background: theme.bg.base, borderRadius: '2px', border: `1px solid ${theme.border.subtle}`, overflow: 'hidden' }}>
+            <div style={{ width: '68%', height: '100%', background: '#24292f', display: 'inline-block' }} />
+            <div style={{ width: '32%', height: '100%', background: theme.accent.green, display: 'inline-block' }} />
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: theme.text.secondary, marginTop: '6px', fontFamily: '"JetBrains Mono", monospace' }}>
             <span>Model Gen: 68%</span>

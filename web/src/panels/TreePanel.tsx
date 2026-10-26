@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useTimelineStore } from '../state/timelineStore';
+import { useTimelineStore, store } from '../state/timelineStore';
 import { theme } from '../app/theme';
 import { FolderIcon, FileCodeIcon } from '../components/icons';
 
@@ -10,11 +10,32 @@ interface TreeNode {
   modified?: boolean;
 }
 
-export const TreePanel: React.FC = () => {
-  const [selectedFile, setSelectedFile] = useState<string | null>('core/src/stall_detector.cpp');
-  const store = useTimelineStore();
-  const cp = store.activeCheckpoint || (store.checkpoints.length > 0 ? store.checkpoints[0] : null);
+interface TreePanelProps {
+  onCollapse?: () => void;
+}
+
+export const TreePanel: React.FC<TreePanelProps> = ({ onCollapse }) => {
+  const storeState = useTimelineStore();
+  const cp = storeState.activeCheckpoint || (storeState.checkpoints.length > 0 ? storeState.checkpoints[0] : null);
   const modifiedFiles = new Set(cp?.files_modified || ['core/src/stall_detector.cpp', 'core/include/chrono/stall_detector.h']);
+  const selectedFile = storeState.selectedFile || 'core/src/stall_detector.cpp';
+
+  const [expandedFolders, setExpandedFolders] = useState<Record<string, boolean>>({
+    'core': true,
+    'core/include': true,
+    'core/include/chrono': true,
+    'core/src': true,
+    'bridge': true,
+    'bridge/app': true
+  });
+
+  const toggleFolder = (folderPath: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setExpandedFolders((prev) => ({
+      ...prev,
+      [folderPath]: !prev[folderPath]
+    }));
+  };
 
   const defaultTree: TreeNode[] = [
     {
@@ -74,11 +95,18 @@ export const TreePanel: React.FC = () => {
     const currentPath = path ? `${path}/${node.name}` : node.name;
     const isMod = node.modified;
     const isSelected = selectedFile === currentPath;
+    const isExpanded = expandedFolders[currentPath] !== false;
 
     return (
       <div key={currentPath}>
         <div
-          onClick={() => !node.isFolder && setSelectedFile(currentPath)}
+          onClick={(e) => {
+            if (node.isFolder) {
+              toggleFolder(currentPath, e);
+            } else {
+              store.selectFile(currentPath);
+            }
+          }}
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -86,16 +114,22 @@ export const TreePanel: React.FC = () => {
             padding: '3px 8px',
             paddingLeft: `${depth * 14 + 10}px`,
             fontSize: '11px',
-            cursor: node.isFolder ? 'default' : 'pointer',
+            cursor: 'pointer',
             background: isSelected ? theme.bg.base : 'transparent',
             borderLeft: isSelected ? `2px solid ${theme.accent.green}` : '2px solid transparent',
             color: node.isFolder ? theme.text.secondary : theme.text.primary,
             fontWeight: (isMod || isSelected) ? 600 : 400,
             borderRadius: '2px',
-            marginBottom: '1px'
+            marginBottom: '1px',
+            userSelect: 'none'
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            {node.isFolder && (
+              <span style={{ fontSize: '9px', color: theme.text.muted, width: '10px' }}>
+                {isExpanded ? '▾' : '▸'}
+              </span>
+            )}
             {node.isFolder ? (
               <FolderIcon size={13} color={theme.text.muted} />
             ) : (
@@ -118,7 +152,7 @@ export const TreePanel: React.FC = () => {
             </span>
           )}
         </div>
-        {node.children && (
+        {node.children && isExpanded && (
           <div>
             {node.children.map((child) => renderNode(child, depth + 1, currentPath))}
           </div>
@@ -128,9 +162,9 @@ export const TreePanel: React.FC = () => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: theme.bg.surface, borderRight: `1px solid ${theme.border.default}`, overflow: 'hidden' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: theme.bg.surface, overflow: 'hidden' }}>
       <div style={{
-        padding: '8px 14px',
+        padding: '6px 12px',
         borderBottom: `1px solid ${theme.border.default}`,
         display: 'flex',
         justifyContent: 'space-between',
@@ -145,13 +179,32 @@ export const TreePanel: React.FC = () => {
           letterSpacing: '0.08em',
           fontFamily: '"JetBrains Mono", monospace'
         }}>
-          TREE SNAPSHOT
+          FILES
         </span>
-        <span style={{ fontSize: '10px', color: theme.text.muted, fontFamily: '"JetBrains Mono", monospace' }}>
-          tree:{cp?.git_tree_hash.slice(0, 8) || 'HEAD'}
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{ fontSize: '10px', color: theme.text.muted, fontFamily: '"JetBrains Mono", monospace' }}>
+            tree:{cp?.git_tree_hash.slice(0, 8) || 'HEAD'}
+          </span>
+          {onCollapse && (
+            <button
+              onClick={onCollapse}
+              title="Collapse files"
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: theme.text.muted,
+                cursor: 'pointer',
+                fontSize: '12px',
+                padding: '2px 4px',
+                lineHeight: 1
+              }}
+            >
+              ◀
+            </button>
+          )}
+        </div>
       </div>
-      <div style={{ flex: 1, overflowY: 'auto', padding: '8px 4px', background: theme.bg.surface }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '6px 4px', background: theme.bg.surface }}>
         {defaultTree.map((n) => renderNode(n))}
       </div>
     </div>

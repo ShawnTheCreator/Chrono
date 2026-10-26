@@ -3,7 +3,12 @@ import { useTimelineStore, store } from '../state/timelineStore';
 import { theme } from '../app/theme';
 import { ClockIcon } from '../components/icons';
 
-export const CanvasTimeline: React.FC = () => {
+interface CanvasTimelineProps {
+  onToggleCollapse?: () => void;
+  isCollapsed?: boolean;
+}
+
+export const CanvasTimeline: React.FC<CanvasTimelineProps> = ({ onToggleCollapse, isCollapsed = false }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -25,6 +30,7 @@ export const CanvasTimeline: React.FC = () => {
   };
 
   const draw = useCallback(() => {
+    if (isCollapsed) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -53,8 +59,8 @@ export const CanvasTimeline: React.FC = () => {
     };
 
     // Track lane
-    const trackY = 32;
-    const trackH = 34;
+    const trackY = 28;
+    const trackH = Math.max(24, height - 36);
 
     ctx.fillStyle = '#f6f8fa';
     ctx.fillRect(0, trackY, width, trackH);
@@ -98,9 +104,9 @@ export const CanvasTimeline: React.FC = () => {
       if (tx >= -50 && tx <= width + 50) {
         ctx.beginPath();
         ctx.moveTo(tx, 0);
-        ctx.lineTo(tx, 14);
+        ctx.lineTo(tx, 12);
         ctx.stroke();
-        ctx.fillText(formatTime(t), tx, 24);
+        ctx.fillText(formatTime(t), tx, 22);
       }
     }
 
@@ -115,7 +121,7 @@ export const CanvasTimeline: React.FC = () => {
         // Glow halo if active
         if (isSelected) {
           ctx.beginPath();
-          ctx.arc(0, 0, 10, 0, Math.PI * 2);
+          ctx.arc(0, 0, 9, 0, Math.PI * 2);
           ctx.fillStyle = 'rgba(26, 127, 55, 0.15)';
           ctx.fill();
           ctx.strokeStyle = '#1a7f37';
@@ -151,7 +157,7 @@ export const CanvasTimeline: React.FC = () => {
         }
       });
 
-    // Draw Playhead needle (Charcoal / slate)
+    // Draw Playhead needle
     const playX = tsToX(state.currentTimestampNs);
     if (playX >= -10 && playX <= width + 10) {
       ctx.strokeStyle = '#1f2328';
@@ -172,7 +178,7 @@ export const CanvasTimeline: React.FC = () => {
       ctx.arc(playX, trackY + 1, 2, 0, Math.PI * 2);
       ctx.fill();
     }
-  }, [state, zoom, panOffset]);
+  }, [state, zoom, panOffset, isCollapsed]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -188,7 +194,7 @@ export const CanvasTimeline: React.FC = () => {
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, [draw]);
+  }, [draw, isCollapsed]);
 
   useEffect(() => {
     let animId: number;
@@ -255,17 +261,18 @@ export const CanvasTimeline: React.FC = () => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', width: '100%', height: '110px', background: '#ffffff' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', width: '100%', height: '100%', background: '#ffffff' }}>
       {/* Top Header Bar */}
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: '6px 16px',
+        padding: '5px 14px',
         borderBottom: `1px solid ${theme.border.default}`,
-        background: theme.bg.chrome
+        background: theme.bg.chrome,
+        flexShrink: 0
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <ClockIcon size={13} color={theme.text.muted} />
             <span style={{
@@ -276,7 +283,7 @@ export const CanvasTimeline: React.FC = () => {
               letterSpacing: '0.08em',
               fontFamily: '"JetBrains Mono", monospace'
             }}>
-              TIMELINE SCRUBBER
+              TIMELINE
             </span>
           </div>
           <span style={{ fontSize: '11px', color: theme.text.primary, fontFamily: '"JetBrains Mono", monospace', fontWeight: 600 }}>
@@ -293,26 +300,82 @@ export const CanvasTimeline: React.FC = () => {
               fontFamily: '"JetBrains Mono", monospace',
               fontWeight: 600
             }}>
-              checkpoint: {state.activeCheckpoint.id} ({state.activeCheckpoint.summary})
+              {state.activeCheckpoint.id} ({state.activeCheckpoint.summary})
             </span>
           )}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+
+        {/* Action Controls */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          {/* Play / Pause Button */}
+          <button
+            onClick={() => store.togglePlay()}
+            style={{
+              background: state.isPlaying ? theme.bg.diffAdd : '#ffffff',
+              border: `1px solid ${state.isPlaying ? theme.border.diffAdd : theme.border.default}`,
+              color: state.isPlaying ? theme.accent.green : theme.text.primary,
+              padding: '2px 8px',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '11px',
+              fontFamily: '"JetBrains Mono", monospace',
+              fontWeight: 600
+            }}
+          >
+            {state.isPlaying ? '⏸ pause' : '▶ play'}
+          </button>
+
+          {/* Prev / Next Checkpoints */}
+          <button
+            onClick={() => store.prevCheckpoint()}
+            title="Previous checkpoint"
+            style={{
+              background: '#ffffff',
+              border: `1px solid ${theme.border.default}`,
+              color: theme.text.primary,
+              padding: '2px 6px',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '11px',
+              fontFamily: '"JetBrains Mono", monospace'
+            }}
+          >
+            ⏮
+          </button>
+          <button
+            onClick={() => store.nextCheckpoint()}
+            title="Next checkpoint"
+            style={{
+              background: '#ffffff',
+              border: `1px solid ${theme.border.default}`,
+              color: theme.text.primary,
+              padding: '2px 6px',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '11px',
+              fontFamily: '"JetBrains Mono", monospace'
+            }}
+          >
+            ⏭
+          </button>
+
+          <div style={{ width: '1px', height: '14px', background: theme.border.default, margin: '0 2px' }} />
+
+          {/* Zoom Buttons */}
           <button
             onClick={() => setZoom((z) => Math.max(1.0, z * 0.8))}
             style={{
               background: '#ffffff',
               border: `1px solid ${theme.border.default}`,
               color: theme.text.primary,
-              padding: '3px 8px',
+              padding: '2px 6px',
               borderRadius: '4px',
               cursor: 'pointer',
               fontSize: '11px',
-              fontFamily: '"JetBrains Mono", monospace',
-              fontWeight: 500
+              fontFamily: '"JetBrains Mono", monospace'
             }}
           >
-            - zoom
+            -
           </button>
           <span style={{ fontSize: '11px', color: theme.text.secondary, fontFamily: '"JetBrains Mono", monospace' }}>{zoom.toFixed(1)}x</span>
           <button
@@ -321,15 +384,14 @@ export const CanvasTimeline: React.FC = () => {
               background: '#ffffff',
               border: `1px solid ${theme.border.default}`,
               color: theme.text.primary,
-              padding: '3px 8px',
+              padding: '2px 6px',
               borderRadius: '4px',
               cursor: 'pointer',
               fontSize: '11px',
-              fontFamily: '"JetBrains Mono", monospace',
-              fontWeight: 500
+              fontFamily: '"JetBrains Mono", monospace'
             }}
           >
-            + zoom
+            +
           </button>
           <button
             onClick={() => { setZoom(1.0); setPanOffset(0); }}
@@ -337,30 +399,50 @@ export const CanvasTimeline: React.FC = () => {
               background: '#ffffff',
               border: `1px solid ${theme.border.default}`,
               color: theme.text.primary,
-              padding: '3px 8px',
+              padding: '2px 6px',
               borderRadius: '4px',
               cursor: 'pointer',
               fontSize: '11px',
-              fontFamily: '"JetBrains Mono", monospace',
-              fontWeight: 500
+              fontFamily: '"JetBrains Mono", monospace'
             }}
           >
             reset
           </button>
+
+          {onToggleCollapse && (
+            <button
+              onClick={onToggleCollapse}
+              title={isCollapsed ? 'Expand timeline' : 'Collapse timeline'}
+              style={{
+                background: '#ffffff',
+                border: `1px solid ${theme.border.default}`,
+                color: theme.text.primary,
+                padding: '2px 6px',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '11px',
+                fontFamily: '"JetBrains Mono", monospace'
+              }}
+            >
+              {isCollapsed ? '▲' : '▼'}
+            </button>
+          )}
         </div>
       </div>
 
       {/* Canvas Scrubber Track */}
-      <div ref={containerRef} style={{ flex: 1, position: 'relative', width: '100%', cursor: 'ew-resize' }}>
-        <canvas
-          ref={canvasRef}
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerUp}
-          onWheel={handleWheel}
-          style={{ width: '100%', height: '100%', display: 'block' }}
-        />
-      </div>
+      {!isCollapsed && (
+        <div ref={containerRef} style={{ flex: 1, position: 'relative', width: '100%', cursor: 'ew-resize' }}>
+          <canvas
+            ref={canvasRef}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onWheel={handleWheel}
+            style={{ width: '100%', height: '100%', display: 'block' }}
+          />
+        </div>
+      )}
     </div>
   );
 };

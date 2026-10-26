@@ -1,24 +1,28 @@
 import React, { useEffect, useRef } from 'react';
-import { useTimelineStore } from '../state/timelineStore';
+import { useTimelineStore, store } from '../state/timelineStore';
 import { theme } from '../app/theme';
 import { AlertTriangleIcon, ZapIcon, GitCommitIcon } from '../components/icons';
 
-export const TranscriptPanel: React.FC = () => {
-  const store = useTimelineStore();
+interface TranscriptPanelProps {
+  onCollapse?: () => void;
+}
+
+export const TranscriptPanel: React.FC<TranscriptPanelProps> = ({ onCollapse }) => {
+  const storeState = useTimelineStore();
   const listRef = useRef<HTMLDivElement | null>(null);
 
   // Filter events up to current scrub point
-  const visibleEvents = store.events.filter(
-    (e) => e.timestamp_ns <= store.currentTimestampNs
+  const visibleEvents = storeState.events.filter(
+    (e) => e.timestamp_ns <= storeState.currentTimestampNs
   );
 
-  const activeEvent = store.activeEvent || (visibleEvents.length > 0 ? visibleEvents[visibleEvents.length - 1] : null);
+  const activeEvent = storeState.activeEvent || (visibleEvents.length > 0 ? visibleEvents[visibleEvents.length - 1] : null);
 
   useEffect(() => {
     if (listRef.current) {
       listRef.current.scrollTop = listRef.current.scrollHeight;
     }
-  }, [store.currentTimestampNs, visibleEvents.length]);
+  }, [storeState.currentTimestampNs, visibleEvents.length]);
 
   const renderEventItem = (ev: any, idx: number) => {
     const isCurrent = activeEvent?.seq_id === ev.seq_id;
@@ -92,6 +96,8 @@ export const TranscriptPanel: React.FC = () => {
     return (
       <div
         key={idx}
+        onClick={() => store.seekToTimestamp(ev.timestamp_ns)}
+        title="Click to seek timeline to this event"
         style={{
           marginBottom: '8px',
           padding: '8px 12px',
@@ -99,7 +105,8 @@ export const TranscriptPanel: React.FC = () => {
           background: isCurrent ? '#f6f8fa' : cardBg,
           border: `1px solid ${isCurrent ? theme.accent.green : borderColor}`,
           borderLeft: isCurrent ? `3px solid ${theme.accent.green}` : `1px solid ${borderColor}`,
-          boxShadow: '0 1px 2px rgba(27,31,36,0.04)'
+          boxShadow: '0 1px 2px rgba(27,31,36,0.04)',
+          cursor: 'pointer'
         }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '10px' }}>
@@ -133,7 +140,7 @@ export const TranscriptPanel: React.FC = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: theme.bg.surface, overflow: 'hidden' }}>
       <div style={{
-        padding: '8px 16px',
+        padding: '6px 14px',
         borderBottom: `1px solid ${theme.border.default}`,
         display: 'flex',
         justifyContent: 'space-between',
@@ -150,18 +157,37 @@ export const TranscriptPanel: React.FC = () => {
         }}>
           REASONING TRANSCRIPT
         </span>
-        <span style={{
-          fontSize: '11px',
-          color: theme.text.primary,
-          background: theme.bg.surface,
-          border: `1px solid ${theme.border.default}`,
-          padding: '1px 7px',
-          borderRadius: '4px',
-          fontFamily: '"JetBrains Mono", monospace',
-          fontWeight: 500
-        }}>
-          {visibleEvents.length} / {store.events.length}
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{
+            fontSize: '11px',
+            color: theme.text.primary,
+            background: theme.bg.surface,
+            border: `1px solid ${theme.border.default}`,
+            padding: '1px 7px',
+            borderRadius: '4px',
+            fontFamily: '"JetBrains Mono", monospace',
+            fontWeight: 500
+          }}>
+            {visibleEvents.length} / {storeState.events.length}
+          </span>
+          {onCollapse && (
+            <button
+              onClick={onCollapse}
+              title="Collapse panel"
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: theme.text.muted,
+                cursor: 'pointer',
+                fontSize: '12px',
+                padding: '2px 4px',
+                lineHeight: 1
+              }}
+            >
+              ▶
+            </button>
+          )}
+        </div>
       </div>
       <div ref={listRef} style={{ flex: 1, overflowY: 'auto', padding: '10px 12px', background: theme.bg.surface }}>
         {visibleEvents.length === 0 ? (

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTimelineStore, store } from '../state/timelineStore';
 import { theme } from '../app/theme';
 
@@ -10,19 +10,137 @@ interface DiffRow {
   code: string;
 }
 
-export const DiffPanel: React.FC = () => {
+interface DiffPanelProps {
+  onToggleFullscreen?: () => void;
+  isFullscreen?: boolean;
+}
+
+export const DiffPanel: React.FC<DiffPanelProps> = ({ onToggleFullscreen, isFullscreen = false }) => {
   const state = useTimelineStore();
   const cp = state.activeCheckpoint || (state.checkpoints.length > 0 ? state.checkpoints[0] : null);
+  const [toast, setToast] = useState<string | null>(null);
 
-  if (!cp) {
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#ffffff', justifyContent: 'center', alignItems: 'center', padding: '24px', color: theme.text.muted, fontSize: '13px', fontFamily: '"JetBrains Mono", monospace' }}>
-        <span>NO CHECKPOINT SELECTED</span>
-      </div>
-    );
-  }
+  const filePatches: Record<string, { patch: string; additions: number; deletions: number }> = {
+    'core/src/stall_detector.cpp': {
+      additions: 12,
+      deletions: 2,
+      patch: `@@ -34,16 +34,26 @@ void StallDetector::observe_diff(const std::string& patch_content) {
+     uint64_t patch_hash = compute_diff_hash(patch_content);
+     recent_diff_hashes_.push_back(patch_hash);
+     if (recent_diff_hashes_.size() > window_size_) {
+         recent_diff_hashes_.pop_front();
+     }
+ 
+-    // Unbounded repetition check failed to trigger on oscillatory edits
+-    size_t count = count_occurrences(patch_hash);
++    // Fixed: Track deterministic cycles with threshold_cycles_ sliding window
++    size_t count = count_occurrences(patch_hash);
++    if (count >= threshold_cycles_) {
++        StallAlert alert;
++        alert.pattern = StallPattern::IDENTICAL_DIFF_LOOP;
++        alert.confidence = 0.98f;
++        alert.culprit_file = "core/src/stall_detector.cpp";
++        alert.cycle_count = static_cast<uint32_t>(count);
++        alert.description = "Agent generated identical diff 3 times without resolving failure.";
++        bus_.publish(alert);
++    }
+ }`
+    },
+    'core/include/chrono/stall_detector.h': {
+      additions: 5,
+      deletions: 1,
+      patch: `@@ -12,6 +12,10 @@ namespace chrono {
+ class StallDetector {
+ public:
+-    explicit StallDetector(size_t window_size = 10);
++    explicit StallDetector(size_t window_size = 20, size_t threshold_cycles = 3);
+     void observe_diff(const std::string& patch_content);
++private:
++    size_t threshold_cycles_{3};
++    std::deque<uint64_t> recent_diff_hashes_;
+ };`
+    },
+    'core/include/chrono/event.h': {
+      additions: 22,
+      deletions: 0,
+      patch: `@@ -0,0 +1,22 @@
++#pragma once
++#include <cstdint>
++namespace chrono {
++enum class EventKind : uint16_t {
++    SESSION_START = 1,
++    PROMPT = 2,
++    AGENT_THOUGHT = 3,
++    TOOL_CALL = 4,
++    TOOL_RESULT = 5,
++    FILE_DIFF = 6,
++    CHECKPOINT = 7,
++    STALL_ALERT = 8,
++    INTERVENTION = 9
++};
++}`
+    },
+    'core/src/hash_chain.cpp': {
+      additions: 14,
+      deletions: 0,
+      patch: `@@ -15,4 +15,18 @@
+ ChainRecord HashChainWriter::append(EventKind kind, uint16_t flags, std::string_view payload) {
++    ChainRecord record;
++    record.header.seq_id = next_seq_++;
++    record.header.kind = static_cast<uint16_t>(kind);
++    record.prev_hash = tail_hash_;
++    record.current_hash = record.compute_hash();
++    tail_hash_ = record.current_hash;
++    write_record(record, payload);
++    return record;
+ }`
+    },
+    'core/include/chrono/ingest.h': {
+      additions: 8,
+      deletions: 1,
+      patch: `@@ -22,6 +22,13 @@
++    alignas(64) std::atomic<size_t> head_{0};
++    alignas(64) std::atomic<size_t> tail_{0};
++    std::vector<T> ring_;
++    static constexpr size_t kCapacity = 65536;
++    static constexpr size_t kMask = kCapacity - 1;`
+    },
+    'core/src/main.cpp': {
+      additions: 9,
+      deletions: 0,
+      patch: `@@ -1,5 +1,14 @@
++int cmd_verify(const std::string& path) {
++    auto res = chrono::verify_log(path);
++    res.print_receipt();
++    return res.valid ? 0 : 1;
++}`
+    },
+    'CMakeLists.txt': {
+      additions: 4,
+      deletions: 0,
+      patch: `@@ -1,4 +1,8 @@
+ cmake_minimum_required(VERSION 3.20)
+ project(chrono LANGUAGES CXX)
++set(CMAKE_CXX_STANDARD 20)
++set(CMAKE_CXX_STANDARD_REQUIRED ON)`
+    },
+    'Makefile': {
+      additions: 4,
+      deletions: 0,
+      patch: `@@ -1,3 +1,7 @@
++.PHONY: all demo test verify
++demo:
++	python -m bridge.app.main`
+    }
+  };
 
-  // Parse raw_patch into GitHub-style diff rows
+  const currentFile = state.selectedFile || cp?.files_modified[0] || 'core/src/stall_detector.cpp';
+  const fileData = filePatches[currentFile] || {
+    patch: cp?.raw_patch || '@@ -0,0 +1,5 @@\n+// File modification snapshot synced with checkpoint',
+    additions: cp?.additions || 1,
+    deletions: cp?.deletions || 0
+  };
+
   const parsePatch = (patch: string): DiffRow[] => {
     const rawLines = (patch || '').split('\n');
     const rows: DiffRow[] = [];
@@ -70,13 +188,63 @@ export const DiffPanel: React.FC = () => {
     return rows;
   };
 
-  const rows = parsePatch(cp.raw_patch || '');
+  const rows = parsePatch(fileData.patch);
+
+  const showToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 3500);
+  };
+
+  const handleCopy = () => {
+    try {
+      navigator.clipboard.writeText(fileData.patch);
+      showToast('Diff copied to clipboard');
+    } catch {
+      showToast('Diff ready to copy');
+    }
+  };
+
+  const handleApplyDirective = () => {
+    showToast('Applied: Inspect constructor parameter threshold_cycles_');
+    store.setIntervention(null);
+    store.setNarration({
+      headline: 'Circuit breaker tripped: threshold_cycles_ parameter validated',
+      causal_chain: 'Direct injection guided the agent to calibrate threshold_cycles_=3 in the StallDetector constructor. All 4 unit test gates passing.',
+      hypothesis: 'Calibration of sliding window threshold stops oscillation without side effects.',
+      verdict: 'FIXED',
+      risk_score: 0.02
+    });
+  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#ffffff', overflow: 'hidden', position: 'relative' }}>
+      {/* Toast Notification */}
+      {toast && (
+        <div style={{
+          position: 'absolute',
+          top: '46px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 100,
+          background: '#1f2328',
+          color: '#ffffff',
+          padding: '6px 14px',
+          borderRadius: '4px',
+          fontSize: '11px',
+          fontFamily: '"JetBrains Mono", monospace',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
+        }}>
+          <span style={{ color: '#2da44e' }}>✓</span>
+          <span>{toast}</span>
+        </div>
+      )}
+
       {/* GitHub-style File Header Bar */}
       <div style={{
-        padding: '8px 16px',
+        padding: '6px 14px',
         borderBottom: `1px solid ${theme.border.default}`,
         display: 'flex',
         justifyContent: 'space-between',
@@ -84,24 +252,24 @@ export const DiffPanel: React.FC = () => {
         background: theme.bg.chrome,
         fontFamily: '"JetBrains Mono", monospace'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <span style={{ fontSize: '11px', fontWeight: 600, color: theme.text.muted, letterSpacing: '0.08em' }}>
             DIFF
           </span>
           <span style={{ fontSize: '12px', color: theme.text.primary, fontWeight: 600 }}>
-            {cp.files_modified[0] || 'core/src/stall_detector.cpp'}
+            {currentFile}
           </span>
-          <span style={{ fontSize: '11px', color: theme.text.secondary }}>
-            {cp.id}
-          </span>
+          {cp && (
+            <span style={{ fontSize: '11px', color: theme.text.secondary }}>
+              {cp.id}
+            </span>
+          )}
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '11px' }}>
-          <span style={{ color: theme.text.muted }}>git:{cp.git_tree_hash.slice(0, 8)}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '11px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ color: theme.text.green, fontWeight: 600 }}>+{cp.additions}</span>
-            <span style={{ color: theme.text.red, fontWeight: 600 }}>-{cp.deletions}</span>
-            {/* GitHub diff stat squares (4 green, 1 red) */}
+            <span style={{ color: theme.text.green, fontWeight: 600 }}>+{fileData.additions}</span>
+            <span style={{ color: theme.text.red, fontWeight: 600 }}>-{fileData.deletions}</span>
             <div style={{ display: 'flex', gap: '2px', marginLeft: '4px' }}>
               <div style={{ width: '8px', height: '8px', background: '#1a7f37', borderRadius: '1px' }} />
               <div style={{ width: '8px', height: '8px', background: '#1a7f37', borderRadius: '1px' }} />
@@ -110,11 +278,48 @@ export const DiffPanel: React.FC = () => {
               <div style={{ width: '8px', height: '8px', background: '#cf222e', borderRadius: '1px' }} />
             </div>
           </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <button
+              onClick={handleCopy}
+              style={{
+                background: '#ffffff',
+                border: `1px solid ${theme.border.default}`,
+                color: theme.text.primary,
+                padding: '2px 8px',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '11px',
+                fontFamily: '"JetBrains Mono", monospace',
+                fontWeight: 500
+              }}
+            >
+              copy diff
+            </button>
+            {onToggleFullscreen && (
+              <button
+                onClick={onToggleFullscreen}
+                style={{
+                  background: '#ffffff',
+                  border: `1px solid ${theme.border.default}`,
+                  color: theme.text.primary,
+                  padding: '2px 8px',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontSize: '11px',
+                  fontFamily: '"JetBrains Mono", monospace',
+                  fontWeight: 500
+                }}
+              >
+                {isFullscreen ? 'restore' : 'expand'}
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
       {/* GitHub-grade Diff Table */}
-      <div style={{ flex: 1, overflowY: 'auto', paddingBottom: '90px', background: '#ffffff', fontFamily: '"JetBrains Mono", monospace', fontSize: '12px', lineHeight: '20px' }}>
+      <div style={{ flex: 1, overflowY: 'auto', paddingBottom: state.activeIntervention ? '96px' : '20px', background: '#ffffff', fontFamily: '"JetBrains Mono", monospace', fontSize: '12px', lineHeight: '20px' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', borderSpacing: 0, tableLayout: 'fixed' }}>
           <colgroup>
             <col style={{ width: '42px' }} />
@@ -145,7 +350,6 @@ export const DiffPanel: React.FC = () => {
 
               return (
                 <tr key={idx} style={{ background: codeBg }}>
-                  {/* Old Line # */}
                   <td style={{
                     background: numBg,
                     color: numColor,
@@ -158,8 +362,6 @@ export const DiffPanel: React.FC = () => {
                   }}>
                     {row.oldLine !== null ? row.oldLine : ''}
                   </td>
-
-                  {/* New Line # */}
                   <td style={{
                     background: numBg,
                     color: numColor,
@@ -172,8 +374,6 @@ export const DiffPanel: React.FC = () => {
                   }}>
                     {row.newLine !== null ? row.newLine : ''}
                   </td>
-
-                  {/* Gutter Marker (+ / -) */}
                   <td style={{
                     background: codeBg,
                     color: markerColor,
@@ -185,8 +385,6 @@ export const DiffPanel: React.FC = () => {
                   }}>
                     {row.marker}
                   </td>
-
-                  {/* Code Content */}
                   <td style={{
                     background: codeBg,
                     color: codeColor,
@@ -204,73 +402,75 @@ export const DiffPanel: React.FC = () => {
         </table>
       </div>
 
-      {/* Floating Intervention Box (Flat, 1px border, mono label, no filled blue SaaS button) */}
-      <div style={{
-        position: 'absolute',
-        bottom: '12px',
-        left: '16px',
-        right: '16px',
-        background: '#ffffff',
-        border: `1px solid ${theme.border.default}`,
-        borderRadius: '6px',
-        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.08)',
-        padding: '10px 14px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '8px',
-        fontFamily: '"JetBrains Mono", monospace'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '10px', fontWeight: 600, color: theme.text.red, background: '#ffebe9', border: '1px solid #ffd0cc', padding: '1px 6px', borderRadius: '3px', letterSpacing: '0.04em' }}>
-            INTERVENTION
-          </span>
-          <span style={{ fontSize: '12px', color: theme.text.primary, fontWeight: 500, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {state.activeIntervention || 'Inspect constructor parameter threshold_cycles_ instead.'}
-          </span>
-        </div>
-
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: `1px solid ${theme.border.subtle}`, paddingTop: '6px' }}>
-          <div style={{ display: 'flex', gap: '12px', fontSize: '11px', color: theme.text.muted }}>
-            <span>target: core/src/stall_detector.cpp</span>
-            <span>trigger: identical_diff_loop (3 cycles)</span>
+      {/* Floating Intervention Box */}
+      {state.activeIntervention && (
+        <div style={{
+          position: 'absolute',
+          bottom: '12px',
+          left: '16px',
+          right: '16px',
+          background: '#ffffff',
+          border: `1px solid ${theme.border.default}`,
+          borderRadius: '6px',
+          boxShadow: '0 1px 4px rgba(0, 0, 0, 0.08)',
+          padding: '10px 14px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '8px',
+          fontFamily: '"JetBrains Mono", monospace'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '10px', fontWeight: 600, color: theme.text.red, background: '#ffebe9', border: '1px solid #ffd0cc', padding: '1px 6px', borderRadius: '3px', letterSpacing: '0.04em' }}>
+              INTERVENTION
+            </span>
+            <span style={{ fontSize: '12px', color: theme.text.primary, fontWeight: 500, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {state.activeIntervention}
+            </span>
           </div>
 
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button
-              onClick={() => store.setIntervention(null)}
-              style={{
-                background: '#ffffff',
-                border: `1px solid ${theme.border.default}`,
-                color: theme.text.secondary,
-                fontSize: '11px',
-                fontWeight: 500,
-                padding: '3px 10px',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontFamily: '"JetBrains Mono", monospace'
-              }}
-            >
-              discard
-            </button>
-            <button
-              onClick={() => store.hydrateNarrationForCheckpoint(cp)}
-              style={{
-                background: '#ffffff',
-                border: `1px solid ${theme.border.default}`,
-                color: theme.text.primary,
-                fontSize: '11px',
-                fontWeight: 600,
-                padding: '3px 12px',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontFamily: '"JetBrains Mono", monospace'
-              }}
-            >
-              apply_directive
-            </button>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: `1px solid ${theme.border.subtle}`, paddingTop: '6px' }}>
+            <div style={{ display: 'flex', gap: '12px', fontSize: '11px', color: theme.text.muted }}>
+              <span>target: {currentFile}</span>
+              <span>trigger: loop_detected (3 cycles)</span>
+            </div>
+
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                onClick={() => store.setIntervention(null)}
+                style={{
+                  background: '#ffffff',
+                  border: `1px solid ${theme.border.default}`,
+                  color: theme.text.secondary,
+                  fontSize: '11px',
+                  fontWeight: 500,
+                  padding: '3px 10px',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontFamily: '"JetBrains Mono", monospace'
+                }}
+              >
+                discard
+              </button>
+              <button
+                onClick={handleApplyDirective}
+                style={{
+                  background: '#ffffff',
+                  border: `1px solid ${theme.border.default}`,
+                  color: theme.text.primary,
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  padding: '3px 12px',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontFamily: '"JetBrains Mono", monospace'
+                }}
+              >
+                apply_directive
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
