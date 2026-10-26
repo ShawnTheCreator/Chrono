@@ -1,0 +1,24 @@
+[
+  {
+    "id": "chk_01h982ka7b",
+    "git_tree_hash": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+    "event_offset": 5,
+    "files_modified": ["core/include/chrono/hash_chain.h"],
+    "additions": 15,
+    "deletions": 0,
+    "summary": "feat(core): introduce hash_chain header",
+    "raw_patch": "--- a/core/include/chrono/hash_chain.h\n+++ b/core/include/chrono/hash_chain.h\n@@ -0,0 +1,15 @@\n+#pragma once\n+struct ChainRecord { EventWireHeader header; crypto::Digest prev_hash; };",
+    "agent_thought": "I need to ensure each block embeds the previous block's SHA256 digest."
+  },
+  {
+    "id": "chk_02m881lp9c",
+    "git_tree_hash": "7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b",
+    "event_offset": 18,
+    "files_modified": ["core/src/stall_detector.cpp"],
+    "additions": 42,
+    "deletions": 8,
+    "summary": "fix(core): add identical diff loop detection threshold",
+    "raw_patch": "--- a/core/src/stall_detector.cpp\n+++ b/core/src/stall_detector.cpp\n@@ -10,3 +10,6 @@\n+if (count >= threshold_cycles_) {\n+    alert.pattern = StallPattern::IDENTICAL_DIFF_LOOP;\n+}",
+    "agent_thought": "Agent is looping on the same edit, so we need to trap diff repetition."
+  }
+]

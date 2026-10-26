@@ -1,0 +1,15 @@
+{
+  "session_id": "openrepo-maintenance-run",
+  "is_synthetic": true,
+  "data_classification": "SYNTHETIC_STRESS_FIXTURE",
+  "disclosure": "SYNTHETIC TEST FIXTURE: Generated for multi-file checkpoint benchmarking. Not a live recorded session.",
+  "task_name": "[SYNTHETIC] OpenRepo Database Pool Refactor",
+  "model": "muse-spark-open-1026",
+  "agent_framework": "muse_code",
+  "git_branch": "maintenance/connection-pool",
+  "duration_seconds": 4500,
+  "total_records": 6,
+  "total_tokens": 72100,
+  "checkpoints_count": 2,
+  "terminal_hash": "d4943a0c20a3873fc4158f963fd4641319b2bb489735934e680020979f7c0336"
+}

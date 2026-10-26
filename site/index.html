@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chrono — The Flight Recorder for AI Coding Agents</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #07080b;
+      --surface: #0d0f15;
+      --elevated: #131620;
+      --border: #1a1e2b;
+      --hairline: #222736;
+      --text: #f8fafc;
+      --muted: #64748b;
+      --amber: #e5a93c;
+      --cyan: #38bdf8;
+      --emerald: #34d399;
+      --ruby: #f43f5e;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    nav {
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 48px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(7, 8, 11, 0.85);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .wordmark {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.15em;
+      color: var(--amber);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .badge {
+      font-size: 10px;
+      background: rgba(229, 169, 60, 0.15);
+      color: var(--amber);
+      padding: 2px 8px;
+      border-radius: 4px;
+      border: 1px solid rgba(229, 169, 60, 0.3);
+      font-weight: 600;
+    }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      margin-left: 28px;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .hero {
+      max-width: 1040px;
+      margin: 80px auto 40px;
+      padding: 0 24px;
+      text-align: center;
+    }
+    .hero-tag {
+      display: inline-block;
+      font-size: 11px;
+      color: var(--cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 16px;
+      background: rgba(56, 189, 248, 0.1);
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1px solid rgba(56, 189, 248, 0.2);
+    }
+    h1 {
+      font-size: 48px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      margin-bottom: 20px;
+    }
+    p.lead {
+      font-size: 17px;
+      color: var(--muted);
+      max-width: 720px;
+      margin: 0 auto 36px;
+      font-family: 'Inter', sans-serif;
+      line-height: 1.6;
+    }
+    .cta-group {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 60px;
+    }
+    .btn {
+      padding: 12px 24px;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: var(--amber);
+      color: #07080b;
+      border: 1px solid var(--amber);
+    }
+    .btn-primary:hover {
+      background: #f59e0b;
+      box-shadow: 0 0 20px rgba(229, 169, 60, 0.4);
+    }
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--hairline);
+    }
+    .btn-secondary:hover {
+      background: var(--elevated);
+      border-color: var(--muted);
+    }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      max-width: 1040px;
+      margin: 0 auto 80px;
+      padding: 0 24px;
+    }
+    .metric-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 24px;
+      border-radius: 6px;
+      text-align: left;
+    }
+    .metric-val {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--amber);
+      margin-bottom: 6px;
+    }
+    .metric-label {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .terminal-preview {
+      max-width: 1040px;
+      margin: 0 auto 80px;
+      padding: 0 24px;
+    }
+    .terminal-window {
+      background: #090b10;
+      border: 1px solid var(--hairline);
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+    }
+    .terminal-header {
+      height: 36px;
+      background: #11141c;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      border-bottom: 1px solid var(--border);
+      gap: 8px;
+    }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot-red { background: #ef4444; }
+    .dot-yellow { background: #f59e0b; }
+    .dot-green { background: #10b981; }
+    .terminal-title {
+      font-size: 11px;
+      color: var(--muted);
+      margin-left: 12px;
+    }
+    .terminal-body {
+      padding: 24px;
+      font-size: 13px;
+      color: #94a3b8;
+      overflow-x: auto;
+    }
+    .term-green { color: var(--emerald); font-weight: 600; }
+    .term-amber { color: var(--amber); }
+    .term-cyan { color: var(--cyan); }
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 40px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="wordmark">
+      CHRONO <span class="badge">SYSTEMS</span>
+    </div>
+    <div class="nav-links">
+      <a href="#metrics">Benchmarks</a>
+      <a href="#audit">Forensic Audit</a>
+      <a href="https://github.com/chrono-systems/chrono">GitHub</a>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-tag">The Flight Recorder for Autonomous AI Agents</div>
+    <h1>Immutable Time-Travel for Coding Agents</h1>
+    <p class="lead">
+      Chrono is the high-performance C++20 flight recorder and Meta Model API flight instructor. Scrub backwards at 60fps, explain causal intent with Muse Spark, and verify audit integrity with SHA-256 Merkle chains.
+    </p>
+    <div class="cta-group">
+      <a href="http://localhost:5173" class="btn btn-primary">Launch Cockpit</a>
+      <a href="https://github.com/chrono-systems/chrono" class="btn btn-secondary">Explore Repository</a>
+    </div>
+  </section>
+
+  <section class="metrics" id="metrics">
+    <div class="metric-card">
+      <div class="metric-val">&gt; 1,000,000</div>
+      <div class="metric-label">Events / Sec Burst Ingest</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-val">238 ns</div>
+      <div class="metric-label">O(log n) Timeline Seek</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-val">0 Locks</div>
+      <div class="metric-label">Single-Writer LMAX Queue</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-val">SHA-256</div>
+      <div class="metric-label">Tamper-Proof Merkle Lineage</div>
+    </div>
+  </section>
+
+  <section class="terminal-preview" id="audit">
+    <div class="terminal-window">
+      <div class="terminal-header">
+        <div class="dot dot-red"></div>
+        <div class="dot dot-yellow"></div>
+        <div class="dot dot-green"></div>
+        <div class="terminal-title">chronod --verify fixtures/runs/chrono-feature-attempt-1/session.chrono</div>
+      </div>
+      <div class="terminal-body">
+        <pre>
+=======================================================
+           CHRONO FORENSIC VERIFICATION RECEIPT        
+=======================================================
+STATUS:          <span class="term-green">[PASS] CRYPTOGRAPHICALLY VALID</span>
+RECORDS:         20 verified SHA-256 blocks
+SEQUENCE RANGE:  #1 -> #20
+DURATION:        400.00 ms
+GENESIS ROOT:    <span class="term-cyan">0000000000000000000000000000000000000000000000000000000000000000</span>
+TERMINAL HASH:   <span class="term-amber">0967865e6fd016a5cc14b9baa740f44c4b27644a30e711d7a05b24c247841daa</span>
+VERDICT:         <span class="term-green">Zero tampering detected. Log is immutable.</span>
+=======================================================
+        </pre>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    &copy; 2026 Chrono Systems. Built for high-reliability AI systems engineering.
+  </footer>
+</body>
+</html>

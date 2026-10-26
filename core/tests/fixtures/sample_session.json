@@ -1,0 +1,80 @@
+[
+  {
+    "seq_id": 1,
+    "timestamp_ns": 1000000000,
+    "kind": "session_start",
+    "flags": 0,
+    "payload": {
+      "session_id": "ses_synth_01",
+      "task_name": "Implement Chrono append-only hash chain",
+      "model": "muse-spark-1026",
+      "agent_framework": "muse_code",
+      "workspace_path": "/workspace/chrono",
+      "git_branch": "feat/hash-chain"
+    }
+  },
+  {
+    "seq_id": 2,
+    "timestamp_ns": 2500000000,
+    "kind": "agent_thought",
+    "flags": 0,
+    "payload": {
+      "thought": "I will inspect the existing codebase and start by creating the SHA-256 hash chain interface."
+    }
+  },
+  {
+    "seq_id": 3,
+    "timestamp_ns": 4000000000,
+    "kind": "tool_call",
+    "flags": 0,
+    "payload": {
+      "tool": "bash",
+      "cmd": "git status"
+    }
+  },
+  {
+    "seq_id": 4,
+    "timestamp_ns": 4500000000,
+    "kind": "tool_result",
+    "flags": 0,
+    "payload": {
+      "exit_code": 0,
+      "output": "On branch feat/hash-chain\nnothing to commit, working tree clean"
+    }
+  },
+  {
+    "seq_id": 5,
+    "timestamp_ns": 8000000000,
+    "kind": "file_diff",
+    "flags": 0,
+    "payload": {
+      "path": "core/include/chrono/hash_chain.h",
+      "patch": "--- /dev/null\n+++ b/core/include/chrono/hash_chain.h\n@@ -0,0 +1,15 @@\n+#pragma once\n+namespace chrono { struct ChainRecord; }"
+    }
+  },
+  {
+    "seq_id": 6,
+    "timestamp_ns": 9000000000,
+    "kind": "checkpoint",
+    "flags": 1,
+    "payload": {
+      "id": "chk_01h982ka7b",
+      "git_tree_hash": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "event_offset": 5,
+      "files_modified": ["core/include/chrono/hash_chain.h"],
+      "additions": 15,
+      "deletions": 0,
+      "summary": "feat(core): introduce hash_chain header"
+    }
+  },
+  {
+    "seq_id": 7,
+    "timestamp_ns": 12000000000,
+    "kind": "session_end",
+    "flags": 0,
+    "payload": {
+      "status": "completed",
+      "exit_code": 0
+    }
+  }
+]

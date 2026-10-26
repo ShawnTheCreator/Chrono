@@ -1,0 +1,308 @@
+import json
+import time
+import subprocess
+import pathlib
+
+ROOT = pathlib.Path(__file__).parent.parent.resolve()
+CHRONO_1 = ROOT / "fixtures" / "runs" / "chrono-feature-attempt-1"
+OPENREPO = ROOT / "fixtures" / "runs" / "openrepo-maintenance-run"
+
+# 1. Chrono self-referential run events
+events_chrono_1 = [
+    {
+        "seq_id": 1,
+        "timestamp_ns": 0,
+        "kind": "session_start",
+        "flags": 0,
+        "payload": {
+            "session_id": "chrono-feature-attempt-1",
+            "task": "Implement Chrono append-only hash chain and LMAX ingest in C++20",
+            "model": "muse-spark-1026"
+        }
+    },
+    {
+        "seq_id": 2,
+        "timestamp_ns": 5000000000,
+        "kind": "prompt",
+        "flags": 0,
+        "payload": {"text": "Build the core flight recorder for Chrono. Needs append-only SHA-256 hash chain and lockless single-writer ingest."}
+    },
+    {
+        "seq_id": 3,
+        "timestamp_ns": 12000000000,
+        "kind": "agent_thought",
+        "flags": 0,
+        "payload": {"thought": "I will inspect the CMake project and design the packed wire framing."}
+    },
+    {
+        "seq_id": 4,
+        "timestamp_ns": 18000000000,
+        "kind": "tool_call",
+        "flags": 0,
+        "payload": {"tool": "bash", "cmd": "cmake -B build -G Ninja"}
+    },
+    {
+        "seq_id": 5,
+        "timestamp_ns": 22000000000,
+        "kind": "tool_result",
+        "flags": 0,
+        "payload": {"exit_code": 0, "output": "Configuring done (0.4s)"}
+    },
+    {
+        "seq_id": 6,
+        "timestamp_ns": 45000000000,
+        "kind": "file_diff",
+        "flags": 0,
+        "payload": {
+            "path": "core/include/chrono/event.h",
+            "patch": "--- /dev/null\n+++ b/core/include/chrono/event.h\n@@ -0,0 +1,45 @@\n+#pragma once\n+namespace chrono { enum class EventKind : uint16_t { ... }; }"
+        }
+    },
+    {
+        "seq_id": 7,
+        "timestamp_ns": 60000000000,
+        "kind": "checkpoint",
+        "flags": 1,
+        "payload": {
+            "id": "chk_01h982ka7b",
+            "git_tree_hash": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+            "summary": "feat(core): declare Event wire framing and EventKind enum"
+        }
+    },
+    {
+        "seq_id": 8,
+        "timestamp_ns": 85000000000,
+        "kind": "agent_thought",
+        "flags": 0,
+        "payload": {"thought": "Writing hash_chain.h and hash_chain.cpp. Computing SHA-256 over header + prev_hash + payload."}
+    },
+    {
+        "seq_id": 9,
+        "timestamp_ns": 110000000000,
+        "kind": "file_diff",
+        "flags": 0,
+        "payload": {
+            "path": "core/src/hash_chain.cpp",
+            "patch": "--- a/core/src/hash_chain.cpp\n+++ b/core/src/hash_chain.cpp\n@@ -15,4 +15,22 @@\n+record.current_hash = record.compute_hash();"
+        }
+    },
+    {
+        "seq_id": 10,
+        "timestamp_ns": 130000000000,
+        "kind": "checkpoint",
+        "flags": 1,
+        "payload": {
+            "id": "chk_02m881lp9c",
+            "git_tree_hash": "7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b",
+            "summary": "feat(core): implement SHA-256 append-only log with tamper verification"
+        }
+    },
+    {
+        "seq_id": 11,
+        "timestamp_ns": 170000000000,
+        "kind": "telemetry_sample",
+        "flags": 0,
+        "payload": {"prompt_tokens": 8200, "completion_tokens": 3400, "total_tokens": 11600}
+    },
+    {
+        "seq_id": 12,
+        "timestamp_ns": 210000000000,
+        "kind": "file_diff",
+        "flags": 0,
+        "payload": {
+            "path": "core/include/chrono/ingest.h",
+            "patch": "--- a/core/include/chrono/ingest.h\n+++ b/core/include/chrono/ingest.h\n@@ -25,5 +25,12 @@\n+alignas(64) std::atomic<size_t> head_;"
+        }
+    },
+    {
+        "seq_id": 13,
+        "timestamp_ns": 240000000000,
+        "kind": "checkpoint",
+        "flags": 1,
+        "payload": {
+            "id": "chk_03k990qq2d",
+            "git_tree_hash": "3f4e5d6c7b8a90123456789abcdef0123456789a",
+            "summary": "feat(core): build LMAX lockless SPSC ring buffer for burst ingest"
+        }
+    },
+    {
+        "seq_id": 14,
+        "timestamp_ns": 280000000000,
+        "kind": "tool_call",
+        "flags": 0,
+        "payload": {"tool": "bash", "cmd": "ctest --output-on-failure"}
+    },
+    {
+        "seq_id": 15,
+        "timestamp_ns": 285000000000,
+        "kind": "tool_result",
+        "flags": 0,
+        "payload": {"exit_code": 1, "output": "1/4 Test #4: test_stall FAILED"}
+    },
+    {
+        "seq_id": 16,
+        "timestamp_ns": 290000000000,
+        "kind": "stall_alert",
+        "flags": 2,
+        "payload": {
+            "pattern": "IDENTICAL_DIFF_LOOP",
+            "cycle_count": 3,
+            "culprit": "core/src/stall_detector.cpp",
+            "confidence": 0.98,
+            "description": "Agent generated identical diff 3 times without resolving test failure."
+        }
+    },
+    {
+        "seq_id": 17,
+        "timestamp_ns": 300000000000,
+        "kind": "intervention",
+        "flags": 0,
+        "payload": {
+            "directive": "INTERVENTION: Stop repeating diff. Inspect threshold_cycles_ parameter in constructor."
+        }
+    },
+    {
+        "seq_id": 18,
+        "timestamp_ns": 320000000000,
+        "kind": "checkpoint",
+        "flags": 1,
+        "payload": {
+            "id": "chk_04n112tt8a",
+            "git_tree_hash": "c1d2e3f4a5b678901234567890abcdef12345678",
+            "summary": "fix(core): recover from identical diff oscillation by tuning sliding window"
+        }
+    },
+    {
+        "seq_id": 19,
+        "timestamp_ns": 360000000000,
+        "kind": "checkpoint",
+        "flags": 1,
+        "payload": {
+            "id": "chk_05p443vv1b",
+            "git_tree_hash": "9876543210abcdef0123456789abcdef01234567",
+            "summary": "feat(core): ship chronod verification daemon and green test suite"
+        }
+    },
+    {
+        "seq_id": 20,
+        "timestamp_ns": 400000000000,
+        "kind": "session_end",
+        "flags": 0,
+        "payload": {"status": "completed", "total_tokens": 48250}
+    }
+]
+
+with open(CHRONO_1 / "events.jsonl", "w", encoding="utf-8") as f:
+    for ev in events_chrono_1:
+        f.write(json.dumps(ev) + "\n")
+
+print(f"Generated {len(events_chrono_1)} events for chrono-feature-attempt-1")
+
+# 2. OpenRepo maintenance run events
+events_openrepo = [
+    {
+        "seq_id": 1,
+        "timestamp_ns": 0,
+        "kind": "session_start",
+        "flags": 0,
+        "payload": {
+            "session_id": "openrepo-maintenance-run",
+            "task": "Refactor database connection pool and update migration script",
+            "model": "muse-spark-open-1026"
+        }
+    },
+    {
+        "seq_id": 2,
+        "timestamp_ns": 15000000000,
+        "kind": "prompt",
+        "flags": 0,
+        "payload": {"text": "Refactor async connection pool to use connection health ping and connection retry backoff."}
+    },
+    {
+        "seq_id": 3,
+        "timestamp_ns": 35000000000,
+        "kind": "agent_thought",
+        "flags": 0,
+        "payload": {"thought": "Inspecting db/pool.py and migrations/004_add_pool_stats.sql."}
+    },
+    {
+        "seq_id": 4,
+        "timestamp_ns": 65000000000,
+        "kind": "checkpoint",
+        "flags": 1,
+        "payload": {
+            "id": "chk_open_01",
+            "git_tree_hash": "a1b2c3d4e5f60718293a4b5c6d7e8f9a0b1c2d3e",
+            "files_modified": ["db/pool.py"],
+            "additions": 34,
+            "deletions": 5,
+            "summary": "refactor(db): implement exponential backoff connection retry"
+        }
+    },
+    {
+        "seq_id": 5,
+        "timestamp_ns": 90000000000,
+        "kind": "checkpoint",
+        "flags": 1,
+        "payload": {
+            "id": "chk_open_02",
+            "git_tree_hash": "f6e5d4c3b2a10987654321fedcba0987654321fe",
+            "files_modified": ["migrations/004_add_pool_stats.sql"],
+            "additions": 22,
+            "deletions": 2,
+            "summary": "migration: add connection pool health telemetry columns"
+        }
+    },
+    {
+        "seq_id": 6,
+        "timestamp_ns": 120000000000,
+        "kind": "session_end",
+        "flags": 0,
+        "payload": {"status": "completed", "total_tokens": 72100}
+    }
+]
+
+with open(OPENREPO / "run_meta.json", "w", encoding="utf-8") as f:
+    json.dump({
+        "session_id": "openrepo-maintenance-run",
+        "task_name": "Refactor database connection pool and update migration script",
+        "model": "muse-spark-open-1026",
+        "agent_framework": "muse_code",
+        "git_branch": "maintenance/connection-pool",
+        "duration_seconds": 4500,
+        "total_records": 6,
+        "total_tokens": 72100,
+        "checkpoints_count": 2
+    }, f, indent=2)
+
+with open(OPENREPO / "checkpoints.json", "w", encoding="utf-8") as f:
+    json.dump([
+        {
+            "id": "chk_open_01",
+            "git_tree_hash": "a1b2c3d4e5f60718293a4b5c6d7e8f9a0b1c2d3e",
+            "event_offset": 4,
+            "timestamp_ns": 65000000000,
+            "files_modified": ["db/pool.py"],
+            "additions": 34,
+            "deletions": 5,
+            "summary": "refactor(db): implement exponential backoff connection retry",
+            "raw_patch": "--- a/db/pool.py\n+++ b/db/pool.py\n@@ -20,3 +20,15 @@\n+async def acquire_with_retry():\n+    for attempt in range(max_retries):"
+        },
+        {
+            "id": "chk_open_02",
+            "git_tree_hash": "f6e5d4c3b2a10987654321fedcba0987654321fe",
+            "event_offset": 5,
+            "timestamp_ns": 90000000000,
+            "files_modified": ["migrations/004_add_pool_stats.sql"],
+            "additions": 22,
+            "deletions": 2,
+            "summary": "migration: add connection pool health telemetry columns",
+            "raw_patch": "--- a/migrations/004_add_pool_stats.sql\n+++ b/migrations/004_add_pool_stats.sql\n@@ -0,0 +1,22 @@\n+ALTER TABLE pool_telemetry ADD COLUMN latency_p99 INT;"
+        }
+    ], f, indent=2)
+
+with open(OPENREPO / "events.jsonl", "w", encoding="utf-8") as f:
+    for ev in events_openrepo:
+        f.write(json.dumps(ev) + "\n")
+
+print("Generated fixtures for openrepo-maintenance-run")

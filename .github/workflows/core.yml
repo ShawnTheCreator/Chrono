@@ -1,0 +1,43 @@
+name: Core Flight Recorder CI
+
+on:
+  push:
+    branches: [ main, "feat/**" ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        cxx: [ g++-13, clang++-17 ]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Build Tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build
+
+      - name: Configure CMake
+        run: |
+          cmake -B build -G Ninja \
+            -DCMAKE_CXX_COMPILER=${{ matrix.cxx }} \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_CXX_STANDARD=20
+
+      - name: Build Core & Daemon
+        run: cmake --build build --parallel
+
+      - name: Run CTest Suite (Zero-Drop, Hash-Chain, Seek Budget)
+        run: ctest --test-dir build --output-on-failure --verbose
+
+      - name: Verify Committed Fixture Chains
+        run: |
+          ./build/core/chronod --verify fixtures/runs/chrono-feature-attempt-1/session.chrono
+          ./build/core/chronod --verify fixtures/runs/openrepo-maintenance-run/session.chrono
+
+      - name: Execute Microbenchmarks
+        run: ./build/core/chronod --benchmark

@@ -1,0 +1,35 @@
+[
+  {
+    "id": "chk_day1_core",
+    "git_tree_hash": "d86ac7b1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7",
+    "event_offset": 120,
+    "timestamp_ns": 1730000000000000000,
+    "files_modified": ["core/include/chrono/hash_chain.h", "core/src/hash_chain.cpp"],
+    "additions": 140,
+    "deletions": 0,
+    "summary": "feat(core): append-only SHA-256 Merkle chain and tamper verifier",
+    "raw_patch": "--- /dev/null\n+++ b/core/include/chrono/hash_chain.h\n@@ -0,0 +1,50 @@\n+#pragma once\n+struct ChainRecord { EventWireHeader header; crypto::Digest prev_hash; crypto::Digest current_hash; };"
+  },
+  {
+    "id": "chk_day1_ingest",
+    "git_tree_hash": "9f8e7d6c5b4a32109876543210fedcba98765432",
+    "event_offset": 350,
+    "timestamp_ns": 1730003000000000000,
+    "files_modified": ["core/include/chrono/ingest.h", "core/src/ingest.cpp"],
+    "additions": 92,
+    "deletions": 8,
+    "summary": "feat(core): LMAX lockless SPSC ring buffer (1M events/sec, zero drops)",
+    "raw_patch": "--- a/core/include/chrono/ingest.h\n+++ b/core/include/chrono/ingest.h\n@@ -10,6 +10,12 @@\n+alignas(64) std::atomic<size_t> head_;\n+alignas(64) std::atomic<size_t> tail_;"
+  },
+  {
+    "id": "chk_day1_adapter",
+    "git_tree_hash": "3a37187767775b2c4926a6dc4a8ff8dd850c36bb",
+    "event_offset": 620,
+    "timestamp_ns": 1730007000000000000,
+    "files_modified": ["adapters/muse_code/session_watcher.py"],
+    "additions": 150,
+    "deletions": 20,
+    "summary": "feat(adapters): real-time transcript normalizer for CEP v1 stream",
+    "raw_patch": "--- a/adapters/muse_code/session_watcher.py\n+++ b/adapters/muse_code/session_watcher.py\n@@ -30,6 +30,15 @@\n+def normalize_muse_events(raw, seq_id):\n+    if event_type == 'PLANNER_RESPONSE':\n+        emit_agent_thought(thinking)"
+  }
+]

@@ -1,0 +1,29 @@
+services:
+  chronod:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["chronod", "--benchmark"]
+    environment:
+      - CHRONO_LOG_LEVEL=info
+
+  bridge:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    command: ["uvicorn", "bridge.app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    volumes:
+      - ./fixtures:/app/fixtures:ro
+    environment:
+      - META_MODEL_API_KEY=${META_MODEL_API_KEY:-}
+      - BASETEN_API_KEY=${BASETEN_API_KEY:-}
+
+  fake-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["python3", "tools/gen_synth.py", "--count", "50", "--stall"]
+    depends_on:
+      - chronod

@@ -1,0 +1,39 @@
+name: Bridge Service & Web Cockpit CI
+
+on:
+  push:
+    branches: [ main, "feat/**" ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  bridge-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Python Dependencies
+        run: |
+          pip install --upgrade pip
+          pip install fastapi uvicorn pydantic httpx sse-starlette pytest pytest-asyncio
+
+      - name: Run Bridge Golden-File Tests
+        run: python bridge/tests/test_narrate.py
+
+  web-cockpit-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Run Web Seek Determinism Tests
+        run: node web/tests/seek_determinism.test.js
