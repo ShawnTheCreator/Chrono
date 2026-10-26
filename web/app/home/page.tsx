@@ -141,7 +141,7 @@ export default function HomePage() {
             boxShadow: '0 1px 2px rgba(0,0,0,0.04)'
           }}>
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#1a7f37', display: 'inline-block' }} />
-            <span>Flight Data Recorder for Autonomous AI Agents</span>
+            <span>Next-Gen Agent Observability</span>
           </div>
 
           {/* Hero Headline */}
@@ -154,7 +154,7 @@ export default function HomePage() {
             margin: '0 0 24px 0',
             maxWidth: '580px'
           }}>
-            The Flight Data Recorder for Autonomous Code
+            Elevate Your Coding Agents
           </h1>
 
           {/* Subtitle */}
@@ -166,7 +166,7 @@ export default function HomePage() {
             maxWidth: '510px',
             fontWeight: 400
           }}>
-            Cryptographically sealed hash chains, microsecond time-travel seeks, and real-time causal intervention for autonomous agent workflows.
+            Deterministic execution replay, instant microsecond time-travel, and automated course-correction for autonomous development.
           </p>
 
           {/* Pill Action Button (Matching Reference Button Style) */}
@@ -243,215 +243,106 @@ export default function HomePage() {
 
           {/* Bottom Feature Chips Row (Matching [Smart] [Safe] [Secure] [Comfort] from Reference) */}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-            {[
-              { label: 'SHA-256 Chain', badge: 'FORENSIC' },
-              { label: '<250ns Seeks', badge: 'REAL-TIME' },
-              { label: 'Zero-Drop Ring', badge: 'INGEST' },
-              { label: 'Causal Recovery', badge: 'INSTRUCTOR' }
-            ].map((chip) => (
+            {['Deterministic', 'Real-Time', 'Audit-Ready', 'Resilient'].map((chip) => (
               <div
-                key={chip.label}
+                key={chip}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '6px',
                   backgroundColor: '#ffffff',
                   border: '1px solid #e2e8f0',
                   borderRadius: '100px',
-                  padding: '6px 14px',
+                  padding: '7px 18px',
                   fontSize: '13px',
                   fontWeight: 500,
                   color: '#334155',
                   boxShadow: '0 1px 2px rgba(0,0,0,0.03)'
                 }}
               >
-                <span>{chip.label}</span>
-                <span style={{
-                  fontSize: '9px',
-                  fontWeight: 700,
-                  color: '#1a7f37',
-                  backgroundColor: '#f0fdf4',
-                  padding: '1px 5px',
-                  borderRadius: '10px'
-                }}>
-                  {chip.badge}
-                </span>
+                <span>{chip}</span>
               </div>
             ))}
           </div>
 
         </div>
 
-        {/* Right Column: The Chrono Flight Recorder Unit ("The Black Box") */}
+        {/* Right Column: Tactile Hardware Object matching Reference Image Composition */}
         <div style={{
           position: 'relative',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center'
+          justifyContent: 'center',
+          height: '560px'
         }}>
-          {/* Subtle Ambient Backlight Glow */}
+          {/* Secondary cylinder peeking from behind on the right (like reference image) */}
           <div style={{
             position: 'absolute',
-            width: '420px',
-            height: '420px',
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(26, 127, 55, 0.08) 0%, rgba(0,0,0,0) 70%)',
-            filter: 'blur(40px)',
-            zIndex: 0
+            right: '-40px',
+            width: '280px',
+            height: '460px',
+            borderRadius: '80px',
+            backgroundColor: '#475569',
+            backgroundImage: `
+              radial-gradient(ellipse at 40% 50%, rgba(255,255,255,0.12) 0%, rgba(0,0,0,0.4) 100%),
+              radial-gradient(circle, rgba(255,255,255,0.15) 1px, transparent 1px)
+            `,
+            backgroundSize: '100% 100%, 8px 8px',
+            boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
+            transform: 'scale(0.92)',
+            zIndex: 1,
+            opacity: 0.85
           }} />
 
-          {/* Industrial Tactile Hardware Cylinder */}
+          {/* Primary Main Tactile Cylinder (matching the hero speaker in reference image) */}
           <div style={{
             position: 'relative',
             width: '380px',
-            height: '490px',
-            borderRadius: '64px',
-            backgroundColor: '#18181b',
+            height: '510px',
+            borderRadius: '96px',
+            backgroundColor: '#f1f5f9',
             boxShadow: `
-              0 30px 60px -12px rgba(0, 0, 0, 0.25),
-              0 18px 36px -18px rgba(0, 0, 0, 0.2),
-              inset 0 1px 1px 0 rgba(255, 255, 255, 0.15),
-              inset 0 -8px 24px 0 rgba(0, 0, 0, 0.6)
+              0 35px 70px -15px rgba(0, 0, 0, 0.22),
+              0 20px 35px -10px rgba(0, 0, 0, 0.12),
+              inset 0 1px 2px rgba(255, 255, 255, 0.9),
+              inset -20px 0 40px rgba(100, 116, 139, 0.25),
+              inset 20px 0 30px rgba(255, 255, 255, 0.8)
             `,
-            border: '1px solid rgba(255, 255, 255, 0.08)',
+            border: '1px solid rgba(255, 255, 255, 0.6)',
             overflow: 'hidden',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            padding: '32px 28px',
-            zIndex: 1
+            zIndex: 2
           }}>
-            
-            {/* Diamond Micro-Perforated Mesh Texture Overlay (Mirroring Reference Image Mesh) */}
-            <div style={{
-              position: 'absolute',
-              inset: 0,
-              backgroundImage: `radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px)`,
-              backgroundSize: '4px 4px',
-              maskImage: 'linear-gradient(to right, rgba(0,0,0,0.4) 0%, rgba(0,0,0,1) 50%, rgba(0,0,0,0.3) 100%)',
-              pointerEvents: 'none'
-            }} />
-
-            {/* Top Laser Engraving & Hardware Markings */}
-            <div style={{ position: 'relative', zIndex: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <div style={{
-                  fontSize: '11px',
-                  fontWeight: 700,
-                  letterSpacing: '0.12em',
-                  color: '#a1a1aa',
-                  fontFamily: '"JetBrains Mono", monospace'
-                }}>
-                  CHRONO FLIGHT RECORDER
-                </div>
-                <div style={{
-                  fontSize: '9px',
-                  fontWeight: 600,
-                  letterSpacing: '0.08em',
-                  color: '#71717a',
-                  fontFamily: '"JetBrains Mono", monospace',
-                  marginTop: '2px'
-                }}>
-                  MODEL FDR-2026 • SEALED MERKLE CORE
-                </div>
-              </div>
-
-              {/* Status Green LED */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '4px 8px',
-                borderRadius: '100px',
-                backgroundColor: 'rgba(26, 127, 55, 0.15)',
-                border: '1px solid rgba(26, 127, 55, 0.4)'
-              }}>
-                <span style={{
-                  width: '6px',
-                  height: '6px',
-                  borderRadius: '50%',
-                  backgroundColor: '#22c55e',
-                  boxShadow: '0 0 8px #22c55e'
-                }} />
-                <span style={{ fontSize: '10px', fontWeight: 700, color: '#4ade80', fontFamily: '"JetBrains Mono", monospace' }}>
-                  ACTIVE
-                </span>
-              </div>
-            </div>
-
-            {/* Center Digital Avionics Display / Real-Time Audit HUD */}
-            <div style={{
-              position: 'relative',
-              zIndex: 2,
-              backgroundColor: 'rgba(9, 9, 11, 0.85)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              borderRadius: '16px',
-              padding: '20px',
-              backdropFilter: 'blur(8px)',
-              boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.6)'
-            }}>
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                fontSize: '10px',
-                fontWeight: 600,
-                letterSpacing: '0.08em',
-                color: '#71717a',
-                fontFamily: '"JetBrains Mono", monospace',
-                marginBottom: '12px'
-              }}>
-                <span>FORENSIC LEDGER TELEMETRY</span>
-                <span style={{ color: '#4ade80' }}>SHA-256 PASS</span>
-              </div>
-
-              {/* Live Metric Rows */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontFamily: '"JetBrains Mono", monospace' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
-                  <span style={{ color: '#a1a1aa' }}>Verified Blocks:</span>
-                  <span style={{ color: '#ffffff', fontWeight: 700 }}>832 / 832</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
-                  <span style={{ color: '#a1a1aa' }}>Seek Latency:</span>
-                  <span style={{ color: '#4ade80', fontWeight: 700 }}>248 ns</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
-                  <span style={{ color: '#a1a1aa' }}>Burst Ingest:</span>
-                  <span style={{ color: '#ffffff', fontWeight: 700 }}>1,000,000 evt/s</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
-                  <span style={{ color: '#a1a1aa' }}>Ring Buffer Loss:</span>
-                  <span style={{ color: '#4ade80', fontWeight: 700 }}>0 DROPS</span>
-                </div>
-              </div>
-
-              {/* Visual Waveform Bar */}
-              <div style={{ marginTop: '14px', height: '4px', backgroundColor: '#27272a', borderRadius: '2px', overflow: 'hidden' }}>
-                <div style={{ width: '84%', height: '100%', backgroundColor: '#22c55e' }} />
-              </div>
-            </div>
-
-            {/* Bottom Caution / Laser Warning Markings */}
-            <div style={{
-              position: 'relative',
-              zIndex: 2,
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'flex-end',
-              fontSize: '9px',
-              color: '#52525b',
-              fontFamily: '"JetBrains Mono", monospace'
-            }}>
-              <div>
-                <div>DO NOT TAMPER</div>
-                <div>SECURE HASH CHAIN ENFORCED</div>
-              </div>
-              <div style={{ textAlign: 'right' }}>
-                <div>TERMINAL HASH: 3a37...1a69</div>
-                <div>AUTONOMOUS FLIGHT AUDIT</div>
-              </div>
-            </div>
-
+            {/* Fine Diamond Woven Acoustic Mesh Texture */}
+            <svg width="100%" height="100%" style={{ position: 'absolute', inset: 0 }}>
+              <defs>
+                <pattern id="diamond-mesh" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                  <rect x="1" y="1" width="10" height="10" rx="2" fill="#ffffff" stroke="#cbd5e1" strokeWidth="0.8" />
+                  <circle cx="6" cy="6" r="1.5" fill="#94a3b8" opacity="0.6" />
+                </pattern>
+                {/* 3D Cylindrical Ambient Light Shader */}
+                <linearGradient id="cylinder-shader" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#94a3b8" stopOpacity="0.45" />
+                  <stop offset="18%" stopColor="#e2e8f0" stopOpacity="0.15" />
+                  <stop offset="45%" stopColor="#ffffff" stopOpacity="0" />
+                  <stop offset="75%" stopColor="#64748b" stopOpacity="0.2" />
+                  <stop offset="100%" stopColor="#334155" stopOpacity="0.6" />
+                </linearGradient>
+              </defs>
+              <rect width="100%" height="100%" fill="url(#diamond-mesh)" />
+              <rect width="100%" height="100%" fill="url(#cylinder-shader)" />
+            </svg>
           </div>
+
+          {/* Soft Ground Ambient Shadow */}
+          <div style={{
+            position: 'absolute',
+            bottom: '10px',
+            width: '360px',
+            height: '35px',
+            borderRadius: '50%',
+            background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0) 70%)',
+            filter: 'blur(8px)',
+            zIndex: 0
+          }} />
         </div>
 
       </section>
