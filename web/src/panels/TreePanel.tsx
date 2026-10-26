@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTimelineStore } from '../state/timelineStore';
 import { theme } from '../app/theme';
+import { FolderIcon, FileCodeIcon } from '../components/icons';
 
 interface TreeNode {
   name: string;
@@ -86,16 +87,18 @@ export const TreePanel: React.FC = () => {
             fontSize: '11px',
             cursor: node.isFolder ? 'default' : 'pointer',
             background: isMod ? '#eff6ff' : (selectedFile === currentPath ? '#f1f5f9' : 'transparent'),
-            color: isMod ? '#1d4ed8' : (node.isFolder ? theme.text.secondary : theme.text.primary),
+            color: isMod ? '#1d4ed8' : (node.isFolder ? '#475569' : '#0f172a'),
             fontWeight: (isMod || node.isFolder) ? 600 : 400,
             borderRadius: '4px',
             marginBottom: '1px'
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ color: node.isFolder ? '#64748b' : (isMod ? '#2563eb' : '#94a3b8') }}>
-              {node.isFolder ? '📁' : '📄'}
-            </span>
+            {node.isFolder ? (
+              <FolderIcon size={13} color="#64748b" />
+            ) : (
+              <FileCodeIcon size={13} color={isMod ? '#2563eb' : '#94a3b8'} />
+            )}
             <span>{node.name}</span>
           </div>
           {isMod && (

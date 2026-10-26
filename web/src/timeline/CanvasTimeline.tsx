@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { useTimelineStore, store } from '../state/timelineStore';
 import { theme } from '../app/theme';
+import { ClockIcon } from '../components/icons';
 
 export const CanvasTimeline: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -158,7 +159,6 @@ export const CanvasTimeline: React.FC = () => {
     // Draw Playhead needle
     const playX = tsToX(state.currentTimestampNs);
     if (playX >= -10 && playX <= width + 10) {
-      // Glow
       ctx.strokeStyle = '#2563eb';
       ctx.lineWidth = 2;
       ctx.beginPath();
@@ -264,9 +264,12 @@ export const CanvasTimeline: React.FC = () => {
       {/* Top Header Bar */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 16px', borderBottom: `1px solid ${theme.border.subtle}`, background: '#f8fafc' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span style={{ fontSize: '11px', fontWeight: 700, color: theme.accent.blue, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-            ● SCRUBBER (60 FPS)
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <ClockIcon size={13} color="#2563eb" />
+            <span style={{ fontSize: '11px', fontWeight: 700, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              TIMELINE SCRUBBER
+            </span>
+          </div>
           <span style={{ fontSize: '11px', color: theme.text.primary, fontFamily: 'monospace', fontWeight: 600 }}>
             {formatTime(state.currentTimestampNs)} / {formatTime(state.maxTimestampNs)}
           </span>

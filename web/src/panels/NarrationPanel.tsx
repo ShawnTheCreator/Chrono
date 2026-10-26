@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTimelineStore, store } from '../state/timelineStore';
 import { theme } from '../app/theme';
+import { SparklesIcon, CheckIcon, ZapIcon } from '../components/icons';
 
 export const NarrationPanel: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -65,9 +66,10 @@ export const NarrationPanel: React.FC = () => {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#ffffff', overflow: 'hidden' }}>
       {/* Header */}
       <div style={{ padding: '10px 16px', borderBottom: `1px solid ${theme.border.subtle}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <SparklesIcon size={14} color="#2563eb" />
           <span style={{ fontSize: '11px', fontWeight: 700, color: theme.accent.blue, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-            🧠 FLIGHT INSTRUCTOR (MUSE SPARK)
+            FLIGHT INSTRUCTOR
           </span>
         </div>
         <div style={{ display: 'flex', gap: '6px' }}>
@@ -151,8 +153,9 @@ export const NarrationPanel: React.FC = () => {
             {/* Course-Correction Directive */}
             {intervention && (
               <div style={{ background: '#eff6ff', border: `1px solid ${theme.border.active}`, borderRadius: '8px', padding: '12px 14px' }}>
-                <div style={{ fontSize: '10px', fontWeight: 700, color: '#1d4ed8', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                  ⚡ COURSE-CORRECTION DIRECTIVE
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '10px', fontWeight: 700, color: '#1d4ed8', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  <ZapIcon size={12} color="#1d4ed8" />
+                  <span>COURSE-CORRECTION DIRECTIVE</span>
                 </div>
                 <div style={{ fontSize: '12px', color: '#1e40af', fontWeight: 600, lineHeight: '1.45' }}>
                   {intervention}
@@ -162,13 +165,21 @@ export const NarrationPanel: React.FC = () => {
           </>
         )}
 
-        {/* Forensic Proof Receipt */}
-        <div style={{ marginTop: 'auto', padding: '10px 12px', background: '#f8fafc', border: `1px solid ${theme.border.subtle}`, borderRadius: '6px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '10px', fontWeight: 700, color: '#15803d', textTransform: 'uppercase', marginBottom: '2px' }}>
-            <span>🔒 FORENSIC PROOF: IMMUTABLE LOG</span>
+        {/* Clean Session Info Strip (matching the reference design's Main info card) */}
+        <div style={{ marginTop: 'auto', padding: '12px 14px', background: '#f8fafc', border: `1px solid ${theme.border.subtle}`, borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px' }}>
+            <span style={{ color: theme.text.muted }}>Agent Model</span>
+            <span style={{ color: theme.text.primary, fontWeight: 600 }}>Muse Spark 1026</span>
           </div>
-          <div style={{ fontSize: '11px', color: theme.text.secondary }}>
-            SHA-256 Merkle Chain Verified (Zero Tampering Detected)
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px' }}>
+            <span style={{ color: theme.text.muted }}>Cycle Trap</span>
+            <span style={{ color: theme.text.primary, fontWeight: 600 }}>Sliding window (3 cycles)</span>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px' }}>
+            <span style={{ color: theme.text.muted }}>Status</span>
+            <span style={{ color: '#15803d', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <CheckIcon size={12} color="#16a34a" /> Active (Pass)
+            </span>
           </div>
         </div>
       </div>

@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useTimelineStore, store } from '../state/timelineStore';
 import { theme } from '../app/theme';
+import { ZapIcon } from '../components/icons';
 
 export const DiffPanel: React.FC = () => {
   const state = useTimelineStore();
   const cp = state.activeCheckpoint || (state.checkpoints.length > 0 ? state.checkpoints[0] : null);
-  const [customDirective, setCustomDirective] = useState('');
 
   if (!cp) {
     return (
@@ -92,7 +92,7 @@ export const DiffPanel: React.FC = () => {
         })}
       </div>
 
-      {/* Floating Intervention Action Bar (matching Slack/Linear style prompt dock) */}
+      {/* Floating Intervention Action Bar */}
       <div style={{
         position: 'absolute',
         bottom: '12px',
@@ -101,25 +101,28 @@ export const DiffPanel: React.FC = () => {
         background: '#ffffff',
         border: `1px solid ${theme.border.subtle}`,
         borderRadius: '10px',
-        boxShadow: '0 10px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.04)',
+        boxShadow: '0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 4px 6px -2px rgba(15, 23, 42, 0.04)',
         padding: '10px 14px',
         display: 'flex',
         flexDirection: 'column',
         gap: '8px'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '11px', fontWeight: 700, color: theme.accent.blue, background: '#eff6ff', padding: '2px 6px', borderRadius: '3px' }}>
-            ⚡ INTERVENTION
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: '#eff6ff', padding: '2px 8px', borderRadius: '4px', border: '1px solid #bfdbfe' }}>
+            <ZapIcon size={11} color="#2563eb" />
+            <span style={{ fontSize: '10px', fontWeight: 700, color: '#1d4ed8', textTransform: 'uppercase' }}>
+              Intervention
+            </span>
+          </div>
           <span style={{ fontSize: '12px', color: theme.text.primary, fontWeight: 500, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {state.activeIntervention || 'Inject course-correction prompt to break detected cycle...'}
+            {state.activeIntervention || 'Inject course-correction directive to break detected cycle...'}
           </span>
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: `1px solid ${theme.border.hairline}`, paddingTop: '6px' }}>
-          <div style={{ display: 'flex', gap: '8px', fontSize: '11px', color: theme.text.muted }}>
+          <div style={{ display: 'flex', gap: '10px', fontSize: '11px', color: theme.text.muted }}>
             <span>@agent</span>
             <span>#stall-detector</span>
-            <span>🔒 SHA-256 Chained</span>
+            <span>3 cycles detected</span>
           </div>
           <div style={{ display: 'flex', gap: '8px' }}>
             <button

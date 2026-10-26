@@ -10,12 +10,24 @@ import { TelemetryPanel } from '../src/panels/TelemetryPanel';
 import { NarrationPanel } from '../src/panels/NarrationPanel';
 import { sessionClient } from '../src/ws/sessionClient';
 import { theme } from '../src/app/theme';
+import {
+  ClockIcon,
+  GitBranchIcon,
+  ShieldCheckIcon,
+  PlusIcon,
+  SparklesIcon,
+  MessageSquareIcon,
+  BarChartIcon,
+  BookmarkIcon,
+  MoreHorizontalIcon,
+  InfoIcon
+} from '../src/components/icons';
 
 export default function CockpitDashboard() {
   const [sessions, setSessions] = useState<any[]>([
-    { session_id: 'chrono-feature-attempt-1', task_name: '[SYNTHETIC BENCHMARK] C++20 Hash Chain & Ingest (Loop Recovery Demo)' },
-    { session_id: 'live-agent-run', task_name: '[LIVE CAPTURE] Real Agent Execution Trace (832 Verified Blocks)' },
-    { session_id: 'openrepo-maintenance-run', task_name: '[SYNTHETIC BENCHMARK] OpenRepo Scale Run' }
+    { session_id: 'chrono-feature-attempt-1', task_name: 'C++20 Hash Chain & Ingest (Loop Recovery Demo)' },
+    { session_id: 'live-agent-run', task_name: 'Real Agent Execution Trace (832 Verified Blocks)' },
+    { session_id: 'openrepo-maintenance-run', task_name: 'OpenRepo Scale Run' }
   ]);
   const [currentSessionId, setCurrentSessionId] = useState('chrono-feature-attempt-1');
   const [activeTab, setActiveTab] = useState<'narration' | 'transcript' | 'telemetry'>('narration');
@@ -89,26 +101,40 @@ export default function CockpitDashboard() {
               <span style={{ color: '#2563eb', fontWeight: 600, background: '#eff6ff', padding: '1px 6px', borderRadius: '3px', border: '1px solid #bfdbfe' }}>
                 {state.activeCheckpoint?.id || 'chk_04n112tt8a'}
               </span>
+              <BookmarkIcon size={12} color="#94a3b8" style={{ marginLeft: 4 }} />
             </div>
           </div>
 
-          {/* Right: Verified Badge & Session Picker */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {/* Right: Actions, Status & Session Picker */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            {/* Minimal clean status pill */}
             <div style={{
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
               fontSize: '11px',
-              fontWeight: 600,
-              color: '#15803d',
-              background: '#f0fdf4',
-              border: '1px solid #bbf7d0',
-              padding: '3px 10px',
-              borderRadius: '9999px'
+              fontWeight: 500,
+              color: '#475569',
+              background: '#f8fafc',
+              border: '1px solid #e2e8f0',
+              padding: '3px 8px',
+              borderRadius: '6px'
             }}>
-              <span>●</span>
-              <span>SHA-256 HASH CHAIN VERIFIED</span>
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#16a34a' }} />
+              <span>Active</span>
             </div>
+
+            {/* Action icons */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#64748b' }}>
+              <button title="Options" style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#64748b', padding: '4px', display: 'flex', alignItems: 'center' }}>
+                <MoreHorizontalIcon size={14} />
+              </button>
+              <button title="Session Info" style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#64748b', padding: '4px', display: 'flex', alignItems: 'center' }}>
+                <InfoIcon size={14} />
+              </button>
+            </div>
+
+            <div style={{ height: '16px', width: '1px', background: '#e2e8f0' }} />
 
             <select
               value={currentSessionId}
@@ -176,10 +202,9 @@ export default function CockpitDashboard() {
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '14px'
+              justifyContent: 'center'
             }}>
-              ⏱️
+              <ClockIcon size={15} color="#2563eb" />
             </button>
 
             <button title="Code Tree" style={{
@@ -192,10 +217,9 @@ export default function CockpitDashboard() {
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '14px'
+              justifyContent: 'center'
             }}>
-              📂
+              <GitBranchIcon size={15} color="#64748b" />
             </button>
 
             <button title="Forensic Verifier" style={{
@@ -208,10 +232,9 @@ export default function CockpitDashboard() {
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '14px'
+              justifyContent: 'center'
             }}>
-              🛡️
+              <ShieldCheckIcon size={15} color="#64748b" />
             </button>
 
             <button title="Add / New Run" style={{
@@ -224,10 +247,9 @@ export default function CockpitDashboard() {
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '14px'
+              justifyContent: 'center'
             }}>
-              +
+              <PlusIcon size={14} color="#475569" />
             </button>
 
             {/* Bottom Avatar */}
@@ -241,7 +263,7 @@ export default function CockpitDashboard() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: '12px',
+                fontSize: '11px',
                 fontWeight: 700
               }}>
                 MC
@@ -261,7 +283,7 @@ export default function CockpitDashboard() {
 
           {/* 4. Right Multi-Tab Inspector Panel */}
           <aside style={{ width: '340px', height: '100%', display: 'flex', flexDirection: 'column', background: '#ffffff', flexShrink: 0 }}>
-            {/* Pill Tabs Header (matching reference image) */}
+            {/* Pill Tabs Header */}
             <div style={{
               padding: '8px 12px',
               borderBottom: '1px solid #e2e8f0',
@@ -281,10 +303,15 @@ export default function CockpitDashboard() {
                   color: activeTab === 'narration' ? '#2563eb' : '#64748b',
                   fontWeight: activeTab === 'narration' ? 700 : 500,
                   fontSize: '11px',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '4px'
                 }}
               >
-                🧠 Narration
+                <SparklesIcon size={12} color={activeTab === 'narration' ? '#2563eb' : '#64748b'} />
+                <span>Instructor</span>
               </button>
               <button
                 onClick={() => setActiveTab('transcript')}
@@ -297,10 +324,15 @@ export default function CockpitDashboard() {
                   color: activeTab === 'transcript' ? '#2563eb' : '#64748b',
                   fontWeight: activeTab === 'transcript' ? 700 : 500,
                   fontSize: '11px',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '4px'
                 }}
               >
-                💬 Transcript
+                <MessageSquareIcon size={12} color={activeTab === 'transcript' ? '#2563eb' : '#64748b'} />
+                <span>Transcript</span>
               </button>
               <button
                 onClick={() => setActiveTab('telemetry')}
@@ -313,10 +345,15 @@ export default function CockpitDashboard() {
                   color: activeTab === 'telemetry' ? '#2563eb' : '#64748b',
                   fontWeight: activeTab === 'telemetry' ? 700 : 500,
                   fontSize: '11px',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '4px'
                 }}
               >
-                📊 Telemetry
+                <BarChartIcon size={12} color={activeTab === 'telemetry' ? '#2563eb' : '#64748b'} />
+                <span>Telemetry</span>
               </button>
             </div>
 

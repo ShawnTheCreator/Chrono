@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useTimelineStore } from '../state/timelineStore';
 import { theme } from '../app/theme';
+import { AlertTriangleIcon, ZapIcon, GitCommitIcon } from '../components/icons';
 
 export const TranscriptPanel: React.FC = () => {
   const store = useTimelineStore();
@@ -24,7 +25,7 @@ export const TranscriptPanel: React.FC = () => {
     let badgeColor = theme.accent.blue;
     let badgeBg = '#eff6ff';
     let borderColor = theme.border.subtle;
-    let title = ev.kind;
+    let title: React.ReactNode = ev.kind;
     let content = '';
 
     if (ev.kind === 'agent_thought') {
@@ -48,19 +49,34 @@ export const TranscriptPanel: React.FC = () => {
       badgeColor = '#b91c1c';
       badgeBg = '#fef2f2';
       borderColor = '#fca5a5';
-      title = `⚠️ STALL ALERT: ${ev.payload?.pattern || 'LOOP_DETECTED'}`;
+      title = (
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <AlertTriangleIcon size={12} color="#b91c1c" />
+          <span>STALL ALERT: {ev.payload?.pattern || 'LOOP_DETECTED'}</span>
+        </span>
+      );
       content = ev.payload?.description || 'Agent generated identical diff 3 times without resolving failure.';
     } else if (ev.kind === 'intervention') {
       badgeColor = '#1d4ed8';
       badgeBg = '#eff6ff';
       borderColor = '#93c5fd';
-      title = '⚡ SURGICAL DIRECTIVE';
+      title = (
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <ZapIcon size={12} color="#1d4ed8" />
+          <span>COURSE CORRECTION</span>
+        </span>
+      );
       content = ev.payload?.directive || (typeof ev.payload === 'string' ? ev.payload : JSON.stringify(ev.payload));
     } else if (ev.kind === 'checkpoint') {
       badgeColor = '#2563eb';
       badgeBg = '#eff6ff';
       borderColor = '#bfdbfe';
-      title = `CHECKPOINT: ${ev.payload?.id || 'chk'}`;
+      title = (
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <GitCommitIcon size={12} color="#2563eb" />
+          <span>CHECKPOINT: {ev.payload?.id || 'chk'}</span>
+        </span>
+      );
       content = ev.payload?.summary || 'Committed content-addressed tree snapshot.';
     } else if (ev.kind === 'prompt') {
       badgeColor = '#2563eb';
