@@ -2,7 +2,7 @@
 
 - **Status**: Accepted
 - **Deciders**: Chrono Core Architecture Group
-- **Date**: 2026-10-28
+- **Date**: 2026-10-26
 
 ## Context
 
