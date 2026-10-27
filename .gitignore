@@ -54,3 +54,8 @@ Thumbs.db
 tmp/
 *.log
 !fixtures/runs/**/*.log
+
+# Secrets & Environment Variables (NEVER commit keys or credentials)
+.env
+.env.*
+!.env.example
