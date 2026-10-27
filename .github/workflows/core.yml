@@ -38,6 +38,7 @@ jobs:
         run: |
           ./build/core/chronod --verify fixtures/runs/chrono-feature-attempt-1/session.chrono
           ./build/core/chronod --verify fixtures/runs/openrepo-maintenance-run/session.chrono
+          ./build/core/chronod --verify fixtures/recorded/live-agent-run.chrono
 
       - name: Execute Microbenchmarks
         run: ./build/core/chronod --benchmark
