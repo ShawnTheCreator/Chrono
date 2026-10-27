@@ -12,6 +12,12 @@ from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
 
 try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
+try:
     from app.narrate import generate_narration
     from app.suggest import generate_suggestion
     from app.batch import generate_batch_report
