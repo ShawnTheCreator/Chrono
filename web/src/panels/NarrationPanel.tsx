@@ -121,17 +121,39 @@ export const NarrationPanel: React.FC<NarrationPanelProps> = ({ onCollapse }) =>
                   <span style={{ fontSize: '10px', fontWeight: 600, color: theme.text.muted, letterSpacing: '0.08em', fontFamily: '"JetBrains Mono", monospace' }}>
                     CAUSAL NARRATION
                   </span>
-                  <span style={{
-                    fontSize: '9px',
-                    padding: '1px 5px',
-                    borderRadius: '3px',
-                    background: '#f6f8fa',
-                    color: theme.text.muted,
-                    border: `1px solid ${theme.border.default}`,
-                    fontFamily: '"JetBrains Mono", monospace'
-                  }}>
-                    {narration.provider || 'muse-spark-1026'}
-                  </span>
+                  {narration.is_live ? (
+                    <span
+                      title={`Live inference via ${narration.provider || 'Meta Model API'}`}
+                      style={{
+                        fontSize: '9px',
+                        fontWeight: 600,
+                        padding: '1px 6px',
+                        borderRadius: '3px',
+                        background: '#dafbe1',
+                        color: '#1a7f37',
+                        border: '1px solid #b4f0c0',
+                        fontFamily: '"JetBrains Mono", monospace'
+                      }}
+                    >
+                      ● LIVE: {narration.model || 'muse-spark-1026'}
+                    </span>
+                  ) : (
+                    <span
+                      title="Meta Model API endpoint unconfigured or unreachable. Using calibrated offline baseline."
+                      style={{
+                        fontSize: '9px',
+                        fontWeight: 500,
+                        padding: '1px 6px',
+                        borderRadius: '3px',
+                        background: '#fff8c5',
+                        color: '#9a6700',
+                        border: '1px solid #d4a72c',
+                        fontFamily: '"JetBrains Mono", monospace'
+                      }}
+                    >
+                      ○ OFFLINE FALLBACK (Meta API Unreachable)
+                    </span>
+                  )}
                 </div>
                 <span style={{
                   fontSize: '10px',

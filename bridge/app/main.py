@@ -390,7 +390,8 @@ def list_sessions():
         "shortName": "Live Agent",
         "description": "Real recorded session (2,973 verified blocks)",
         "task_name": live_meta.get("task_name", "Autonomous Chrono Engineering & Hackathon Implementation"),
-        "model": live_meta.get("model", "gemini-3.8-flash-high"),
+        "model": "gemini-3.8-flash-high (live autonomous trace)",
+        "provenance": live_meta.get("provenance", "Self-referential build trace"),
         "is_synthetic": False,
         "status": "COMPLETED"
     })

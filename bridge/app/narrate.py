@@ -67,12 +67,14 @@ Provide causal explanation in JSON format:
                 if content.endswith("```"):
                     content = content[:-3]
                 parsed = json.loads(content.strip())
-                parsed["provider"] = f"meta-model-api (live: {model_name})"
+                parsed["is_live"] = True
+                parsed["provider"] = f"Meta Model API ({model_name})"
+                parsed["model"] = model_name
                 return parsed
         except Exception as e:
             print(f"[bridge] Meta Model API call failed ({e}), falling back to deterministic synthesizer.")
 
-    # Deterministic high-quality causal synthesizer
+    # Deterministic high-quality causal synthesizer (truth-branded offline fallback)
     files = checkpoint_data.get("files_modified", ["core/src/main.cpp"])
     file_list = ", ".join(files) if files else "workspace"
 
@@ -87,7 +89,9 @@ Provide causal explanation in JSON format:
             "hypothesis": "Embedding prev_hash in EventWireHeader ensures zero-copy O(1) append while enforcing tamper-evidence.",
             "verdict": "FIXED",
             "risk_score": 0.05,
-            "provider": "deterministic-causal-engine (calibrated)"
+            "is_live": False,
+            "provider": "OFFLINE FALLBACK (Meta API Unreachable)",
+            "model": "offline-calibrated-baseline"
         }
     elif "stall" in summary.lower() or "loop" in str(thought).lower():
         return {
@@ -99,7 +103,9 @@ Provide causal explanation in JSON format:
             "hypothesis": "Sliding window of 20 events with SHA-256 diff deduplication will trap oscillatory edits.",
             "verdict": "FIXED",
             "risk_score": 0.12,
-            "provider": "deterministic-causal-engine (calibrated)"
+            "is_live": False,
+            "provider": "OFFLINE FALLBACK (Meta API Unreachable)",
+            "model": "offline-calibrated-baseline"
         }
     else:
         return {
@@ -111,5 +117,7 @@ Provide causal explanation in JSON format:
             "hypothesis": "Strict C++20 memory alignment eliminates cross-platform struct padding discrepancies.",
             "verdict": "FIXED",
             "risk_score": 0.08,
-            "provider": "deterministic-causal-engine (calibrated)"
+            "is_live": False,
+            "provider": "OFFLINE FALLBACK (Meta API Unreachable)",
+            "model": "offline-calibrated-baseline"
         }

@@ -2,12 +2,13 @@
   "session_id": "live-agent-run",
   "is_synthetic": false,
   "data_classification": "REAL_LIVE_RECORDED_RUN",
+  "provenance": "Self-referential build trace (autonomous coding agent engineering Chrono in real-time)",
   "task_name": "Autonomous Chrono Engineering & Hackathon Implementation",
-  "model": "gemini-3.8-flash-high",
-  "agent_framework": "antigravity / muse_code",
+  "agent_source": "Gemini 3.8 Flash High (autonomous coding session)",
+  "capture_adapter": "adapters/transcript/session_watcher.py (CEP v1 normalizer)",
   "recorded_at": "2026-10-27T07:38:00Z",
   "total_records": 2973,
   "terminal_hash": "2e46be9170ffc4d76f5fe29f269145320bd603744ed338114f6ac87c230481a5",
   "verification_status": "PASS",
-  "notes": "Real live execution trace captured via adapters/muse_code/session_watcher.py and piped into chronod --record. Fully verified append-only SHA-256 Merkle chain."
+  "notes": "Genuine self-referential execution trace captured during live Chrono development. Normalized to Chrono Event Protocol (CEP v1) and piped directly into chronod --record. Cryptographically sealed in C++ Merkle chain with 0 tampering detected."
 }

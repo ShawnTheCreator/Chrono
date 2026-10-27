@@ -47,4 +47,6 @@ export interface Narration {
   verdict: 'FIXED' | 'PARTIAL' | 'REGRESSION' | 'STALL_RISK';
   risk_score: number;
   provider?: string;
+  is_live?: boolean;
+  model?: string;
 }
