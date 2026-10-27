@@ -138,7 +138,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ```text
 chrono/
 ├── README.md                      # Architecture diagram, quickstart, benchmarks
-├── CHANGELOG.md                   # Dated hackathon daily receipt (Oct 26 - Nov 4)
+├── CHANGELOG.md                   # Dated hackathon daily receipt (Oct 26 - Oct 27)
 ├── LICENSE                        # MIT License
 ├── CONTRIBUTING.md                # Conventional commits, branch naming, test gates
 ├── Makefile                       # `make test`, `make bench`, `make demo`, `make up`

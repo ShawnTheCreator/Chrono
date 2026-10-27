@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
+import Link from 'next/link';
 import { store, useTimelineStore } from '../src/state/timelineStore';
 import { CanvasTimeline } from '../src/timeline/CanvasTimeline';
 import { DiffPanel } from '../src/panels/DiffPanel';
@@ -31,8 +32,6 @@ const SESSIONS = [
 ];
 
 export default function CockpitDashboard() {
-  const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
-  const [isAuthChecking, setIsAuthChecking] = useState(true);
   const [currentSessionId, setCurrentSessionId] = useState('chrono-feature-attempt-1');
   const [activeTab, setActiveTab] = useState<'narration' | 'transcript' | 'telemetry'>('narration');
   const state = useTimelineStore();
@@ -61,16 +60,8 @@ export default function CockpitDashboard() {
   const startPosRef = useRef({ x: 0, y: 0, initialW: 0, initialH: 0 });
 
   useEffect(() => {
-    authClient.checkSession().then((res) => {
-      if (!res.authenticated) {
-        window.location.href = '/login';
-      } else {
-        setCurrentUser(res.user || authClient.getCurrentUser() || { email: 'admin@chrono.sec', role: 'admin' });
-        setIsAuthChecking(false);
-        sessionClient.init();
-        sessionClient.connect(currentSessionId);
-      }
-    });
+    sessionClient.init();
+    sessionClient.connect(currentSessionId);
   }, [currentSessionId]);
 
   const showToast = (msg: string) => {
@@ -166,31 +157,6 @@ export default function CockpitDashboard() {
     ? state.availableSessions
     : SESSIONS;
   const activeSessionMeta = sessionList.find((s: any) => s.id === currentSessionId) || sessionList[0] || SESSIONS[0];
-
-  if (isAuthChecking) {
-    return (
-      <div style={{
-        width: '100vw',
-        height: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: '#f8fafc',
-        fontFamily: '"JetBrains Mono", monospace'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#64748b', fontSize: '12px' }}>
-          <div style={{
-            width: '8px',
-            height: '8px',
-            borderRadius: '50%',
-            background: '#1a7f37',
-            animation: 'pulse 1.5s infinite'
-          }} />
-          <span>VERIFYING CRYPTOGRAPHIC SESSION TOKEN...</span>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div style={{
@@ -409,46 +375,27 @@ export default function CockpitDashboard() {
             ))}
           </select>
 
-          {/* User Identity & Logout */}
           <div style={{ height: '14px', width: '1px', background: theme.border.default }} />
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <div style={{
+          <Link
+            href="/home"
+            title="View Product Overview & Specs"
+            style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
-              background: '#f6f8fa',
-              border: `1px solid ${theme.border.default}`,
-              padding: '2px 8px',
-              borderRadius: '4px',
+              gap: '4px',
               fontSize: '11px',
-              color: theme.text.primary,
-              fontFamily: '"JetBrains Mono", monospace'
-            }}>
-              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: theme.accent.green }} />
-              <span>{currentUser?.email || 'admin@chrono.sec'}</span>
-            </div>
-            <button
-              onClick={async () => {
-                await authClient.logout();
-                window.location.href = '/login';
-              }}
-              title="Log out of Chrono Cockpit"
-              style={{
-                background: '#ffffff',
-                border: `1px solid ${theme.border.default}`,
-                borderRadius: '4px',
-                padding: '2px 8px',
-                fontSize: '11px',
-                color: theme.accent.red,
-                fontFamily: '"JetBrains Mono", monospace',
-                fontWeight: 500,
-                cursor: 'pointer'
-              }}
-            >
-              Log Out
-            </button>
-          </div>
+              color: theme.text.secondary,
+              textDecoration: 'none',
+              fontFamily: '"JetBrains Mono", monospace',
+              padding: '2px 6px',
+              borderRadius: '4px',
+              border: `1px solid ${theme.border.default}`,
+              background: '#ffffff'
+            }}
+          >
+            <span>overview</span>
+          </Link>
         </div>
       </header>
 

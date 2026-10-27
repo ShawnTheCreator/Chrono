@@ -4,7 +4,7 @@ import type { NextRequest } from 'next/server';
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Static assets and internal next paths bypass authentication
+  // Static assets and internal next paths bypass processing
   if (
     pathname.startsWith('/_next') ||
     pathname.startsWith('/favicon.ico') ||
@@ -14,31 +14,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Public marketing & spec landing page is accessible to everyone
-  if (pathname === '/home') {
-    const response = NextResponse.next();
-    applySecurityHeaders(response);
-    return response;
-  }
-
-  const token = request.cookies.get('chrono_auth_token')?.value;
-
-  // Unauthenticated user attempting to access protected dashboard routes
-  if (!token && pathname !== '/login') {
-    const loginUrl = new URL('/login', request.url);
-    const response = NextResponse.redirect(loginUrl);
-    applySecurityHeaders(response);
-    return response;
-  }
-
-  // Already authenticated user visiting login page
-  if (token && pathname === '/login') {
-    const homeUrl = new URL('/', request.url);
-    const response = NextResponse.redirect(homeUrl);
-    applySecurityHeaders(response);
-    return response;
-  }
-
+  // Direct, friction-free access to dashboard and landing pages
   const response = NextResponse.next();
   applySecurityHeaders(response);
   return response;

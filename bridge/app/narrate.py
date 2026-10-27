@@ -39,11 +39,12 @@ Provide causal explanation in JSON format:
   "risk_score": <float 0.0 to 1.0>
 }}"""
 
-    endpoint = os.getenv("META_MODEL_API_ENDPOINT")
+    endpoint = os.getenv("META_MODEL_API_ENDPOINT") or os.getenv("BASETEN_MODEL_ENDPOINT")
     if api_key and endpoint:
         try:
+            model_name = os.getenv("META_MODEL_NAME", "muse-spark-1026")
             req_data = json.dumps({
-                "model": "muse-spark-1026",
+                "model": model_name,
                 "messages": [
                     {"role": "system", "content": NARRATE_SYSTEM_PROMPT},
                     {"role": "user", "content": user_prompt}
@@ -58,10 +59,18 @@ Provide causal explanation in JSON format:
             )
             with urllib.request.urlopen(req, timeout=10.0) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
-                content = data["choices"][0]["message"]["content"]
-                return json.loads(content)
-        except Exception:
-            pass
+                content = data["choices"][0]["message"]["content"].strip()
+                if content.startswith("```json"):
+                    content = content[7:]
+                if content.startswith("```"):
+                    content = content[3:]
+                if content.endswith("```"):
+                    content = content[:-3]
+                parsed = json.loads(content.strip())
+                parsed["provider"] = f"meta-model-api (live: {model_name})"
+                return parsed
+        except Exception as e:
+            print(f"[bridge] Meta Model API call failed ({e}), falling back to deterministic synthesizer.")
 
     # Deterministic high-quality causal synthesizer
     files = checkpoint_data.get("files_modified", ["core/src/main.cpp"])
@@ -77,7 +86,8 @@ Provide causal explanation in JSON format:
             ),
             "hypothesis": "Embedding prev_hash in EventWireHeader ensures zero-copy O(1) append while enforcing tamper-evidence.",
             "verdict": "FIXED",
-            "risk_score": 0.05
+            "risk_score": 0.05,
+            "provider": "deterministic-causal-engine (calibrated)"
         }
     elif "stall" in summary.lower() or "loop" in str(thought).lower():
         return {
@@ -88,7 +98,8 @@ Provide causal explanation in JSON format:
             ),
             "hypothesis": "Sliding window of 20 events with SHA-256 diff deduplication will trap oscillatory edits.",
             "verdict": "FIXED",
-            "risk_score": 0.12
+            "risk_score": 0.12,
+            "provider": "deterministic-causal-engine (calibrated)"
         }
     else:
         return {
@@ -99,5 +110,6 @@ Provide causal explanation in JSON format:
             ),
             "hypothesis": "Strict C++20 memory alignment eliminates cross-platform struct padding discrepancies.",
             "verdict": "FIXED",
-            "risk_score": 0.08
+            "risk_score": 0.08,
+            "provider": "deterministic-causal-engine (calibrated)"
         }

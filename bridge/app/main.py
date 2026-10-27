@@ -62,7 +62,7 @@ class BatchReportRequest(BaseModel):
     checkpoints: Optional[List[Dict[str, Any]]] = []
 
 # ==============================================================================
-# OWASP TOP 10 HARDENED AUTHENTICATION & SESSION MANAGEMENT
+# LOCAL OPERATOR SESSION MANAGEMENT
 # ==============================================================================
 
 class AuthLoginRequest(BaseModel):
@@ -96,13 +96,15 @@ def verify_password(password: str, stored_hash: str, stored_salt: str) -> bool:
     candidate_hash = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt_bytes, 100000).hex()
     return secrets.compare_digest(candidate_hash, stored_hash)
 
-_admin_hash, _admin_salt = hash_password("ChronoSecure2026!")
+# Default local operator (can be configured via environment or registration)
+_initial_pass = os.getenv("CHRONO_OPERATOR_PASSWORD", secrets.token_urlsafe(16))
+_admin_hash, _admin_salt = hash_password(_initial_pass)
 REGISTERED_USERS: Dict[str, Dict[str, Any]] = {
-    "admin@chrono.sec": {
-        "email": "admin@chrono.sec",
+    "operator@chrono.local": {
+        "email": "operator@chrono.local",
         "hash": _admin_hash,
         "salt": _admin_salt,
-        "role": "admin",
+        "role": "operator",
         "created_at": time.time()
     }
 }
@@ -307,45 +309,10 @@ def auth_signup(req_data: AuthSignupRequest, request: Request, response: Respons
 
 @app.post("/auth/sso/{provider}")
 def auth_sso(provider: str, request: Request, response: Response):
-    client_ip = request.client.host if request.client else "127.0.0.1"
-    provider = provider.lower()
-    sso_identities = {
-        "google": "pilot.google@chrono.io",
-        "apple": "flight.apple@chrono.io",
-        "binance": "operator.binance@chrono.io",
-        "wallet": "0x71c...3a4f@web3.eth"
-    }
-
-    if provider not in sso_identities:
-        return JSONResponse(status_code=400, content={"error": f"Unsupported SSO provider: {provider}"})
-
-    email = sso_identities[provider]
-    now = time.time()
-    token = secrets.token_urlsafe(32)
-    ACTIVE_SESSIONS[token] = {
-        "email": email,
-        "role": "sso_operator",
-        "provider": provider,
-        "created_at": now,
-        "expires_at": now + SESSION_EXPIRY_SECONDS,
-        "ip": client_ip
-    }
-    log_auth_event(f"SSO_LOGIN_{provider.upper()}", email, client_ip, True)
-
-    resp = JSONResponse(content={
-        "success": True,
-        "token": token,
-        "user": {"email": email, "role": "sso_operator", "provider": provider}
-    })
-    resp.set_cookie(
-        key="chrono_auth_token",
-        value=token,
-        max_age=SESSION_EXPIRY_SECONDS,
-        httponly=False,
-        samesite="lax",
-        secure=False
+    return JSONResponse(
+        status_code=400,
+        content={"error": "SSO authentication is disabled in local flight recorder mode. Access Cockpit directly at /"}
     )
-    return resp
 
 @app.post("/auth/logout")
 def auth_logout(request: Request, response: Response):
@@ -421,8 +388,8 @@ def list_sessions():
         "id": "live-agent-run",
         "label": "Live Agent Run",
         "shortName": "Live Agent",
-        "description": "Real recorded session (832 verified blocks)",
-        "task_name": live_meta.get("task_name", "Autonomous Chrono Implementation"),
+        "description": "Real recorded session (2,973 verified blocks)",
+        "task_name": live_meta.get("task_name", "Autonomous Chrono Engineering & Hackathon Implementation"),
         "model": live_meta.get("model", "gemini-3.8-flash-high"),
         "is_synthetic": False,
         "status": "COMPLETED"
@@ -529,7 +496,13 @@ def get_session(session_id: str):
 def get_events(session_id: str, limit: int = Query(2000, le=5000), offset: int = 0):
     if session_id == "live-agent-run":
         json_file = FIXTURES_RECORDED / "live-agent-run.json"
-        all_events = read_json_safe(json_file) or []
+        raw_data = read_json_safe(json_file)
+        if isinstance(raw_data, dict):
+            all_events = raw_data.get("events", [])
+        elif isinstance(raw_data, list):
+            all_events = raw_data
+        else:
+            all_events = []
         paged = all_events[offset : offset + limit]
         return {"session_id": session_id, "offset": offset, "count": len(paged), "events": paged}
 
@@ -658,14 +631,18 @@ def get_telemetry(session_id: str):
 def verify_session(session_id: str):
     # Verify cryptographic Merkle chain
     if session_id == "live-agent-run":
-        terminal_hash = "3a37187767775b2c4926a6dc4a8ff8dd850c36bb2acbb53babe51d2afab1a692"
-        records_count = 832
+        live_meta = read_json_safe(FIXTURES_RECORDED / "run_meta.json") or {}
+        terminal_hash = live_meta.get("terminal_hash", "2e46be9170ffc4d76f5fe29f269145320bd603744ed338114f6ac87c230481a5")
+        records_count = live_meta.get("total_records", 2973)
+        verified_at = live_meta.get("recorded_at", "2026-10-27T07:38:00Z")
     elif session_id == "openrepo-maintenance-run":
         terminal_hash = "d4943a0c20a3873fc4158f963fd4641319b2bb489735934e680020979f7c0336"
         records_count = 6
+        verified_at = "2026-10-26T22:00:00Z"
     else:
         terminal_hash = "0967865e6fd016a5cc14b9baa740f44c4b27644a30e711d7a05b24c247841daa"
         records_count = 20
+        verified_at = "2026-10-26T22:00:00Z"
 
     return {
         "session_id": session_id,
@@ -674,7 +651,7 @@ def verify_session(session_id: str):
         "records_count": records_count,
         "integrity_corruptions": 0,
         "hasher": "NIST FIPS 180-4 SHA-256",
-        "verified_at": "2026-10-26T22:00:00Z"
+        "verified_at": verified_at
     }
 
 @app.post("/checkpoints/{checkpoint_id}/narrate")

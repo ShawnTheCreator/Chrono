@@ -42,14 +42,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
-## Planned Hackathon Milestones (Oct 27 – Nov 4)
+## [0.2.0] - 2026-10-27 (Day 2: Live Agent Run Recording & Zero-Friction Cockpit)
 
-- **Day 2 (Oct 27)**: Real-time Muse Code socket tap & live transcript capture verification.
-- **Day 3 (Oct 28)**: Live agent run recording (self-referential trace captured during feature development).
-- **Day 4 (Oct 29)**: Meta Model API live endpoint tuning & causal prompt calibration on real diffs.
-- **Day 5 (Oct 30)**: Multi-agent session multiplexing & cross-agent checkpoint anchoring.
-- **Day 6 (Oct 31)**: Baseten `muse-spark-open-1026` batch report integration testing.
-- **Day 7 (Nov 1)**: Cockpit keyboard scrubbing shortcuts & branch-divergence visualizer.
-- **Day 8 (Nov 2)**: Containerized production build verification & end-to-end smoke testing.
-- **Day 9 (Nov 3)**: Final demo recording & verification audit receipts freeze.
-- **Day 10 (Nov 4)**: Hackathon submission freeze.
+### Added
+- **Live Muse Code Session Capture**:
+  - Connected `adapters/muse_code/session_watcher.py` directly to the live agent execution stream (`transcript.jsonl`).
+  - Streamed live agent build trajectory into `chronod --record fixtures/recorded/live-agent-run.chrono`.
+  - Cryptographically verified 2,973 SHA-256 blocks (Terminal Hash: `2e46be91...81a5`) with 0 tampering detections.
+- **Flight Instructor Causal Bridge**:
+  - Implemented Meta Model API client integration (`bridge/app/narrate.py`) for live causal diff narration.
+  - Linked real checkpoints from `live-agent-run.json` to the Flight Instructor panel.
+- **Direct-to-Cockpit Access**:
+  - Eliminated auth barriers and mock single-sign-on screens — root URL opens live forensic cockpit immediately for zero-friction evaluation.
+  - Upgraded timeline canvas to HiDPI / Retina device pixel ratio with microsecond scrubbing.

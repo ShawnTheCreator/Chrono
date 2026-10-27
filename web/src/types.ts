@@ -46,4 +46,5 @@ export interface Narration {
   hypothesis: string;
   verdict: 'FIXED' | 'PARTIAL' | 'REGRESSION' | 'STALL_RISK';
   risk_score: number;
+  provider?: string;
 }

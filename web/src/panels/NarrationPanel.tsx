@@ -117,9 +117,22 @@ export const NarrationPanel: React.FC<NarrationPanelProps> = ({ onCollapse }) =>
             {/* Causal Narration Card */}
             <div style={{ background: '#ffffff', border: `1px solid ${theme.border.default}`, borderRadius: '4px', padding: '10px 12px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                <span style={{ fontSize: '10px', fontWeight: 600, color: theme.text.muted, letterSpacing: '0.08em', fontFamily: '"JetBrains Mono", monospace' }}>
-                  CAUSAL NARRATION
-                </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ fontSize: '10px', fontWeight: 600, color: theme.text.muted, letterSpacing: '0.08em', fontFamily: '"JetBrains Mono", monospace' }}>
+                    CAUSAL NARRATION
+                  </span>
+                  <span style={{
+                    fontSize: '9px',
+                    padding: '1px 5px',
+                    borderRadius: '3px',
+                    background: '#f6f8fa',
+                    color: theme.text.muted,
+                    border: `1px solid ${theme.border.default}`,
+                    fontFamily: '"JetBrains Mono", monospace'
+                  }}>
+                    {narration.provider || 'muse-spark-1026'}
+                  </span>
+                </div>
                 <span style={{
                   fontSize: '10px',
                   fontWeight: 600,
