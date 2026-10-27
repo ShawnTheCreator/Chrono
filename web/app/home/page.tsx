@@ -266,83 +266,219 @@ export default function HomePage() {
 
         </div>
 
-        {/* Right Column: Tactile Hardware Object matching Reference Image Composition */}
+        {/* Right Column: Interactive Chrono Replay & Course-Correction Hero Visual */}
         <div style={{
           position: 'relative',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          height: '560px'
+          width: '100%'
         }}>
-          {/* Secondary cylinder peeking from behind on the right (like reference image) */}
+          {/* Subtle Ambient Backlight Glow */}
           <div style={{
             position: 'absolute',
-            right: '-40px',
-            width: '280px',
-            height: '460px',
-            borderRadius: '80px',
-            backgroundColor: '#475569',
-            backgroundImage: `
-              radial-gradient(ellipse at 40% 50%, rgba(255,255,255,0.12) 0%, rgba(0,0,0,0.4) 100%),
-              radial-gradient(circle, rgba(255,255,255,0.15) 1px, transparent 1px)
-            `,
-            backgroundSize: '100% 100%, 8px 8px',
-            boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
-            transform: 'scale(0.92)',
-            zIndex: 1,
-            opacity: 0.85
-          }} />
-
-          {/* Primary Main Tactile Cylinder (matching the hero speaker in reference image) */}
-          <div style={{
-            position: 'relative',
-            width: '380px',
-            height: '510px',
-            borderRadius: '96px',
-            backgroundColor: '#f1f5f9',
-            boxShadow: `
-              0 35px 70px -15px rgba(0, 0, 0, 0.22),
-              0 20px 35px -10px rgba(0, 0, 0, 0.12),
-              inset 0 1px 2px rgba(255, 255, 255, 0.9),
-              inset -20px 0 40px rgba(100, 116, 139, 0.25),
-              inset 20px 0 30px rgba(255, 255, 255, 0.8)
-            `,
-            border: '1px solid rgba(255, 255, 255, 0.6)',
-            overflow: 'hidden',
-            zIndex: 2
-          }}>
-            {/* Fine Diamond Woven Acoustic Mesh Texture */}
-            <svg width="100%" height="100%" style={{ position: 'absolute', inset: 0 }}>
-              <defs>
-                <pattern id="diamond-mesh" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-                  <rect x="1" y="1" width="10" height="10" rx="2" fill="#ffffff" stroke="#cbd5e1" strokeWidth="0.8" />
-                  <circle cx="6" cy="6" r="1.5" fill="#94a3b8" opacity="0.6" />
-                </pattern>
-                {/* 3D Cylindrical Ambient Light Shader */}
-                <linearGradient id="cylinder-shader" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#94a3b8" stopOpacity="0.45" />
-                  <stop offset="18%" stopColor="#e2e8f0" stopOpacity="0.15" />
-                  <stop offset="45%" stopColor="#ffffff" stopOpacity="0" />
-                  <stop offset="75%" stopColor="#64748b" stopOpacity="0.2" />
-                  <stop offset="100%" stopColor="#334155" stopOpacity="0.6" />
-                </linearGradient>
-              </defs>
-              <rect width="100%" height="100%" fill="url(#diamond-mesh)" />
-              <rect width="100%" height="100%" fill="url(#cylinder-shader)" />
-            </svg>
-          </div>
-
-          {/* Soft Ground Ambient Shadow */}
-          <div style={{
-            position: 'absolute',
-            bottom: '10px',
-            width: '360px',
-            height: '35px',
+            width: '480px',
+            height: '480px',
             borderRadius: '50%',
-            background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0) 70%)',
-            filter: 'blur(8px)',
+            background: 'radial-gradient(circle, rgba(26, 127, 55, 0.06) 0%, rgba(0,0,0,0) 70%)',
+            filter: 'blur(50px)',
             zIndex: 0
           }} />
+
+          {/* Floating Application Window */}
+          <div style={{
+            position: 'relative',
+            width: '100%',
+            maxWidth: '540px',
+            backgroundColor: '#ffffff',
+            borderRadius: '16px',
+            border: '1px solid #e2e8f0',
+            boxShadow: '0 25px 60px -15px rgba(15, 23, 42, 0.12), 0 10px 25px -5px rgba(15, 23, 42, 0.04)',
+            overflow: 'hidden',
+            zIndex: 1,
+            fontFamily: '"JetBrains Mono", monospace'
+          }}>
+            
+            {/* Window Title Bar */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '12px 16px',
+              backgroundColor: '#f8fafc',
+              borderBottom: '1px solid #e2e8f0'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#cbd5e1' }} />
+                <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#cbd5e1' }} />
+                <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#cbd5e1' }} />
+                <span style={{ fontSize: '11px', color: '#64748b', marginLeft: '8px', fontWeight: 500 }}>
+                  chrono / session / loop-recovery-demo
+                </span>
+              </div>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                fontSize: '11px',
+                color: '#1a7f37',
+                fontWeight: 600,
+                backgroundColor: '#dafbe1',
+                padding: '2px 8px',
+                borderRadius: '100px'
+              }}>
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#1a7f37' }} />
+                <span>REPLAY 05:20</span>
+              </div>
+            </div>
+
+            {/* File Path Header */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '8px 16px',
+              backgroundColor: '#ffffff',
+              borderBottom: '1px solid #f1f5f9',
+              fontSize: '12px'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ color: '#09090b', fontWeight: 600 }}>core/src/stall_detector.cpp</span>
+                <span style={{ color: '#64748b', fontSize: '11px' }}>chk_04n112tt8a</span>
+              </div>
+              <div style={{ display: 'flex', gap: '8px', fontSize: '11px', fontWeight: 600 }}>
+                <span style={{ color: '#1a7f37' }}>+4</span>
+                <span style={{ color: '#cf222e' }}>-2</span>
+              </div>
+            </div>
+
+            {/* Code Diff Surface */}
+            <div style={{
+              padding: '12px 0',
+              backgroundColor: '#ffffff',
+              fontSize: '12px',
+              lineHeight: 1.6
+            }}>
+              {/* Context Line 1 */}
+              <div style={{ display: 'flex', padding: '1px 16px', color: '#64748b' }}>
+                <span style={{ width: '28px', flexShrink: 0, userSelect: 'none', color: '#94a3b8' }}>34</span>
+                <span style={{ width: '28px', flexShrink: 0, userSelect: 'none', color: '#94a3b8' }}>34</span>
+                <span style={{ color: '#334155' }}>uint64_t patch_hash = compute_diff_hash(patch);</span>
+              </div>
+              {/* Context Line 2 */}
+              <div style={{ display: 'flex', padding: '1px 16px', color: '#64748b' }}>
+                <span style={{ width: '28px', flexShrink: 0, userSelect: 'none', color: '#94a3b8' }}>35</span>
+                <span style={{ width: '28px', flexShrink: 0, userSelect: 'none', color: '#94a3b8' }}>35</span>
+                <span style={{ color: '#334155' }}>recent_diff_hashes_.push_back(patch_hash);</span>
+              </div>
+              {/* Deletion Line 1 */}
+              <div style={{ display: 'flex', padding: '1px 16px', backgroundColor: '#ffebe9', color: '#cf222e' }}>
+                <span style={{ width: '28px', flexShrink: 0, userSelect: 'none', color: '#cf222e' }}>36</span>
+                <span style={{ width: '28px', flexShrink: 0, userSelect: 'none' }}></span>
+                <span>- // Unbounded repetition check failed to trigger</span>
+              </div>
+              {/* Deletion Line 2 */}
+              <div style={{ display: 'flex', padding: '1px 16px', backgroundColor: '#ffebe9', color: '#cf222e' }}>
+                <span style={{ width: '28px', flexShrink: 0, userSelect: 'none', color: '#cf222e' }}>37</span>
+                <span style={{ width: '28px', flexShrink: 0, userSelect: 'none' }}></span>
+                <span>- size_t count = count_occurrences(patch_hash);</span>
+              </div>
+              {/* Addition Line 1 */}
+              <div style={{ display: 'flex', padding: '1px 16px', backgroundColor: '#e6ffec', color: '#1a7f37' }}>
+                <span style={{ width: '28px', flexShrink: 0, userSelect: 'none' }}></span>
+                <span style={{ width: '28px', flexShrink: 0, userSelect: 'none', color: '#1a7f37' }}>36</span>
+                <span>+ if (count &gt;= threshold_cycles_) &#123;</span>
+              </div>
+              {/* Addition Line 2 */}
+              <div style={{ display: 'flex', padding: '1px 16px', backgroundColor: '#e6ffec', color: '#1a7f37' }}>
+                <span style={{ width: '28px', flexShrink: 0, userSelect: 'none' }}></span>
+                <span style={{ width: '28px', flexShrink: 0, userSelect: 'none', color: '#1a7f37' }}>37</span>
+                <span>+ &nbsp;&nbsp;&nbsp;&nbsp;StallAlert alert&#123;StallPattern::IDENTICAL_DIFF_LOOP&#125;;</span>
+              </div>
+              {/* Addition Line 3 */}
+              <div style={{ display: 'flex', padding: '1px 16px', backgroundColor: '#e6ffec', color: '#1a7f37' }}>
+                <span style={{ width: '28px', flexShrink: 0, userSelect: 'none' }}></span>
+                <span style={{ width: '28px', flexShrink: 0, userSelect: 'none', color: '#1a7f37' }}>38</span>
+                <span>+ &nbsp;&nbsp;&nbsp;&nbsp;bus_.publish(alert);</span>
+              </div>
+              {/* Addition Line 4 */}
+              <div style={{ display: 'flex', padding: '1px 16px', backgroundColor: '#e6ffec', color: '#1a7f37' }}>
+                <span style={{ width: '28px', flexShrink: 0, userSelect: 'none' }}></span>
+                <span style={{ width: '28px', flexShrink: 0, userSelect: 'none', color: '#1a7f37' }}>39</span>
+                <span>+ &#125;</span>
+              </div>
+            </div>
+
+            {/* Course-Correction Callout Card */}
+            <div style={{
+              margin: '8px 16px 14px 16px',
+              padding: '10px 14px',
+              backgroundColor: '#f8fafc',
+              border: '1px solid #e2e8f0',
+              borderRadius: '8px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '6px'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: 700, color: '#1a7f37' }}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1a7f37" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  <span>AUTOMATED COURSE-CORRECTION APPLIED</span>
+                </div>
+                <span style={{ fontSize: '10px', color: '#64748b' }}>&lt;250ns Seek</span>
+              </div>
+              <p style={{ margin: 0, fontSize: '11px', color: '#334155', lineHeight: 1.4, fontFamily: 'inherit' }}>
+                Arrested repetitive edit cycle. Injected sliding-window threshold patch into agent context.
+              </p>
+            </div>
+
+            {/* Timeline Scrub Preview Bar */}
+            <div style={{
+              padding: '12px 16px',
+              backgroundColor: '#f8fafc',
+              borderTop: '1px solid #e2e8f0',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#64748b' }}>
+                <span>00:00.000</span>
+                <span style={{ fontWeight: 600, color: '#09090b' }}>05:20.000 (Scrub Point)</span>
+                <span>06:40.000</span>
+              </div>
+
+              {/* Vector Track & Checkpoints */}
+              <div style={{ position: 'relative', height: '20px', display: 'flex', alignItems: 'center' }}>
+                {/* Horizontal line */}
+                <div style={{ position: 'absolute', left: 0, right: 0, height: '3px', backgroundColor: '#e2e8f0', borderRadius: '2px' }} />
+                {/* Active progress */}
+                <div style={{ position: 'absolute', left: 0, width: '78%', height: '3px', backgroundColor: '#1a7f37', borderRadius: '2px' }} />
+                
+                {/* Checkpoint Diamonds */}
+                <div style={{ position: 'absolute', left: '15%', transform: 'rotate(45deg)', width: '8px', height: '8px', backgroundColor: '#64748b' }} title="cp_1" />
+                <div style={{ position: 'absolute', left: '38%', transform: 'rotate(45deg)', width: '8px', height: '8px', backgroundColor: '#64748b' }} title="cp_2" />
+                <div style={{ position: 'absolute', left: '60%', transform: 'rotate(45deg)', width: '8px', height: '8px', backgroundColor: '#64748b' }} title="cp_3" />
+                
+                {/* Stall Alert marker */}
+                <div style={{ position: 'absolute', left: '72%', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '14px', height: '14px', borderRadius: '50%', backgroundColor: '#cf222e', color: '#ffffff', fontSize: '9px', fontWeight: 700 }} title="Stall Detected">!</div>
+
+                {/* Active Scrub Needle */}
+                <div style={{
+                  position: 'absolute',
+                  left: '78%',
+                  transform: 'translateX(-50%)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center'
+                }}>
+                  <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#1a7f37', border: '2px solid #ffffff', boxShadow: '0 0 6px rgba(26,127,55,0.6)' }} />
+                </div>
+              </div>
+            </div>
+
+          </div>
         </div>
 
       </section>
