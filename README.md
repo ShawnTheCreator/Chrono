@@ -167,7 +167,8 @@ chrono/
 │   └── tests/                     # seek_determinism.test.js (1,000 seek invariance)
 │
 ├── fixtures/                      # 📼 THE EVIDENCE LIBRARY (Cryptographically sealed runs)
-│   └── runs/                      # chrono-feature-attempt-1 (self-referential) & openrepo-maintenance-run
+│   ├── recorded/                  # live-agent-run (2,973 verified blocks from live autonomous session)
+│   └── runs/                      # chrono-feature-attempt-1 (synthetic stall recovery) & openrepo-maintenance-run
 │
 ├── tools/                         # 🔬 OPERATOR TOOLING (record.sh, replay.sh, gen_synth.py)
 ├── docs/                          # architecture.md, forensic-verification.md, demo-script.md, ADRs 0001-0004

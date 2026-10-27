@@ -45,9 +45,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [0.2.0] - 2026-10-27 (Day 2: Live Agent Run Recording & Zero-Friction Cockpit)
 
 ### Added
-- **Live Muse Code Session Capture**:
-  - Connected `adapters/muse_code/session_watcher.py` directly to the live agent execution stream (`transcript.jsonl`).
-  - Streamed live agent build trajectory into `chronod --record fixtures/recorded/live-agent-run.chrono`.
+- **Live Agent Session Capture & Cryptographic Sealing**:
+  - Connected live transcript adapter directly to the autonomous agent execution stream.
+  - Normalized events to Chrono Event Protocol (CEP v1) and streamed into `chronod --record fixtures/recorded/live-agent-run.chrono`.
   - Cryptographically verified 2,973 SHA-256 blocks (Terminal Hash: `2e46be91...81a5`) with 0 tampering detections.
 - **Flight Instructor Causal Bridge**:
   - Implemented Meta Model API client integration (`bridge/app/narrate.py`) for live causal diff narration.

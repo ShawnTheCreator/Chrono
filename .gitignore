@@ -54,6 +54,9 @@ Thumbs.db
 tmp/
 *.log
 !fixtures/runs/**/*.log
+*.db
+*.sqlite
+*.sqlite3
 
 # Secrets & Environment Variables (NEVER commit keys or credentials)
 .env
