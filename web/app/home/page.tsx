@@ -1,12 +1,80 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 
 export default function HomePage() {
   const [activeTab, setActiveTab] = useState<'architecture' | 'forensics' | 'instructor' | 'benchmarks'>('architecture');
   const [isVerifying, setIsVerifying] = useState(false);
   const [verifyResult, setVerifyResult] = useState<string | null>(null);
+
+  // Motion Graphic Replay State
+  const [playheadPercent, setPlayheadPercent] = useState(78);
+  const [animStage, setAnimStage] = useState<'running' | 'stalled' | 'intervened'>('intervened');
+  const [formattedTimestamp, setFormattedTimestamp] = useState('05:20.000');
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [isHovered, setIsHovered] = useState(false);
+  const [mouseTilt, setMouseTilt] = useState({ rx: 0, ry: 0 });
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  // 7-second continuous narrative motion graphic loop
+  useEffect(() => {
+    if (!isAutoPlaying || isHovered) return;
+
+    const cycleDuration = 7500;
+    const startTime = Date.now();
+
+    const interval = setInterval(() => {
+      const elapsed = (Date.now() - startTime) % cycleDuration;
+      const progress = elapsed / cycleDuration;
+
+      if (progress < 0.40) {
+        // Stage 1: Ingesting & Running forward (15% -> 70%)
+        const pct = 15 + (progress / 0.40) * 55;
+        setPlayheadPercent(pct);
+        setAnimStage('running');
+        const secs = Math.floor(60 + (progress / 0.40) * 225);
+        const mins = Math.floor(secs / 60);
+        const remSecs = secs % 60;
+        setFormattedTimestamp(`0${mins}:${remSecs < 10 ? '0' : ''}${remSecs}.120`);
+      } else if (progress < 0.65) {
+        // Stage 2: Diff Loop Stall Detected at 72%
+        setPlayheadPercent(72);
+        setAnimStage('stalled');
+        setFormattedTimestamp('04:55.840');
+      } else {
+        // Stage 3: Surgical Seek to 78% (05:20) and Course-Correction
+        setPlayheadPercent(78);
+        setAnimStage('intervened');
+        setFormattedTimestamp('05:20.000');
+      }
+    }, 40);
+
+    return () => clearInterval(interval);
+  }, [isAutoPlaying, isHovered]);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width / 2;
+    const y = e.clientY - rect.top - rect.height / 2;
+    setMouseTilt({
+      rx: -(y / (rect.height / 2)) * 5,
+      ry: (x / (rect.width / 2)) * 6
+    });
+  };
+
+  const handleMouseLeave = () => {
+    setMouseTilt({ rx: 0, ry: 0 });
+    setIsHovered(false);
+  };
+
+  const handleSeekManual = (pct: number, stage: 'running' | 'stalled' | 'intervened', timeStr: string) => {
+    setPlayheadPercent(pct);
+    setAnimStage(stage);
+    setFormattedTimestamp(timeStr);
+    setIsAutoPlaying(false);
+  };
 
   const handleVerifyDemo = () => {
     setIsVerifying(true);
@@ -266,38 +334,54 @@ export default function HomePage() {
 
         </div>
 
-        {/* Right Column: Interactive Chrono Replay & Course-Correction Hero Visual */}
+        {/* Right Column: Interactive Chrono Replay & Course-Correction Hero Visual (Motion Graphic) */}
         <div style={{
           position: 'relative',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          width: '100%'
+          width: '100%',
+          perspective: '1200px'
         }}>
-          {/* Subtle Ambient Backlight Glow */}
+          {/* Pulsing Dynamic Ambient Backlight Glow */}
           <div style={{
             position: 'absolute',
-            width: '480px',
-            height: '480px',
+            width: '500px',
+            height: '500px',
             borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(26, 127, 55, 0.06) 0%, rgba(0,0,0,0) 70%)',
-            filter: 'blur(50px)',
+            background: animStage === 'stalled'
+              ? 'radial-gradient(circle, rgba(207, 34, 46, 0.12) 0%, rgba(0,0,0,0) 70%)'
+              : 'radial-gradient(circle, rgba(26, 127, 55, 0.12) 0%, rgba(0,0,0,0) 70%)',
+            filter: 'blur(60px)',
+            transition: 'background 0.6s ease',
             zIndex: 0
           }} />
 
-          {/* Floating Application Window */}
-          <div style={{
-            position: 'relative',
-            width: '100%',
-            maxWidth: '540px',
-            backgroundColor: '#ffffff',
-            borderRadius: '16px',
-            border: '1px solid #e2e8f0',
-            boxShadow: '0 25px 60px -15px rgba(15, 23, 42, 0.12), 0 10px 25px -5px rgba(15, 23, 42, 0.04)',
-            overflow: 'hidden',
-            zIndex: 1,
-            fontFamily: '"JetBrains Mono", monospace'
-          }}>
+          {/* Floating Application Window with 3D Tilt */}
+          <div
+            ref={containerRef}
+            onMouseMove={handleMouseMove}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={handleMouseLeave}
+            style={{
+              position: 'relative',
+              width: '100%',
+              maxWidth: '540px',
+              backgroundColor: '#ffffff',
+              borderRadius: '16px',
+              border: animStage === 'stalled' ? '1px solid #fecaca' : animStage === 'intervened' ? '1px solid #bbf7d0' : '1px solid #e2e8f0',
+              boxShadow: animStage === 'stalled'
+                ? '0 25px 60px -15px rgba(207, 34, 46, 0.16), 0 10px 25px -5px rgba(207, 34, 46, 0.08)'
+                : '0 25px 60px -15px rgba(26, 127, 55, 0.14), 0 10px 25px -5px rgba(26, 127, 55, 0.05)',
+              overflow: 'hidden',
+              zIndex: 1,
+              fontFamily: '"JetBrains Mono", monospace',
+              transform: `perspective(1000px) rotateX(${mouseTilt.rx}deg) rotateY(${mouseTilt.ry}deg) translateY(${isHovered ? '-4px' : '0px'})`,
+              transition: isHovered
+                ? 'transform 0.1s ease-out, border-color 0.4s ease, box-shadow 0.4s ease'
+                : 'transform 0.6s ease-out, border-color 0.4s ease, box-shadow 0.4s ease'
+            }}
+          >
             
             {/* Window Title Bar */}
             <div style={{
@@ -316,19 +400,45 @@ export default function HomePage() {
                   chrono / session / loop-recovery-demo
                 </span>
               </div>
+
+              {/* Dynamic Motion Graphic Stage Badge */}
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '5px',
+                gap: '6px',
                 fontSize: '11px',
-                color: '#1a7f37',
                 fontWeight: 600,
-                backgroundColor: '#dafbe1',
-                padding: '2px 8px',
-                borderRadius: '100px'
+                padding: '3px 9px',
+                borderRadius: '100px',
+                backgroundColor: animStage === 'stalled'
+                  ? '#ffebe9'
+                  : animStage === 'intervened'
+                  ? '#dafbe1'
+                  : '#f1f5f9',
+                color: animStage === 'stalled'
+                  ? '#cf222e'
+                  : animStage === 'intervened'
+                  ? '#1a7f37'
+                  : '#475569',
+                transition: 'all 0.3s ease'
               }}>
-                <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#1a7f37' }} />
-                <span>REPLAY 05:20</span>
+                <span style={{
+                  width: '6px',
+                  height: '6px',
+                  borderRadius: '50%',
+                  backgroundColor: animStage === 'stalled'
+                    ? '#cf222e'
+                    : animStage === 'intervened'
+                    ? '#1a7f37'
+                    : '#64748b'
+                }} />
+                <span>
+                  {animStage === 'stalled'
+                    ? 'LOOP STALL (4:55)'
+                    : animStage === 'intervened'
+                    ? 'REPLAY 05:20 (RESTORED)'
+                    : `STREAMING ${formattedTimestamp.split('.')[0]}`}
+                </span>
               </div>
             </div>
 
@@ -344,97 +454,174 @@ export default function HomePage() {
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <span style={{ color: '#09090b', fontWeight: 600 }}>core/src/stall_detector.cpp</span>
-                <span style={{ color: '#64748b', fontSize: '11px' }}>chk_04n112tt8a</span>
+                <span style={{ color: '#64748b', fontSize: '11px' }}>
+                  {animStage === 'intervened' ? 'chk_04n112tt8a' : 'mutating...'}
+                </span>
               </div>
               <div style={{ display: 'flex', gap: '8px', fontSize: '11px', fontWeight: 600 }}>
-                <span style={{ color: '#1a7f37' }}>+4</span>
-                <span style={{ color: '#cf222e' }}>-2</span>
+                {animStage === 'intervened' ? (
+                  <>
+                    <span style={{ color: '#1a7f37' }}>+4</span>
+                    <span style={{ color: '#cf222e' }}>-2</span>
+                  </>
+                ) : animStage === 'stalled' ? (
+                  <span style={{ color: '#cf222e' }}>STALL: REPEATED DIFF</span>
+                ) : (
+                  <span style={{ color: '#64748b' }}>active stream</span>
+                )}
               </div>
             </div>
 
-            {/* Code Diff Surface */}
+            {/* Code Diff Surface with Animated Line Ingestion */}
             <div style={{
               padding: '12px 0',
               backgroundColor: '#ffffff',
               fontSize: '12px',
-              lineHeight: 1.6
+              lineHeight: 1.6,
+              minHeight: '190px'
             }}>
-              {/* Context Line 1 */}
+              {/* Context Lines */}
               <div style={{ display: 'flex', padding: '1px 16px', color: '#64748b' }}>
                 <span style={{ width: '28px', flexShrink: 0, userSelect: 'none', color: '#94a3b8' }}>34</span>
                 <span style={{ width: '28px', flexShrink: 0, userSelect: 'none', color: '#94a3b8' }}>34</span>
                 <span style={{ color: '#334155' }}>uint64_t patch_hash = compute_diff_hash(patch);</span>
               </div>
-              {/* Context Line 2 */}
               <div style={{ display: 'flex', padding: '1px 16px', color: '#64748b' }}>
                 <span style={{ width: '28px', flexShrink: 0, userSelect: 'none', color: '#94a3b8' }}>35</span>
                 <span style={{ width: '28px', flexShrink: 0, userSelect: 'none', color: '#94a3b8' }}>35</span>
                 <span style={{ color: '#334155' }}>recent_diff_hashes_.push_back(patch_hash);</span>
               </div>
-              {/* Deletion Line 1 */}
-              <div style={{ display: 'flex', padding: '1px 16px', backgroundColor: '#ffebe9', color: '#cf222e' }}>
-                <span style={{ width: '28px', flexShrink: 0, userSelect: 'none', color: '#cf222e' }}>36</span>
+
+              {/* Deletion Lines (highlighted in red during stall & intervened states) */}
+              <div style={{
+                display: 'flex',
+                padding: '1px 16px',
+                backgroundColor: animStage !== 'running' ? '#ffebe9' : 'transparent',
+                color: animStage !== 'running' ? '#cf222e' : '#334155',
+                transition: 'all 0.3s ease'
+              }}>
+                <span style={{ width: '28px', flexShrink: 0, userSelect: 'none', color: animStage !== 'running' ? '#cf222e' : '#94a3b8' }}>36</span>
                 <span style={{ width: '28px', flexShrink: 0, userSelect: 'none' }}></span>
-                <span>- // Unbounded repetition check failed to trigger</span>
+                <span>{animStage !== 'running' ? '- ' : '  '}// Unbounded repetition check failed to trigger</span>
               </div>
-              {/* Deletion Line 2 */}
-              <div style={{ display: 'flex', padding: '1px 16px', backgroundColor: '#ffebe9', color: '#cf222e' }}>
-                <span style={{ width: '28px', flexShrink: 0, userSelect: 'none', color: '#cf222e' }}>37</span>
+              <div style={{
+                display: 'flex',
+                padding: '1px 16px',
+                backgroundColor: animStage !== 'running' ? '#ffebe9' : 'transparent',
+                color: animStage !== 'running' ? '#cf222e' : '#334155',
+                transition: 'all 0.3s ease'
+              }}>
+                <span style={{ width: '28px', flexShrink: 0, userSelect: 'none', color: animStage !== 'running' ? '#cf222e' : '#94a3b8' }}>37</span>
                 <span style={{ width: '28px', flexShrink: 0, userSelect: 'none' }}></span>
-                <span>- size_t count = count_occurrences(patch_hash);</span>
+                <span>{animStage !== 'running' ? '- ' : '  '}size_t count = count_occurrences(patch_hash);</span>
               </div>
-              {/* Addition Line 1 */}
-              <div style={{ display: 'flex', padding: '1px 16px', backgroundColor: '#e6ffec', color: '#1a7f37' }}>
-                <span style={{ width: '28px', flexShrink: 0, userSelect: 'none' }}></span>
-                <span style={{ width: '28px', flexShrink: 0, userSelect: 'none', color: '#1a7f37' }}>36</span>
-                <span>+ if (count &gt;= threshold_cycles_) &#123;</span>
-              </div>
-              {/* Addition Line 2 */}
-              <div style={{ display: 'flex', padding: '1px 16px', backgroundColor: '#e6ffec', color: '#1a7f37' }}>
-                <span style={{ width: '28px', flexShrink: 0, userSelect: 'none' }}></span>
-                <span style={{ width: '28px', flexShrink: 0, userSelect: 'none', color: '#1a7f37' }}>37</span>
-                <span>+ &nbsp;&nbsp;&nbsp;&nbsp;StallAlert alert&#123;StallPattern::IDENTICAL_DIFF_LOOP&#125;;</span>
-              </div>
-              {/* Addition Line 3 */}
-              <div style={{ display: 'flex', padding: '1px 16px', backgroundColor: '#e6ffec', color: '#1a7f37' }}>
-                <span style={{ width: '28px', flexShrink: 0, userSelect: 'none' }}></span>
-                <span style={{ width: '28px', flexShrink: 0, userSelect: 'none', color: '#1a7f37' }}>38</span>
-                <span>+ &nbsp;&nbsp;&nbsp;&nbsp;bus_.publish(alert);</span>
-              </div>
-              {/* Addition Line 4 */}
-              <div style={{ display: 'flex', padding: '1px 16px', backgroundColor: '#e6ffec', color: '#1a7f37' }}>
-                <span style={{ width: '28px', flexShrink: 0, userSelect: 'none' }}></span>
-                <span style={{ width: '28px', flexShrink: 0, userSelect: 'none', color: '#1a7f37' }}>39</span>
-                <span>+ &#125;</span>
-              </div>
+
+              {/* Addition Lines (animate in when intervened) */}
+              {animStage === 'intervened' ? (
+                <>
+                  <div style={{ display: 'flex', padding: '1px 16px', backgroundColor: '#e6ffec', color: '#1a7f37', transition: 'all 0.3s ease' }}>
+                    <span style={{ width: '28px', flexShrink: 0, userSelect: 'none' }}></span>
+                    <span style={{ width: '28px', flexShrink: 0, userSelect: 'none', color: '#1a7f37' }}>36</span>
+                    <span>+ if (count &gt;= threshold_cycles_) &#123;</span>
+                  </div>
+                  <div style={{ display: 'flex', padding: '1px 16px', backgroundColor: '#e6ffec', color: '#1a7f37', transition: 'all 0.3s ease' }}>
+                    <span style={{ width: '28px', flexShrink: 0, userSelect: 'none' }}></span>
+                    <span style={{ width: '28px', flexShrink: 0, userSelect: 'none', color: '#1a7f37' }}>37</span>
+                    <span>+ &nbsp;&nbsp;&nbsp;&nbsp;StallAlert alert&#123;StallPattern::IDENTICAL_DIFF_LOOP&#125;;</span>
+                  </div>
+                  <div style={{ display: 'flex', padding: '1px 16px', backgroundColor: '#e6ffec', color: '#1a7f37', transition: 'all 0.3s ease' }}>
+                    <span style={{ width: '28px', flexShrink: 0, userSelect: 'none' }}></span>
+                    <span style={{ width: '28px', flexShrink: 0, userSelect: 'none', color: '#1a7f37' }}>38</span>
+                    <span>+ &nbsp;&nbsp;&nbsp;&nbsp;bus_.publish(alert);</span>
+                  </div>
+                  <div style={{ display: 'flex', padding: '1px 16px', backgroundColor: '#e6ffec', color: '#1a7f37', transition: 'all 0.3s ease' }}>
+                    <span style={{ width: '28px', flexShrink: 0, userSelect: 'none' }}></span>
+                    <span style={{ width: '28px', flexShrink: 0, userSelect: 'none', color: '#1a7f37' }}>39</span>
+                    <span>+ &#125;</span>
+                  </div>
+                </>
+              ) : animStage === 'stalled' ? (
+                <div style={{
+                  margin: '8px 16px',
+                  padding: '6px 10px',
+                  backgroundColor: '#fff5f5',
+                  border: '1px dashed #fca5a5',
+                  borderRadius: '6px',
+                  fontSize: '11px',
+                  color: '#b91c1c'
+                }}>
+                  ⚠ Repeating identical diff hash 3 times. Replay engine engaged...
+                </div>
+              ) : (
+                <div style={{
+                  padding: '8px 16px',
+                  color: '#94a3b8',
+                  fontSize: '11px',
+                  fontStyle: 'italic'
+                }}>
+                  ... monitoring AST mutations across tool executions ...
+                </div>
+              )}
             </div>
 
-            {/* Course-Correction Callout Card */}
+            {/* Dynamic Course-Correction / Stage Callout Card */}
             <div style={{
               margin: '8px 16px 14px 16px',
               padding: '10px 14px',
-              backgroundColor: '#f8fafc',
-              border: '1px solid #e2e8f0',
+              backgroundColor: animStage === 'stalled' ? '#fff5f5' : animStage === 'intervened' ? '#f0fdf4' : '#f8fafc',
+              border: animStage === 'stalled' ? '1px solid #fecaca' : animStage === 'intervened' ? '1px solid #bbf7d0' : '1px solid #e2e8f0',
               borderRadius: '8px',
               display: 'flex',
               flexDirection: 'column',
-              gap: '6px'
+              gap: '4px',
+              transition: 'all 0.4s ease'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: 700, color: '#1a7f37' }}>
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1a7f37" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                  <span>AUTOMATED COURSE-CORRECTION APPLIED</span>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  color: animStage === 'stalled' ? '#cf222e' : animStage === 'intervened' ? '#1a7f37' : '#475569'
+                }}>
+                  {animStage === 'intervened' ? (
+                    <>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1a7f37" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      <span>AUTOMATED COURSE-CORRECTION APPLIED</span>
+                    </>
+                  ) : animStage === 'stalled' ? (
+                    <>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#cf222e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="8" x2="12" y2="12" />
+                        <line x1="12" y1="16" x2="12.01" y2="16" />
+                      </svg>
+                      <span>STALL DETECTED: IDENTICAL_DIFF_LOOP</span>
+                    </>
+                  ) : (
+                    <>
+                      <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#3b82f6' }} />
+                      <span>CONTINUOUS INGEST BUFFER ACTIVE</span>
+                    </>
+                  )}
                 </div>
-                <span style={{ fontSize: '10px', color: '#64748b' }}>&lt;250ns Seek</span>
+                <span style={{ fontSize: '10px', color: '#64748b' }}>
+                  {animStage === 'intervened' ? '<250ns Seek' : animStage === 'stalled' ? 'Rewinding...' : '0 Drops'}
+                </span>
               </div>
               <p style={{ margin: 0, fontSize: '11px', color: '#334155', lineHeight: 1.4, fontFamily: 'inherit' }}>
-                Arrested repetitive edit cycle. Injected sliding-window threshold patch into agent context.
+                {animStage === 'intervened'
+                  ? 'Arrested repetitive edit cycle. Injected sliding-window threshold patch into agent context.'
+                  : animStage === 'stalled'
+                  ? 'Autonomous agent stalled in cyclic editing pattern. Initiating microsecond timeline seek.'
+                  : 'Streaming terminal bash commands, git trees, and compiler diagnostics into memory-mapped ring.'}
               </p>
             </div>
 
-            {/* Timeline Scrub Preview Bar */}
+            {/* Interactive Timeline Scrub Preview Bar (Animated Playhead) */}
             <div style={{
               padding: '12px 16px',
               backgroundColor: '#f8fafc',
@@ -444,37 +631,131 @@ export default function HomePage() {
               gap: '8px'
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#64748b' }}>
-                <span>00:00.000</span>
-                <span style={{ fontWeight: 600, color: '#09090b' }}>05:20.000 (Scrub Point)</span>
-                <span>06:40.000</span>
+                <span onClick={() => handleSeekManual(15, 'running', '01:10.000')} style={{ cursor: 'pointer' }}>00:00.000</span>
+                <span style={{ fontWeight: 600, color: '#09090b', cursor: 'pointer' }}>
+                  {formattedTimestamp} ({animStage === 'intervened' ? 'Scrub Point' : animStage === 'stalled' ? 'Stall Point' : 'Playing'})
+                </span>
+                <span onClick={() => handleSeekManual(78, 'intervened', '05:20.000')} style={{ cursor: 'pointer' }}>06:40.000</span>
               </div>
 
               {/* Vector Track & Checkpoints */}
-              <div style={{ position: 'relative', height: '20px', display: 'flex', alignItems: 'center' }}>
-                {/* Horizontal line */}
-                <div style={{ position: 'absolute', left: 0, right: 0, height: '3px', backgroundColor: '#e2e8f0', borderRadius: '2px' }} />
-                {/* Active progress */}
-                <div style={{ position: 'absolute', left: 0, width: '78%', height: '3px', backgroundColor: '#1a7f37', borderRadius: '2px' }} />
+              <div
+                onClick={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const clickPct = Math.max(5, Math.min(95, ((e.clientX - rect.left) / rect.width) * 100));
+                  if (clickPct > 75) {
+                    handleSeekManual(78, 'intervened', '05:20.000');
+                  } else if (clickPct > 65) {
+                    handleSeekManual(72, 'stalled', '04:55.840');
+                  } else {
+                    handleSeekManual(clickPct, 'running', '02:30.000');
+                  }
+                }}
+                style={{ position: 'relative', height: '22px', display: 'flex', alignItems: 'center', cursor: 'pointer' }}
+              >
+                {/* Horizontal Track Base */}
+                <div style={{ position: 'absolute', left: 0, right: 0, height: '4px', backgroundColor: '#e2e8f0', borderRadius: '2px' }} />
                 
-                {/* Checkpoint Diamonds */}
-                <div style={{ position: 'absolute', left: '15%', transform: 'rotate(45deg)', width: '8px', height: '8px', backgroundColor: '#64748b' }} title="cp_1" />
-                <div style={{ position: 'absolute', left: '38%', transform: 'rotate(45deg)', width: '8px', height: '8px', backgroundColor: '#64748b' }} title="cp_2" />
-                <div style={{ position: 'absolute', left: '60%', transform: 'rotate(45deg)', width: '8px', height: '8px', backgroundColor: '#64748b' }} title="cp_3" />
-                
-                {/* Stall Alert marker */}
-                <div style={{ position: 'absolute', left: '72%', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '14px', height: '14px', borderRadius: '50%', backgroundColor: '#cf222e', color: '#ffffff', fontSize: '9px', fontWeight: 700 }} title="Stall Detected">!</div>
-
-                {/* Active Scrub Needle */}
+                {/* Animated Dynamic Progress Bar */}
                 <div style={{
                   position: 'absolute',
-                  left: '78%',
+                  left: 0,
+                  width: `${playheadPercent}%`,
+                  height: '4px',
+                  backgroundColor: animStage === 'stalled' ? '#cf222e' : '#1a7f37',
+                  borderRadius: '2px',
+                  transition: 'width 0.15s ease-out, background-color 0.3s ease'
+                }} />
+                
+                {/* Checkpoint Diamonds */}
+                <div
+                  onClick={(e) => { e.stopPropagation(); handleSeekManual(15, 'running', '01:10.000'); }}
+                  style={{ position: 'absolute', left: '15%', transform: 'rotate(45deg)', width: '8px', height: '8px', backgroundColor: '#64748b' }}
+                  title="cp_1 (01:10)"
+                />
+                <div
+                  onClick={(e) => { e.stopPropagation(); handleSeekManual(38, 'running', '02:40.000'); }}
+                  style={{ position: 'absolute', left: '38%', transform: 'rotate(45deg)', width: '8px', height: '8px', backgroundColor: '#64748b' }}
+                  title="cp_2 (02:40)"
+                />
+                <div
+                  onClick={(e) => { e.stopPropagation(); handleSeekManual(60, 'running', '04:10.000'); }}
+                  style={{ position: 'absolute', left: '60%', transform: 'rotate(45deg)', width: '8px', height: '8px', backgroundColor: '#64748b' }}
+                  title="cp_3 (04:10)"
+                />
+                
+                {/* Stall Alert marker */}
+                <div
+                  onClick={(e) => { e.stopPropagation(); handleSeekManual(72, 'stalled', '04:55.840'); }}
+                  style={{
+                    position: 'absolute',
+                    left: '72%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '14px',
+                    height: '14px',
+                    borderRadius: '50%',
+                    backgroundColor: '#cf222e',
+                    color: '#ffffff',
+                    fontSize: '9px',
+                    fontWeight: 700,
+                    boxShadow: animStage === 'stalled' ? '0 0 8px rgba(207,34,46,0.8)' : 'none',
+                    transform: animStage === 'stalled' ? 'scale(1.2)' : 'scale(1)',
+                    transition: 'transform 0.2s ease'
+                  }}
+                  title="Stall Detected"
+                >
+                  !
+                </div>
+
+                {/* Animated Moving Scrub Needle */}
+                <div style={{
+                  position: 'absolute',
+                  left: `${playheadPercent}%`,
                   transform: 'translateX(-50%)',
                   display: 'flex',
                   flexDirection: 'column',
-                  alignItems: 'center'
+                  alignItems: 'center',
+                  transition: 'left 0.15s ease-out'
                 }}>
-                  <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#1a7f37', border: '2px solid #ffffff', boxShadow: '0 0 6px rgba(26,127,55,0.6)' }} />
+                  <div style={{
+                    width: '14px',
+                    height: '14px',
+                    borderRadius: '50%',
+                    backgroundColor: animStage === 'stalled' ? '#cf222e' : '#1a7f37',
+                    border: '2px solid #ffffff',
+                    boxShadow: animStage === 'stalled'
+                      ? '0 0 10px rgba(207,34,46,0.8)'
+                      : '0 0 10px rgba(26,127,55,0.8)',
+                    transition: 'background-color 0.3s ease, box-shadow 0.3s ease'
+                  }} />
                 </div>
+              </div>
+
+              {/* Small Replay Controls Bar */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '4px' }}>
+                <button
+                  type="button"
+                  onClick={() => setIsAutoPlaying(!isAutoPlaying)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    padding: 0,
+                    fontSize: '10px',
+                    fontWeight: 600,
+                    color: isAutoPlaying ? '#1a7f37' : '#64748b',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <span>{isAutoPlaying ? '● LIVE MOTION GRAPHIC (LOOPING)' : '❚❚ PAUSED (CLICK TO RESUME)'}</span>
+                </button>
+                <span style={{ fontSize: '10px', color: '#94a3b8' }}>
+                  Interactive: Hover or Click Track
+                </span>
               </div>
             </div>
 
