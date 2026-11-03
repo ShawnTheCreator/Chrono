@@ -1,5 +1,21 @@
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
+:root {
+  --surface-bg: #ffffff;
+  --surface-canvas: #f6f8fa;
+  --surface-inset: #0d1117;
+  --border-subtle: #e1e4e8;
+  --border-default: #d0d7de;
+  --border-strong: #24292f;
+  --text-primary: #0f172a;
+  --text-secondary: #57606a;
+  --text-muted: #8c959f;
+  --accent-green: #1a7f37;
+  --accent-oxblood: #cf222e;
+  --accent-cyan: #0969da;
+  --accent-amber: #9a6700;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -13,12 +29,25 @@ body {
   overflow-x: hidden;
   overflow-y: auto;
   font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background-color: #ffffff;
-  color: #1f2328;
+  background-color: var(--surface-bg);
+  color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Mechanical focus rings */
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: 2px;
+}
+
+/* Tactile button depress */
+.btn-press:active {
+  transform: translateY(1px);
+}
+
+/* Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -29,14 +58,15 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #d0d7de;
+  background: var(--border-default);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #8c959f;
+  background: var(--text-secondary);
 }
 
-code, pre {
+code, pre, .mono {
   font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
 }
