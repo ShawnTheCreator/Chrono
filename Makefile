@@ -37,13 +37,22 @@ record: build
 	@echo "==> Wrapping Live Session via Chrono..."
 	@bash tools/record.sh
 
+home:
+	@echo "==> Starting Chrono Landing Frontend (Home Page) on http://127.0.0.1:3000..."
+	@pnpm --dir landing start -p 3000 -H 127.0.0.1
+
+cockpit:
+	@echo "==> Starting Chrono Cockpit Frontend (Login -> Dashboard) on http://127.0.0.1:3001..."
+	@pnpm --dir web start -p 3001 -H 127.0.0.1
+
 demo: verify
 	@echo "======================================================="
 	@echo "           CHRONO DEMO ENVIRONMENT READY              "
 	@echo "======================================================="
-	@echo "1. Bridge Service: uvicorn app.main:app (Port 8000)"
-	@echo "2. Web Cockpit:    npm run dev (Port 5173)"
-	@echo "3. Demo Script:    docs/demo-script.md"
+	@echo "1. Bridge Service: python -m uvicorn bridge.app.main:app (Port 8000)"
+	@echo "2. Home Frontend:  pnpm run start:home (Port 3000)"
+	@echo "3. Cockpit App:    pnpm run start:cockpit (Port 3001)"
+	@echo "4. Demo Script:    docs/demo-script.md"
 	@echo "======================================================="
 
 up:

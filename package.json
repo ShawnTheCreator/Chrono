@@ -1,0 +1,16 @@
+{
+  "name": "chrono",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Chrono — The Flight Data Recorder for Autonomous AI Agents",
+  "scripts": {
+    "dev:home": "pnpm --dir landing dev -p 3000",
+    "dev:cockpit": "pnpm --dir web dev -p 3001",
+    "build:home": "pnpm --dir landing build",
+    "build:cockpit": "pnpm --dir web build",
+    "build:all": "pnpm --dir landing build && pnpm --dir web build",
+    "start:home": "pnpm --dir landing start -p 3000 -H 127.0.0.1",
+    "start:cockpit": "pnpm --dir web start -p 3001 -H 127.0.0.1",
+    "test": "node web/tests/seek_determinism.test.js"
+  }
+}

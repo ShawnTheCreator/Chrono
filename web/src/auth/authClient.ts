@@ -127,28 +127,21 @@ class AuthClient {
     }
   }
 
-  public async loginWithSSO(provider: 'google' | 'apple' | 'binance' | 'wallet'): Promise<LoginResult> {
-    try {
-      const res = await fetch(`${BACKEND_URL}/auth/sso/${provider}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      });
-
-      const data = await res.json();
-      if (res.ok && data.success) {
-        this.token = data.token;
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('chrono_auth_token', data.token);
-          this.setCookie('chrono_auth_token', data.token);
-          localStorage.setItem('chrono_user', JSON.stringify(data.user));
-        }
-        return { success: true, token: data.token, user: data.user };
-      } else {
-        return { success: false, error: data.error || `SSO login with ${provider} failed.` };
-      }
-    } catch (err: any) {
-      return { success: false, error: `SSO connection error for ${provider}.` };
+  public async loginAsDemoOperator(): Promise<LoginResult> {
+    const demoUser: AuthUser = {
+      email: 'operator@chrono.sec',
+      role: 'security_operator',
+      provider: 'local_terminal',
+      created_at: Date.now()
+    };
+    const token = 'chrono_op_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
+    this.token = token;
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('chrono_auth_token', token);
+      this.setCookie('chrono_auth_token', token);
+      localStorage.setItem('chrono_user', JSON.stringify(demoUser));
     }
+    return { success: true, token, user: demoUser };
   }
 
   public async logout(): Promise<void> {
