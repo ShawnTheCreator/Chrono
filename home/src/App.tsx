@@ -158,6 +158,13 @@ const HERO_ROTATING_LINES = [
   { prefix: "Chrono lets you", middle: "rewind history", suffix: "to any moment instantly" }
 ];
 
+const HERO_VIDEOS = [
+  '/videos/vid1.mp4',
+  '/videos/vid2.mp4',
+  '/videos/vid3.mp4',
+  '/videos/vid4.mp4'
+];
+
 const FAQ_ITEMS = [
   {
     question: "What is Chrono?",
@@ -195,6 +202,7 @@ const FAQ_ITEMS = [
 
 export default function App() {
   const [heroIndex, setHeroIndex] = useState(0);
+  const [videoIndex, setVideoIndex] = useState(0);
   const [activeFeatureTab, setActiveFeatureTab] = useState(0);
 
   // Timeline Scrubber State
@@ -304,21 +312,51 @@ export default function App() {
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
       overflowX: 'hidden'
     }}>
-      {/* 1. HERO SECTION WITH FOCUSED ATMOSPHERE */}
+      {/* 1. HERO SECTION WITH BACKGROUND VIDEO PLAYER (VID1 TO VID4) */}
       <section style={{
         position: 'relative',
         minHeight: '88vh',
         width: '100%',
-        backgroundImage: `linear-gradient(rgba(9, 13, 22, 0.78), rgba(9, 13, 22, 0.86)), url('https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?auto=format&fit=crop&w=2000&q=80')`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center 20%',
+        backgroundColor: '#090D16',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
-        color: '#ffffff'
+        color: '#ffffff',
+        overflow: 'hidden'
       }}>
+        {/* Background Video Player */}
+        <video
+          key={videoIndex}
+          autoPlay
+          muted
+          playsInline
+          onEnded={() => setVideoIndex((prev) => (prev + 1) % HERO_VIDEOS.length)}
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            zIndex: 0,
+            pointerEvents: 'none'
+          }}
+        >
+          <source src={HERO_VIDEOS[videoIndex]} type="video/mp4" />
+        </video>
+
+        {/* Ambient Dark Overlay to Guarantee Crisp Typography */}
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'linear-gradient(rgba(9, 13, 22, 0.70) 0%, rgba(9, 13, 22, 0.82) 100%)',
+          zIndex: 1,
+          pointerEvents: 'none'
+        }} />
+
         {/* Transparent Top Navigation Bar */}
         <header style={{
+          position: 'relative',
+          zIndex: 2,
           width: '100%',
           maxWidth: '1360px',
           margin: '0 auto',
@@ -401,6 +439,8 @@ export default function App() {
 
         {/* Center Hero Copy */}
         <div style={{
+          position: 'relative',
+          zIndex: 2,
           maxWidth: '1000px',
           margin: 'auto auto',
           textAlign: 'center',
@@ -467,8 +507,47 @@ export default function App() {
           </div>
         </div>
 
-        {/* Bottom spacer */}
-        <div style={{ height: '40px' }} />
+        {/* Video Playlist Selector Controls */}
+        <div style={{
+          position: 'relative',
+          zIndex: 2,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '10px',
+          paddingBottom: '28px'
+        }}>
+          {HERO_VIDEOS.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setVideoIndex(idx)}
+              className="btn-press"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '6px 14px',
+                borderRadius: '9999px',
+                backgroundColor: videoIndex === idx ? '#0064E0' : 'rgba(255,255,255,0.16)',
+                color: '#ffffff',
+                border: videoIndex === idx ? '1px solid #38BDF8' : '1px solid rgba(255,255,255,0.22)',
+                fontSize: '11px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                backdropFilter: 'blur(6px)',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <span style={{
+                width: '6px',
+                height: '6px',
+                borderRadius: '50%',
+                backgroundColor: videoIndex === idx ? '#71F6D2' : 'rgba(255,255,255,0.5)'
+              }} />
+              <span>Video {idx + 1}</span>
+            </button>
+          ))}
+        </div>
       </section>
 
       {/* 2. CHRONO FEATURES: TAKE THE GUESSWORK OUT OF AGENT EXECUTION (2-COL ACCORDION + DEVICE MOCKUP) */}
