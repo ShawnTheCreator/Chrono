@@ -140,9 +140,21 @@ export class SessionClient {
         })
       });
       if (res.ok) {
-        const data = await res.json();
-        store.setNarration(data);
-        return data;
+        const fullData = await res.json();
+        const fullChain = fullData.causal_chain || '';
+        const words = fullChain.split(' ');
+        if (words.length > 1) {
+          let currentChain = '';
+          store.setNarration({ ...fullData, causal_chain: '' }, true);
+          for (let i = 0; i < words.length; i++) {
+            currentChain += (i === 0 ? '' : ' ') + words[i];
+            store.setNarration({ ...fullData, causal_chain: currentChain }, i < words.length - 1);
+            await new Promise(r => setTimeout(r, 18));
+          }
+        } else {
+          store.setNarration(fullData, false);
+        }
+        return fullData;
       }
     } catch (err) {
       console.warn('Backend /narrate error:', err);

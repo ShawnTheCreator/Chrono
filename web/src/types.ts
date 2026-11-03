@@ -49,4 +49,12 @@ export interface Narration {
   provider?: string;
   is_live?: boolean;
   model?: string;
+  latency_ms?: number;
+  usage?: {
+    prompt_tokens?: number;
+    completion_tokens?: number;
+    total_tokens?: number;
+    estimated_cost_usd?: number;
+  };
+  error?: string;
 }

@@ -1,7 +1,18 @@
 import os
 import json
+import time
+import pathlib
 import urllib.request
+import urllib.error
 from typing import Dict, Any, Optional
+
+try:
+    from dotenv import load_dotenv
+    load_dotenv(override=True)
+except ImportError:
+    pass
+
+RECEIPT_PATH = pathlib.Path(__file__).parent.parent.parent / "fixtures" / "recorded" / "live_inference_receipt.json"
 
 NARRATE_SYSTEM_PROMPT = """You are the Chrono Flight Instructor, an expert systems diagnostician analyzing recorded execution traces of autonomous AI coding agents.
 
@@ -13,8 +24,27 @@ Your job is to explain the CAUSAL CHAIN behind a specific code checkpoint:
 
 Be concise, technical, direct, and rigorous. Avoid fluffy boilerplate."""
 
-def generate_narration(checkpoint_data: Dict[str, Any], api_key: Optional[str] = None) -> Dict[str, Any]:
+def _extract_json_response(content: str) -> Dict[str, Any]:
+    content = content.strip()
+    if content.startswith("```json"):
+        content = content[7:]
+    elif content.startswith("```"):
+        content = content[3:]
+    if content.endswith("```"):
+        content = content[:-3]
+    content = content.strip()
+    
+    start = content.find('{')
+    end = content.rfind('}')
+    if start != -1 and end != -1 and end > start:
+        return json.loads(content[start:end+1])
+    return json.loads(content)
+
+def generate_narration(checkpoint_data: Dict[str, Any], api_key: Optional[str] = None, allow_fallback: bool = True) -> Dict[str, Any]:
     api_key = api_key or os.getenv("META_MODEL_API_KEY") or os.getenv("BASETEN_API_KEY")
+    endpoint = os.getenv("META_MODEL_API_ENDPOINT") or os.getenv("BASETEN_MODEL_ENDPOINT")
+    model_name = os.getenv("META_MODEL_NAME", "muse-spark-1.3")
+
     diff = checkpoint_data.get("raw_patch", "")
     summary = checkpoint_data.get("summary", "")
     thought = checkpoint_data.get("agent_thought", "")
@@ -39,42 +69,126 @@ Provide causal explanation in JSON format:
   "risk_score": <float 0.0 to 1.0>
 }}"""
 
-    endpoint = os.getenv("META_MODEL_API_ENDPOINT") or os.getenv("BASETEN_MODEL_ENDPOINT")
-    if api_key and endpoint:
+    # Check if a live endpoint is genuinely configured (not a dummy/empty/placeholder URL)
+    is_endpoint_configured = bool(
+        api_key and endpoint and 
+        not endpoint.startswith("https://model-xxxxxx") and 
+        len(api_key.strip()) > 0
+    )
+
+    if is_endpoint_configured:
+        start_time = time.perf_counter()
+        req_payload = {
+            "model": model_name,
+            "messages": [
+                {"role": "system", "content": NARRATE_SYSTEM_PROMPT},
+                {"role": "user", "content": user_prompt}
+            ],
+            "temperature": 0.2
+        }
+
+        auth_val = api_key if api_key.startswith(("Bearer ", "Api-Key ")) else f"Bearer {api_key}"
+        headers = {
+            "Authorization": auth_val,
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        }
+
         try:
-            model_name = os.getenv("META_MODEL_NAME", "muse-spark-1026")
-            req_data = json.dumps({
-                "model": model_name,
-                "messages": [
-                    {"role": "system", "content": NARRATE_SYSTEM_PROMPT},
-                    {"role": "user", "content": user_prompt}
-                ],
-                "temperature": 0.2,
-                "response_format": {"type": "json_object"}
-            }).encode("utf-8")
-            req = urllib.request.Request(
-                endpoint,
-                data=req_data,
-                headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
-            )
-            with urllib.request.urlopen(req, timeout=10.0) as resp:
-                data = json.loads(resp.read().decode("utf-8"))
-                content = data["choices"][0]["message"]["content"].strip()
-                if content.startswith("```json"):
-                    content = content[7:]
-                if content.startswith("```"):
-                    content = content[3:]
-                if content.endswith("```"):
-                    content = content[:-3]
-                parsed = json.loads(content.strip())
+            req_data = json.dumps(req_payload).encode("utf-8")
+            req = urllib.request.Request(endpoint, data=req_data, headers=headers, method="POST")
+
+            with urllib.request.urlopen(req, timeout=15.0) as resp:
+                status_code = resp.status
+                raw_body = resp.read().decode("utf-8")
+                data = json.loads(raw_body)
+                latency_ms = round((time.perf_counter() - start_time) * 1000, 2)
+
+                raw_content = data["choices"][0]["message"]["content"]
+                parsed = _extract_json_response(raw_content)
+
+                echoed_model = data.get("model", model_name)
+                usage = data.get("usage", {})
+                prompt_tok = usage.get("prompt_tokens", 0)
+                comp_tok = usage.get("completion_tokens", 0)
+                total_tok = usage.get("total_tokens", prompt_tok + comp_tok)
+
+                # Meta Model API / Muse Spark token pricing estimate:
+                # $0.20 per 1M input tokens, $0.60 per 1M output tokens
+                cost_usd = round((prompt_tok * 0.0000002) + (comp_tok * 0.0000006), 6)
+
                 parsed["is_live"] = True
-                parsed["provider"] = f"Meta Model API ({model_name})"
-                parsed["model"] = model_name
+                parsed["provider"] = f"Meta Model API ({echoed_model})"
+                parsed["model"] = echoed_model
+                parsed["latency_ms"] = latency_ms
+                parsed["usage"] = {
+                    "prompt_tokens": prompt_tok,
+                    "completion_tokens": comp_tok,
+                    "total_tokens": total_tok,
+                    "estimated_cost_usd": cost_usd
+                }
+
+                # Record live integration receipt to disk (zero secret strings)
+                try:
+                    receipt = {
+                        "timestamp_iso": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                        "checkpoint_id": checkpoint_data.get("id", "unknown"),
+                        "status": status_code,
+                        "model": echoed_model,
+                        "latency_ms": latency_ms,
+                        "prompt_tokens": prompt_tok,
+                        "completion_tokens": comp_tok,
+                        "total_tokens": total_tok,
+                        "estimated_cost_usd": cost_usd,
+                        "headline": parsed.get("headline", ""),
+                        "verdict": parsed.get("verdict", "")
+                    }
+                    RECEIPT_PATH.parent.mkdir(parents=True, exist_ok=True)
+                    with open(RECEIPT_PATH, "w", encoding="utf-8") as rf:
+                        json.dump(receipt, rf, indent=2)
+                except Exception as log_err:
+                    print(f"[bridge] Note: Could not write receipt file: {log_err}")
+
                 return parsed
+
+        except urllib.error.HTTPError as http_err:
+            err_body = ""
+            try:
+                err_body = http_err.read().decode("utf-8")
+            except Exception:
+                pass
+            print(f"[bridge] LIVE Meta Model API HTTP {http_err.code} Error: {err_body}")
+            # FIREWALL: Never disguise a failed live call as a successful offline fallback!
+            return {
+                "headline": f"Meta Model API HTTP {http_err.code} Error",
+                "causal_chain": f"Live inference call returned HTTP {http_err.code}: {err_body or http_err.reason}. Verify your API key, endpoint URL, and balance.",
+                "hypothesis": "Authentication or model endpoint route failure.",
+                "verdict": "STALL_RISK",
+                "risk_score": 1.0,
+                "is_live": False,
+                "provider": f"Meta API Error (HTTP {http_err.code})",
+                "model": model_name,
+                "error": f"HTTP {http_err.code}: {err_body or http_err.reason}"
+            }
         except Exception as e:
-            print(f"[bridge] Meta Model API call failed ({e}), falling back to deterministic synthesizer.")
+            print(f"[bridge] LIVE Meta Model API Connection Error: {e}")
+            # FIREWALL: Never disguise a network failure during a live call as offline fallback!
+            return {
+                "headline": f"Meta Model API Connection Error",
+                "causal_chain": f"Failed to connect to Meta Model API endpoint: {str(e)}.",
+                "hypothesis": "Network connection error or invalid endpoint host.",
+                "verdict": "STALL_RISK",
+                "risk_score": 1.0,
+                "is_live": False,
+                "provider": "Meta API Connection Error",
+                "model": model_name,
+                "error": str(e)
+            }
 
     # Deterministic high-quality causal synthesizer (truth-branded offline fallback)
+    if not allow_fallback:
+        raise RuntimeError("Meta Model API key or endpoint not configured and offline fallback disabled.")
+
     files = checkpoint_data.get("files_modified", ["core/src/main.cpp"])
     file_list = ", ".join(files) if files else "workspace"
 
@@ -90,7 +204,7 @@ Provide causal explanation in JSON format:
             "verdict": "FIXED",
             "risk_score": 0.05,
             "is_live": False,
-            "provider": "OFFLINE FALLBACK (Meta API Unreachable)",
+            "provider": "OFFLINE FALLBACK (Meta API Unconfigured)",
             "model": "offline-calibrated-baseline"
         }
     elif "stall" in summary.lower() or "loop" in str(thought).lower():
@@ -104,7 +218,7 @@ Provide causal explanation in JSON format:
             "verdict": "FIXED",
             "risk_score": 0.12,
             "is_live": False,
-            "provider": "OFFLINE FALLBACK (Meta API Unreachable)",
+            "provider": "OFFLINE FALLBACK (Meta API Unconfigured)",
             "model": "offline-calibrated-baseline"
         }
     else:
@@ -118,6 +232,6 @@ Provide causal explanation in JSON format:
             "verdict": "FIXED",
             "risk_score": 0.08,
             "is_live": False,
-            "provider": "OFFLINE FALLBACK (Meta API Unreachable)",
+            "provider": "OFFLINE FALLBACK (Meta API Unconfigured)",
             "model": "offline-calibrated-baseline"
         }

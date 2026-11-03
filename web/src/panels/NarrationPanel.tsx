@@ -121,25 +121,48 @@ export const NarrationPanel: React.FC<NarrationPanelProps> = ({ onCollapse }) =>
                   <span style={{ fontSize: '10px', fontWeight: 600, color: theme.text.muted, letterSpacing: '0.08em', fontFamily: '"JetBrains Mono", monospace' }}>
                     CAUSAL NARRATION
                   </span>
-                  {narration.is_live ? (
+                  {narration.error ? (
                     <span
-                      title={`Live inference via ${narration.provider || 'Meta Model API'}`}
+                      title={`Error: ${narration.error}`}
                       style={{
                         fontSize: '9px',
                         fontWeight: 600,
                         padding: '1px 6px',
                         borderRadius: '3px',
-                        background: '#dafbe1',
-                        color: '#1a7f37',
-                        border: '1px solid #b4f0c0',
+                        background: '#ffebe9',
+                        color: '#cf222e',
+                        border: '1px solid #ffd0cc',
                         fontFamily: '"JetBrains Mono", monospace'
                       }}
                     >
-                      ● LIVE: {narration.model || 'muse-spark-1026'}
+                      ▲ META API ERROR
                     </span>
+                  ) : narration.is_live ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <span
+                        title={`Live inference via ${narration.provider || 'Meta Model API'} (${narration.latency_ms ? narration.latency_ms + 'ms' : ''})`}
+                        style={{
+                          fontSize: '9px',
+                          fontWeight: 600,
+                          padding: '1px 6px',
+                          borderRadius: '3px',
+                          background: '#dafbe1',
+                          color: '#1a7f37',
+                          border: '1px solid #b4f0c0',
+                          fontFamily: '"JetBrains Mono", monospace'
+                        }}
+                      >
+                        ● LIVE: {narration.model || 'muse-spark-1.3'}
+                      </span>
+                      {narration.latency_ms && (
+                        <span style={{ fontSize: '9px', color: theme.text.muted, fontFamily: '"JetBrains Mono", monospace' }}>
+                          {narration.latency_ms}ms
+                        </span>
+                      )}
+                    </div>
                   ) : (
                     <span
-                      title="Meta Model API endpoint unconfigured or unreachable. Using calibrated offline baseline."
+                      title="Meta Model API endpoint unconfigured. Using calibrated offline baseline."
                       style={{
                         fontSize: '9px',
                         fontWeight: 500,
@@ -151,7 +174,7 @@ export const NarrationPanel: React.FC<NarrationPanelProps> = ({ onCollapse }) =>
                         fontFamily: '"JetBrains Mono", monospace'
                       }}
                     >
-                      ○ OFFLINE FALLBACK (Meta API Unreachable)
+                      ○ OFFLINE (Meta API Unconfigured)
                     </span>
                   )}
                 </div>

@@ -13,7 +13,7 @@ from typing import List, Optional, Dict, Any
 
 try:
     from dotenv import load_dotenv
-    load_dotenv()
+    load_dotenv(override=True)
 except ImportError:
     pass
 
