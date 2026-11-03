@@ -122,15 +122,15 @@ export default function LoginPage() {
         boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.02)',
         overflow: 'hidden'
       }}>
-        {/* Top Accent Bar */}
+        {/* Top Meta Muse Accent Line */}
         <div style={{
           height: '4px',
           width: '100%',
-          background: 'linear-gradient(90deg, #1a7f37, #0969da, #8250df)'
+          background: 'linear-gradient(90deg, #0DACF1 0%, #71F6D2 50%, #F5A3E0 100%)'
         }} />
 
         <div style={{ padding: '32px 28px' }}>
-          {/* Logo & Product Heading */}
+          {/* Logo & Product Heading with Meta Muse Identity */}
           <div style={{ textAlign: 'center', marginBottom: '24px' }}>
             <div style={{
               display: 'inline-flex',
@@ -138,15 +138,42 @@ export default function LoginPage() {
               gap: '8px',
               padding: '4px 10px',
               borderRadius: '6px',
-              backgroundColor: '#f1f5f9',
+              backgroundColor: '#ffffff',
               border: '1px solid #e2e8f0',
+              boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
               marginBottom: '12px'
             }}>
-              <span style={{ fontSize: '13px', fontWeight: 800, letterSpacing: '0.12em', color: '#0f172a' }}>
+              <div style={{
+                width: '18px',
+                height: '18px',
+                borderRadius: '4px',
+                background: '#090d16',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <svg width="12" height="12" viewBox="0 0 32 32" fill="none">
+                  <defs>
+                    <linearGradient id="loginMuseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#0DACF1" />
+                      <stop offset="50%" stopColor="#71F6D2" />
+                      <stop offset="100%" stopColor="#F5A3E0" />
+                    </linearGradient>
+                  </defs>
+                  <path
+                    d="M7.5 21.5V11.5C7.5 10.67 8.17 10 9 10C9.45 10 9.87 10.2 10.15 10.55L16 18L21.85 10.55C22.13 10.2 22.55 10 23 10C23.83 10 24.5 10.67 24.5 11.5V21.5"
+                    stroke="url(#loginMuseGrad)"
+                    strokeWidth="3.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
+              <span style={{ fontSize: '13px', fontWeight: 800, letterSpacing: '0.08em', color: '#0f172a' }}>
                 CHRONO
               </span>
-              <span style={{ fontSize: '10px', fontWeight: 600, color: '#1a7f37', backgroundColor: '#dcfce7', padding: '1px 5px', borderRadius: '3px' }}>
-                FDR-2026
+              <span style={{ fontSize: '10px', fontWeight: 700, color: '#0d9488', backgroundColor: '#e6fffa', padding: '1px 6px', borderRadius: '3px', border: '1px solid #a7f3d0' }}>
+                MUSE
               </span>
             </div>
 
@@ -160,7 +187,7 @@ export default function LoginPage() {
               Flight Recorder Cockpit
             </h1>
             <p style={{ fontSize: '13px', color: '#64748b', margin: 0 }}>
-              Operator Authentication Gateway
+              Meta Muse Code & Spark 1.3 Operator Gateway
             </p>
           </div>
 

@@ -1,19 +1,26 @@
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 :root {
+  /* Meta Muse Primary Logo & Identity Colors */
+  --muse-blue: #0DACF1;
+  --muse-turquoise: #71F6D2;
+  --muse-pink: #F5A3E0;
+  --muse-gradient: linear-gradient(135deg, #0DACF1 0%, #71F6D2 50%, #F5A3E0 100%);
+  --muse-gradient-h: linear-gradient(90deg, #0DACF1 0%, #71F6D2 50%, #F5A3E0 100%);
+  --muse-gradient-soft: linear-gradient(135deg, rgba(13, 172, 241, 0.08) 0%, rgba(113, 246, 210, 0.08) 50%, rgba(245, 163, 224, 0.08) 100%);
+
+  /* Neutral Systems Foundations */
   --surface-bg: #ffffff;
-  --surface-canvas: #f6f8fa;
-  --surface-inset: #0d1117;
-  --border-subtle: #e1e4e8;
-  --border-default: #d0d7de;
-  --border-strong: #24292f;
+  --surface-canvas: #f8fafc;
+  --surface-inset: #090d16;
+  --border-subtle: #e2e8f0;
+  --border-default: #cbd5e1;
+  --border-strong: #0f172a;
   --text-primary: #0f172a;
-  --text-secondary: #57606a;
-  --text-muted: #8c959f;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
   --accent-green: #1a7f37;
   --accent-oxblood: #cf222e;
-  --accent-cyan: #0969da;
-  --accent-amber: #9a6700;
 }
 
 * {
@@ -35,10 +42,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Mechanical focus rings */
+/* Mechanical focus rings with Muse Blue */
 a:focus-visible,
 button:focus-visible {
-  outline: 2px solid var(--accent-cyan);
+  outline: 2px solid var(--muse-blue);
   outline-offset: 2px;
 }
 

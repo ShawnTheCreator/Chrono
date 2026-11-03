@@ -226,10 +226,49 @@ export default function CockpitDashboard() {
           <div
             onClick={handleResetLayout}
             title="Click to reset layout"
-            style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
           >
-            <span style={{ fontSize: '13px', fontWeight: 700, color: theme.text.primary, letterSpacing: '-0.02em', fontFamily: '"JetBrains Mono", monospace' }}>
+            <div style={{
+              width: '20px',
+              height: '20px',
+              borderRadius: '5px',
+              background: '#090d16',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
+            }}>
+              <svg width="14" height="14" viewBox="0 0 32 32" fill="none">
+                <defs>
+                  <linearGradient id="headerMuseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#0DACF1" />
+                    <stop offset="50%" stopColor="#71F6D2" />
+                    <stop offset="100%" stopColor="#F5A3E0" />
+                  </linearGradient>
+                </defs>
+                <path
+                  d="M7.5 21.5V11.5C7.5 10.67 8.17 10 9 10C9.45 10 9.87 10.2 10.15 10.55L16 18L21.85 10.55C22.13 10.2 22.55 10 23 10C23.83 10 24.5 10.67 24.5 11.5V21.5"
+                  stroke="url(#headerMuseGrad)"
+                  strokeWidth="3.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
+            <span style={{ fontSize: '13px', fontWeight: 800, color: theme.text.primary, letterSpacing: '-0.02em', fontFamily: '"JetBrains Mono", monospace' }}>
               CHRONO
+            </span>
+            <span style={{
+              fontSize: '9px',
+              fontWeight: 700,
+              padding: '1px 5px',
+              borderRadius: '3px',
+              background: theme.bg.pastelMint,
+              color: theme.text.mint,
+              border: `1px solid ${theme.border.pastelMint}`,
+              fontFamily: '"JetBrains Mono", monospace'
+            }}>
+              MUSE
             </span>
           </div>
 
@@ -413,6 +452,50 @@ export default function CockpitDashboard() {
           >
             <span>overview</span>
           </a>
+
+          <div style={{ height: '14px', width: '1px', background: theme.border.default }} />
+
+          {/* Muse Default Mascot Yellow Profile Indicator */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '2px 8px',
+            borderRadius: '4px',
+            background: theme.bg.mascotYellow,
+            border: `1px solid ${theme.border.mascotYellow}`,
+            fontSize: '11px',
+            fontFamily: '"JetBrains Mono", monospace'
+          }}>
+            <span style={{
+              width: '7px',
+              height: '7px',
+              borderRadius: '50%',
+              background: theme.accent.mascotYellow
+            }} />
+            <span style={{ fontWeight: 600, color: theme.text.yellow }}>
+              {currentUser?.email ? currentUser.email.split('@')[0] : 'operator'}
+            </span>
+          </div>
+
+          <button
+            onClick={async () => {
+              await authClient.logout();
+              router.push('/login');
+            }}
+            title="Sign out of current operator session"
+            style={{
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              color: theme.text.muted,
+              fontSize: '11px',
+              padding: '2px 4px',
+              fontFamily: '"JetBrains Mono", monospace'
+            }}
+          >
+            exit
+          </button>
         </div>
       </header>
 
