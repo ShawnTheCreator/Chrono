@@ -181,39 +181,36 @@ export default function LoginPage() {
       backgroundColor: '#ffffff',
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
       margin: 0,
-      padding: 0
+      padding: '32px 20px',
+      boxSizing: 'border-box'
     }}>
       <div style={{
         width: '100%',
         maxWidth: '390px',
-        minHeight: '100vh',
         backgroundColor: '#ffffff',
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'space-between',
-        padding: '52px 28px 28px 28px',
         boxSizing: 'border-box'
       }}>
-        {/* Top Header & Form Container */}
-        <div>
-          {/* Top Brand: Chrono C Clock Logo + Chrono Business Suite */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '10px',
-            marginBottom: '36px'
+        {/* Top Header: Chrono Logo + "Login" */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '10px',
+          marginBottom: '32px'
+        }}>
+          <ChronoLogo size={32} />
+          <h1 style={{
+            fontSize: '22px',
+            fontWeight: 700,
+            color: '#1c1e21',
+            letterSpacing: '-0.02em',
+            margin: 0
           }}>
-            <ChronoLogo size={28} />
-            <span style={{
-              fontSize: '18px',
-              fontWeight: 700,
-              color: '#1c1e21',
-              letterSpacing: '-0.02em'
-            }}>
-              Chrono Business Suite
-            </span>
-          </div>
+            Login
+          </h1>
+        </div>
 
           {/* Feedback Messages */}
           {error && (
@@ -395,25 +392,13 @@ export default function LoginPage() {
               Other login option
             </button>
           </div>
-        </div>
 
-        {/* Bottom Section: Huge Chrono "C with Clock Hands" Logo & Return Link */}
-        <div style={{
-          marginTop: 'auto',
-          paddingTop: '48px',
-          paddingBottom: '20px',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
-          <ChronoLogo size={140} />
-
-          <div style={{ marginTop: '24px' }}>
+          {/* Clean Return Link (no logo under form) */}
+          <div style={{ marginTop: '36px', textAlign: 'center' }}>
             <a
               href={HOME_URL}
               style={{
-                fontSize: '12px',
+                fontSize: '13px',
                 color: '#8a8d91',
                 textDecoration: 'none',
                 fontWeight: 500
@@ -423,7 +408,6 @@ export default function LoginPage() {
             </a>
           </div>
         </div>
-      </div>
-    </main>
-  );
-}
+      </main>
+    );
+  }
