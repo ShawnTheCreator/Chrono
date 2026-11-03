@@ -222,6 +222,16 @@ export default function App() {
   // FAQ Accordion State (first item open by default)
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
+  // Hero Video Ref & Playback
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.muted = true;
+      videoRef.current.play().catch(() => {});
+    }
+  }, [videoIndex]);
+
   // Cycle Hero Text
   useEffect(() => {
     const timer = setInterval(() => {
@@ -312,11 +322,14 @@ export default function App() {
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
       overflowX: 'hidden'
     }}>
-      {/* 1. HERO SECTION WITH BACKGROUND VIDEO PLAYER (VID1 TO VID4) */}
+      {/* 1. HERO SECTION WITH BACKGROUND VIDEO PLAYER (VID1 TO VID4) - FULL BLEED 100VH ZERO WHITE SPACE */}
       <section style={{
         position: 'relative',
-        minHeight: '88vh',
+        minHeight: '100vh',
+        height: '100vh',
         width: '100%',
+        margin: 0,
+        padding: 0,
         backgroundColor: '#090D16',
         display: 'flex',
         flexDirection: 'column',
@@ -324,8 +337,9 @@ export default function App() {
         color: '#ffffff',
         overflow: 'hidden'
       }}>
-        {/* Background Video Player */}
+        {/* Full-Bleed Background Video Player */}
         <video
+          ref={videoRef}
           key={videoIndex}
           autoPlay
           muted
@@ -333,12 +347,21 @@ export default function App() {
           onEnded={() => setVideoIndex((prev) => (prev + 1) % HERO_VIDEOS.length)}
           style={{
             position: 'absolute',
-            inset: 0,
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
             width: '100%',
             height: '100%',
             objectFit: 'cover',
+            display: 'block',
             zIndex: 0,
-            pointerEvents: 'none'
+            pointerEvents: 'none',
+            margin: 0,
+            padding: 0,
+            border: 'none',
+            outline: 'none',
+            backgroundColor: '#090D16'
           }}
         >
           <source src={HERO_VIDEOS[videoIndex]} type="video/mp4" />
@@ -347,8 +370,13 @@ export default function App() {
         {/* Ambient Dark Overlay to Guarantee Crisp Typography */}
         <div style={{
           position: 'absolute',
-          inset: 0,
-          background: 'linear-gradient(rgba(9, 13, 22, 0.70) 0%, rgba(9, 13, 22, 0.82) 100%)',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          width: '100%',
+          height: '100%',
+          background: 'linear-gradient(180deg, rgba(9, 13, 22, 0.45) 0%, rgba(9, 13, 22, 0.20) 40%, rgba(9, 13, 22, 0.55) 100%)',
           zIndex: 1,
           pointerEvents: 'none'
         }} />
@@ -358,9 +386,9 @@ export default function App() {
           position: 'relative',
           zIndex: 2,
           width: '100%',
-          maxWidth: '1360px',
+          maxWidth: '1440px',
           margin: '0 auto',
-          padding: '20px 36px',
+          padding: '24px 40px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between'
