@@ -138,13 +138,59 @@ const IconMinus = ({ size = 18, color = 'currentColor' }: { size?: number; color
   </svg>
 );
 
-// Chrono Primary Compass / Chronometer Logo
-const ChronoLogo = ({ size = 28, color = '#0064E0' }: { size?: number; color?: string }) => (
-  <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
-    <rect width="32" height="32" rx="8" fill="#090D16" />
-    <circle cx="16" cy="16" r="10" stroke={color} strokeWidth="2.4" strokeDasharray="4 2" />
-    <path d="M16 9V16L20.5 20.5" stroke="#FFFFFF" strokeWidth="2.2" strokeLinecap="round" />
-    <circle cx="16" cy="16" r="2.2" fill="#71F6D2" />
+// Chrono Signature Logo: Stylized "C" with Clock Hands in Meta Metallic Blue
+const ChronoLogo = ({ size = 28 }: { size?: number; color?: string }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 100 100"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    style={{ display: 'block', flexShrink: 0 }}
+  >
+    <defs>
+      <linearGradient id="chronoHomeGrad" x1="10%" y1="10%" x2="90%" y2="90%">
+        <stop offset="0%" stopColor="#0082FB" />
+        <stop offset="45%" stopColor="#0073EE" />
+        <stop offset="100%" stopColor="#0064E0" />
+      </linearGradient>
+      <linearGradient id="chronoHomeAccent" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#71F6D2" />
+        <stop offset="100%" stopColor="#0082FB" />
+      </linearGradient>
+    </defs>
+    {/* Main "C" Arc */}
+    <path
+      d="M 74 26 A 35 35 0 1 0 74 74"
+      fill="none"
+      stroke="url(#chronoHomeGrad)"
+      strokeWidth="11"
+      strokeLinecap="round"
+    />
+    {/* Center Pivot */}
+    <circle cx="50" cy="50" r="6" fill="url(#chronoHomeGrad)" />
+    {/* Hour Hand (10 o'clock stance) */}
+    <line
+      x1="50"
+      y1="50"
+      x2="35"
+      y2="33"
+      stroke="url(#chronoHomeGrad)"
+      strokeWidth="6.5"
+      strokeLinecap="round"
+    />
+    {/* Minute Hand pointing gracefully into opening of the C */}
+    <line
+      x1="50"
+      y1="50"
+      x2="68"
+      y2="38"
+      stroke="url(#chronoHomeAccent)"
+      strokeWidth="5.5"
+      strokeLinecap="round"
+    />
+    {/* Polished Center Pin */}
+    <circle cx="50" cy="50" r="2.2" fill="#FFFFFF" />
   </svg>
 );
 
@@ -535,45 +581,35 @@ export default function App() {
           </div>
         </div>
 
-        {/* Video Playlist Selector Controls */}
+        {/* Video Playlist Indicator Dots (Titles Video 1-4 Removed) */}
         <div style={{
           position: 'relative',
           zIndex: 2,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: '10px',
-          paddingBottom: '28px'
+          gap: '8px',
+          paddingBottom: '32px'
         }}>
           {HERO_VIDEOS.map((_, idx) => (
             <button
               key={idx}
               onClick={() => setVideoIndex(idx)}
+              aria-label={`Switch to video ${idx + 1}`}
               className="btn-press"
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '6px 14px',
+                width: videoIndex === idx ? '26px' : '8px',
+                height: '8px',
                 borderRadius: '9999px',
-                backgroundColor: videoIndex === idx ? '#0064E0' : 'rgba(255,255,255,0.16)',
-                color: '#ffffff',
-                border: videoIndex === idx ? '1px solid #38BDF8' : '1px solid rgba(255,255,255,0.22)',
-                fontSize: '11px',
-                fontWeight: 700,
+                backgroundColor: videoIndex === idx ? '#0064E0' : 'rgba(255,255,255,0.4)',
+                border: videoIndex === idx ? '1px solid #71F6D2' : '1px solid rgba(255,255,255,0.2)',
                 cursor: 'pointer',
+                padding: 0,
+                outline: 'none',
                 backdropFilter: 'blur(6px)',
-                transition: 'all 0.2s ease'
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
               }}
-            >
-              <span style={{
-                width: '6px',
-                height: '6px',
-                borderRadius: '50%',
-                backgroundColor: videoIndex === idx ? '#71F6D2' : 'rgba(255,255,255,0.5)'
-              }} />
-              <span>Video {idx + 1}</span>
-            </button>
+            />
           ))}
         </div>
       </section>

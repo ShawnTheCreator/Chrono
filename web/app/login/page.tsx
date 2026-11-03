@@ -6,38 +6,59 @@ import { authClient } from '../../src/auth/authClient';
 
 const HOME_URL = process.env.NEXT_PUBLIC_HOME_URL || 'http://localhost:3000';
 
-// Official Meta Infinity Vector Logo
-const MetaLogo = ({ width = 24, height = 16 }: { width?: number; height?: number }) => (
+// Chrono Signature Logo: Stylized "C" with Clock Hands in Meta Metallic Blue
+const ChronoLogo = ({ size = 28 }: { size?: number }) => (
   <svg
-    width={width}
-    height={height}
-    viewBox="0 0 256 170"
+    width={size}
+    height={size}
+    viewBox="0 0 100 100"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
-    style={{ display: 'block' }}
+    style={{ display: 'block', flexShrink: 0 }}
   >
     <defs>
-      <linearGradient id="metaGradA" x1="54.315%" x2="54.315%" y1="82.782%" y2="39.307%">
+      <linearGradient id="chronoLoginGrad" x1="10%" y1="10%" x2="90%" y2="90%">
         <stop offset="0%" stopColor="#0082FB" />
+        <stop offset="45%" stopColor="#0073EE" />
         <stop offset="100%" stopColor="#0064E0" />
       </linearGradient>
-      <linearGradient id="metaGradB" x1="54.315%" x2="54.315%" y1="82.782%" y2="39.307%">
-        <stop offset="0%" stopColor="#0082FB" />
-        <stop offset="100%" stopColor="#0064E0" />
+      <linearGradient id="chronoLoginAccent" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#71F6D2" />
+        <stop offset="100%" stopColor="#0082FB" />
       </linearGradient>
     </defs>
+    {/* Main "C" Arc */}
     <path
-      fill="#0081FB"
-      d="M27.651 112.136c0 9.775 2.146 17.28 4.95 21.82 3.677 5.947 9.16 8.466 14.751 8.466 7.211 0 13.808-1.79 26.52-19.372 10.185-14.092 22.186-33.874 30.26-46.275l13.675-21.01c9.499-14.591 20.493-30.811 33.1-41.806C161.196 4.985 172.298 0 183.47 0c18.758 0 36.625 10.87 50.3 31.257C248.735 53.584 256 81.707 256 110.729c0 17.253-3.4 29.93-9.187 39.946-5.591 9.686-16.488 19.363-34.818 19.363v-27.616c15.695 0 19.612-14.422 19.612-30.927 0-23.52-5.484-49.623-17.564-68.273-8.574-13.23-19.684-21.313-31.907-21.313-13.22 0-23.859 9.97-35.815 27.75-6.356 9.445-12.882 20.956-20.208 33.944l-8.066 14.289c-16.203 28.728-20.307 35.271-28.408 46.07-14.2 18.91-26.324 26.076-42.287 26.076-18.935 0-30.91-8.2-38.325-20.556C2.973 139.413 0 126.202 0 111.148l27.651.988Z"
+      d="M 74 26 A 35 35 0 1 0 74 74"
+      fill="none"
+      stroke="url(#chronoLoginGrad)"
+      strokeWidth="11"
+      strokeLinecap="round"
     />
-    <path
-      fill="url(#metaGradA)"
-      d="M21.802 33.206C34.48 13.666 52.774 0 73.757 0 85.91 0 97.99 3.597 110.605 13.897c13.798 11.261 28.505 29.805 46.853 60.368l6.58 10.967c15.881 26.459 24.917 40.07 30.205 46.49 6.802 8.243 11.565 10.7 17.752 10.7 15.695 0 19.612-14.422 19.612-30.927l24.393-.766c0 17.253-3.4 29.93-9.187 39.946-5.591 9.686-16.488 19.363-34.818 19.363-11.395 0-21.49-2.475-32.654-13.007-8.582-8.083-18.615-22.443-26.334-35.352l-22.96-38.352C118.528 64.08 107.96 49.73 101.845 43.23c-6.578-6.988-15.036-15.428-28.532-15.428-10.923 0-20.2 7.666-27.963 19.39L21.802 33.206Z"
+    {/* Center Pivot */}
+    <circle cx="50" cy="50" r="6" fill="url(#chronoLoginGrad)" />
+    {/* Hour Hand (10 o'clock stance) */}
+    <line
+      x1="50"
+      y1="50"
+      x2="35"
+      y2="33"
+      stroke="url(#chronoLoginGrad)"
+      strokeWidth="6.5"
+      strokeLinecap="round"
     />
-    <path
-      fill="url(#metaGradB)"
-      d="M73.312 27.802c-10.923 0-20.2 7.666-27.963 19.39-10.976 16.568-17.698 41.245-17.698 64.944 0 9.775 2.146 17.28 4.95 21.82L9.027 149.482C2.973 139.413 0 126.202 0 111.148 0 83.772 7.514 55.24 21.802 33.206 34.48 13.666 52.774 0 73.757 0l-.445 27.802Z"
+    {/* Minute Hand pointing gracefully into opening of the C */}
+    <line
+      x1="50"
+      y1="50"
+      x2="68"
+      y2="38"
+      stroke="url(#chronoLoginAccent)"
+      strokeWidth="5.5"
+      strokeLinecap="round"
     />
+    {/* Polished Center Pin */}
+    <circle cx="50" cy="50" r="2.2" fill="#FFFFFF" />
   </svg>
 );
 
@@ -175,22 +196,22 @@ export default function LoginPage() {
       }}>
         {/* Top Header & Form Container */}
         <div>
-          {/* Top Brand: Meta Infinity + Meta Business Suite */}
+          {/* Top Brand: Chrono C Clock Logo + Chrono Business Suite */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '8px',
+            gap: '10px',
             marginBottom: '36px'
           }}>
-            <MetaLogo width={24} height={16} />
+            <ChronoLogo size={28} />
             <span style={{
-              fontSize: '17px',
-              fontWeight: 600,
+              fontSize: '18px',
+              fontWeight: 700,
               color: '#1c1e21',
-              letterSpacing: '-0.01em'
+              letterSpacing: '-0.02em'
             }}>
-              Meta Business Suite
+              Chrono Business Suite
             </span>
           </div>
 
@@ -376,7 +397,7 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Bottom Section: Huge Meta Infinity Logo & Chrono Return Link */}
+        {/* Bottom Section: Huge Chrono "C with Clock Hands" Logo & Return Link */}
         <div style={{
           marginTop: 'auto',
           paddingTop: '48px',
@@ -386,7 +407,7 @@ export default function LoginPage() {
           alignItems: 'center',
           justifyContent: 'center'
         }}>
-          <MetaLogo width={190} height={126} />
+          <ChronoLogo size={140} />
 
           <div style={{ marginTop: '24px' }}>
             <a
