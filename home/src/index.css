@@ -1,13 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 :root {
-  /* Meta Muse Primary Logo & Identity Colors */
+  /* Meta Muse Primary Logo & Identity Colors (Solid) */
   --muse-blue: #0DACF1;
   --muse-turquoise: #71F6D2;
   --muse-pink: #F5A3E0;
-  --muse-gradient: linear-gradient(135deg, #0DACF1 0%, #71F6D2 50%, #F5A3E0 100%);
-  --muse-gradient-h: linear-gradient(90deg, #0DACF1 0%, #71F6D2 50%, #F5A3E0 100%);
-  --muse-gradient-soft: linear-gradient(135deg, rgba(13, 172, 241, 0.08) 0%, rgba(113, 246, 210, 0.08) 50%, rgba(245, 163, 224, 0.08) 100%);
 
   /* Neutral Systems Foundations */
   --surface-bg: #ffffff;

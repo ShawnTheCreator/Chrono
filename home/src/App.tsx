@@ -51,20 +51,13 @@ const SAMPLE_BLOCKS: MerkleBlock[] = [
   }
 ];
 
-// Meta Muse Primary "M" Logo (Bright Blue #0DACF1, Turquoise #71F6D2, Soft Pink #F5A3E0)
+// Meta Muse Primary "M" Logo (Solid Bright Blue #0DACF1)
 const MetaMuseLogo = ({ size = 30 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
-    <defs>
-      <linearGradient id="museIdentityGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#0DACF1" />
-        <stop offset="50%" stopColor="#71F6D2" />
-        <stop offset="100%" stopColor="#F5A3E0" />
-      </linearGradient>
-    </defs>
     <rect width="32" height="32" rx="8" fill="#090d16" />
     <path
       d="M7.5 21.5V11.5C7.5 10.67 8.17 10 9 10C9.45 10 9.87 10.2 10.15 10.55L16 18L21.85 10.55C22.13 10.2 22.55 10 23 10C23.83 10 24.5 10.67 24.5 11.5V21.5"
-      stroke="url(#museIdentityGradient)"
+      stroke="#0DACF1"
       strokeWidth="2.8"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -169,41 +162,6 @@ export default function App() {
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "IBM Plex Sans", sans-serif',
       overflowX: 'hidden'
     }}>
-      {/* Top Instrumentation Bar with Meta Muse Accent Line */}
-      <div style={{
-        height: '3px',
-        width: '100%',
-        background: 'linear-gradient(90deg, #0DACF1 0%, #71F6D2 50%, #F5A3E0 100%)'
-      }} />
-
-      <div style={{
-        backgroundColor: '#090d16',
-        color: '#94a3b8',
-        fontSize: '11px',
-        padding: '6px 24px',
-        borderBottom: '1px solid #1e293b',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        fontFamily: '"JetBrains Mono", monospace'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#71F6D2', fontWeight: 600 }}>
-            <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#71F6D2' }} />
-            META MUSE KERNEL: READY (0.227ms AUDIT)
-          </span>
-          <span style={{ color: '#475569' }}>|</span>
-          <span>PROTOCOL: CEP v1 (24-BYTE PACKED)</span>
-          <span style={{ color: '#475569' }}>|</span>
-          <span style={{ color: '#0DACF1' }}>MODEL: MUSE SPARK 1.3 (LIVE API)</span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span>FIPS 180-4 SHA-256</span>
-          <span style={{ color: '#475569' }}>•</span>
-          <span style={{ color: '#f8fafc' }}>2,973 SEALED BLOCKS</span>
-        </div>
-      </div>
-
       {/* Main Navigation Bar */}
       <header style={{
         maxWidth: '1280px',
@@ -225,11 +183,11 @@ export default function App() {
               <span style={{
                 fontSize: '9px',
                 fontWeight: 700,
-                padding: '1px 5px',
+                padding: '1px 6px',
                 borderRadius: '3px',
-                background: 'linear-gradient(135deg, rgba(13, 172, 241, 0.15), rgba(113, 246, 210, 0.2))',
+                backgroundColor: '#e0f2fe',
                 color: '#0284c7',
-                border: '1px solid rgba(13, 172, 241, 0.3)',
+                border: '1px solid #bae6fd',
                 fontFamily: '"JetBrains Mono", monospace'
               }}>
                 MUSE
@@ -256,7 +214,7 @@ export default function App() {
           <a href="#benchmarks" style={{ color: '#475569', textDecoration: 'none' }}>Benchmarks</a>
         </nav>
 
-        {/* Right Actions */}
+        {/* Right Actions - Single Solid Colour for Launch Cockpit */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <a
             href={`${COCKPIT_URL}/login`}
@@ -285,13 +243,13 @@ export default function App() {
               fontWeight: 700,
               letterSpacing: '0.04em',
               textTransform: 'uppercase',
-              color: '#090d16',
+              color: '#ffffff',
               textDecoration: 'none',
               padding: '8px 16px',
               borderRadius: '6px',
-              background: 'linear-gradient(135deg, #0DACF1 0%, #71F6D2 50%, #F5A3E0 100%)',
-              border: '1px solid #71F6D2',
-              boxShadow: '0 2px 8px rgba(13, 172, 241, 0.25)'
+              backgroundColor: '#0DACF1',
+              border: '1px solid #0284c7',
+              boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
             }}
           >
             <span>LAUNCH COCKPIT</span>
@@ -309,32 +267,6 @@ export default function App() {
         margin: '0 auto',
         padding: '54px 32px 36px 32px'
       }}>
-        {/* Meta Muse Identity Pill */}
-        <div style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '8px',
-          padding: '4px 12px',
-          borderRadius: '20px',
-          backgroundColor: '#ffffff',
-          border: '1px solid #cbd5e1',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-          fontSize: '11px',
-          fontFamily: '"JetBrains Mono", monospace',
-          color: '#334155',
-          marginBottom: '20px'
-        }}>
-          <span style={{
-            width: '8px',
-            height: '8px',
-            borderRadius: '50%',
-            background: 'linear-gradient(135deg, #0DACF1, #71F6D2, #F5A3E0)'
-          }} />
-          <span style={{ fontWeight: 700, color: '#0284c7' }}>META MUSE NATIVE</span>
-          <span style={{ color: '#94a3b8' }}>•</span>
-          <span>FLIGHT RECORDER // CERTIFIED SPARK 1.3 CAUSAL REASONING</span>
-        </div>
-
         <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '48px', alignItems: 'center' }}>
           <div>
             <h1 style={{
@@ -405,25 +337,14 @@ export default function App() {
             </div>
           </div>
 
-          {/* Quick Empirical Specs Matrix with Muse Accent */}
+          {/* Quick Empirical Specs Matrix - Clean Solid Border, Zero Gradient */}
           <div style={{
             backgroundColor: '#f8fafc',
             border: '1px solid #e2e8f0',
             borderRadius: '10px',
             padding: '24px',
-            fontFamily: '"JetBrains Mono", monospace',
-            position: 'relative',
-            overflow: 'hidden'
+            fontFamily: '"JetBrains Mono", monospace'
           }}>
-            <div style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              height: '2px',
-              background: 'linear-gradient(90deg, #0DACF1, #71F6D2, #F5A3E0)'
-            }} />
-
             <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '16px', letterSpacing: '0.05em' }}>
               SYSTEM PERFORMANCE BENCHMARKS
             </div>
@@ -520,14 +441,6 @@ export default function App() {
             overflow: 'hidden',
             padding: '18px 24px'
           }}>
-            {/* Grid Lines */}
-            <div style={{
-              position: 'absolute',
-              inset: 0,
-              backgroundImage: 'linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px)',
-              backgroundSize: '48px 100%'
-            }} />
-
             <div style={{ position: 'relative', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#64748b', fontFamily: '"JetBrains Mono", monospace' }}>
                 <span>SEQ #1 GENESIS</span>
@@ -536,7 +449,7 @@ export default function App() {
                 <span style={{ color: '#71F6D2' }}>SEQ #41 TERMINAL HEAD</span>
               </div>
 
-              {/* Event Activity Waveforms using Meta Muse Palette */}
+              {/* Event Activity Waveforms */}
               <div style={{ height: '70px', position: 'relative', display: 'flex', alignItems: 'flex-end', gap: '3px' }}>
                 {Array.from({ length: 64 }).map((_, i) => {
                   const h = 12 + Math.sin(i * 0.35) * 26 + (i > 40 && i < 50 ? 28 : 0);
@@ -544,7 +457,7 @@ export default function App() {
                   const isIntervenedArea = i > 48;
                   let bg = 'rgba(13, 172, 241, 0.45)'; // Bright Blue
                   if (isStallArea) bg = 'rgba(239, 68, 68, 0.8)'; // Stall red
-                  else if (isIntervenedArea) bg = 'rgba(113, 246, 210, 0.6)'; // Vibrant Turquoise
+                  else if (isIntervenedArea) bg = 'rgba(113, 246, 210, 0.6)'; // Turquoise
 
                   return (
                     <div
@@ -586,15 +499,15 @@ export default function App() {
                   borderRight: '2px solid #0DACF1'
                 }} />
 
-                {/* Floating Needle Pin with Muse Gradient */}
+                {/* Floating Needle Pin - Solid Bright Blue */}
                 <div style={{
                   position: 'absolute',
                   left: `${playheadPercent}%`,
                   top: '-7px',
                   transform: 'translateX(-50%)',
                   padding: '2px 7px',
-                  background: 'linear-gradient(135deg, #0DACF1, #71F6D2)',
-                  color: '#090d16',
+                  backgroundColor: '#0DACF1',
+                  color: '#ffffff',
                   fontSize: '10px',
                   fontWeight: 800,
                   borderRadius: '3px',
@@ -706,6 +619,7 @@ export default function App() {
               </h2>
             </div>
 
+            {/* Solid Single Colour Button */}
             <button
               onClick={handleRunVerify}
               disabled={isVerifying}
@@ -713,8 +627,8 @@ export default function App() {
               style={{
                 padding: '8px 18px',
                 borderRadius: '6px',
-                background: isVerifying ? '#94a3b8' : 'linear-gradient(135deg, #0DACF1, #71F6D2)',
-                color: '#090d16',
+                backgroundColor: isVerifying ? '#94a3b8' : '#0DACF1',
+                color: '#ffffff',
                 border: 'none',
                 fontSize: '12px',
                 fontWeight: 700,
