@@ -2,56 +2,51 @@ import React, { useState, useEffect, useRef } from 'react';
 
 const COCKPIT_URL = (import.meta as any).env?.VITE_COCKPIT_URL || 'http://localhost:3001';
 
-interface MerkleBlock {
+interface CheckpointBlock {
   index: number;
   kind: string;
   timestamp: string;
-  prevHash: string;
-  blockHash: string;
-  payloadSummary: string;
+  actionSummary: string;
+  status: string;
   verified: boolean;
 }
 
-const SAMPLE_BLOCKS: MerkleBlock[] = [
+const SAMPLE_BLOCKS: CheckpointBlock[] = [
   {
     index: 1,
-    kind: 'GENESIS_RECORD',
-    timestamp: '00:00.000',
-    prevHash: '0000000000000000000000000000000000000000000000000000000000000000',
-    blockHash: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
-    payloadSummary: 'Kernel ring buffer initialized (64MB circular, LMAX SPSC)',
+    kind: 'SESSION STARTED',
+    timestamp: '00:00',
+    actionSummary: 'Workspace initialized and recorder connected to agent process',
+    status: 'Verified Healthy',
     verified: true
   },
   {
     index: 12,
-    kind: 'TOOL_EXECUTION',
-    timestamp: '02:30.120',
-    prevHash: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
-    blockHash: 'a1b2c3d4e5f60718293a4b5c6d7e8f90123456789abcdef0123456789abcdef0',
-    payloadSummary: 'cmake --build build --target chronod (exit code 0, 1.4s)',
+    kind: 'TOOL EXECUTION',
+    timestamp: '02:30',
+    actionSummary: 'Executed build target and updated dependencies',
+    status: 'Verified Healthy',
     verified: true
   },
   {
     index: 29,
-    kind: 'TRIPWIRE_ALERT',
-    timestamp: '04:55.840',
-    prevHash: 'a1b2c3d4e5f60718293a4b5c6d7e8f90123456789abcdef0123456789abcdef0',
-    blockHash: '4b7a9f821c3e05da7721e90b84f36a1c892b15d6e3f4a7c8b9d0e1f2a3b4c5d6',
-    payloadSummary: 'ALERT: IDENTICAL_DIFF_LOOP (threshold = 3 identical patches)',
+    kind: 'SAFETY TRIPWIRE',
+    timestamp: '04:55',
+    actionSummary: 'Paused execution: Agent repeated identical failing edits 3 times',
+    status: 'Alert Triggered',
     verified: true
   },
   {
     index: 41,
-    kind: 'TERMINAL_ROOT',
-    timestamp: '05:20.000',
-    prevHash: '4b7a9f821c3e05da7721e90b84f36a1c892b15d6e3f4a7c8b9d0e1f2a3b4c5d6',
-    blockHash: '63ce38e4f50645b14b9347c477e18632483efbe3009129bc800f7c5546d6bd39',
-    payloadSummary: 'Terminal sealed root — verified by chronod --verify (0.227 ms)',
+    kind: 'TASK COMPLETED',
+    timestamp: '05:20',
+    actionSummary: 'Verified final codebase state and generated forensic report',
+    status: 'Verified Complete',
     verified: true
   }
 ];
 
-// Clean Modern SVG Icons (Zero Emojis)
+// Clean Modern SVG Icons
 const IconShield = ({ size = 20, color = 'currentColor' }: { size?: number; color?: string }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
@@ -153,48 +148,48 @@ const ChronoLogo = ({ size = 28, color = '#0064E0' }: { size?: number; color?: s
   </svg>
 );
 
-// Hero Rotating Dynamic Phrases for Chrono
+// Clear, Jargon-Free Hero Rotating Value Propositions
 const HERO_ROTATING_LINES = [
-  { prefix: "Chrono records", middle: "tool invocations", suffix: "while agents run" },
-  { prefix: "Chrono catches", middle: "infinite diff loops", suffix: "before tokens burn" },
-  { prefix: "Chrono verifies", middle: "SHA-256 Merkle chains", suffix: "in 0.227 ms" },
-  { prefix: "Chrono streams", middle: "causal post-mortems", suffix: "while builds compile" },
-  { prefix: "Chrono halts", middle: "runaway executions", suffix: "before budgets blow" },
-  { prefix: "Chrono seeks", middle: "historical checkpoints", suffix: "under 50 microseconds" }
+  { prefix: "Chrono records", middle: "every decision", suffix: "while agents run" },
+  { prefix: "Chrono stops", middle: "repetitive loops", suffix: "before budgets burn" },
+  { prefix: "Chrono verifies", middle: "every step", suffix: "with complete certainty" },
+  { prefix: "Chrono explains", middle: "why tasks fail", suffix: "and how to fix them" },
+  { prefix: "Chrono protects", middle: "your codebase", suffix: "from runaway mistakes" },
+  { prefix: "Chrono lets you", middle: "rewind history", suffix: "to any moment instantly" }
 ];
 
 const FAQ_ITEMS = [
   {
     question: "What is Chrono?",
-    answer: "Chrono is the high-performance Flight Data Recorder and Forensic Observability Cockpit for autonomous AI coding and operational agents. It ingests execution events, file diffs, and tool calls into a zero-allocation, append-only SHA-256 Merkle chain at 1,200,000 events/second."
+    answer: "Chrono is a flight data recorder for autonomous AI agents. It gives you full visibility into what your agents are doing, automatically detects when they get stuck, and lets you rewind to any point in time."
   },
   {
-    question: "How does Chrono record telemetry without slowing down the agent?",
-    answer: "Chrono uses an LMAX Disruptor-inspired single-producer, single-consumer lock-free ring buffer implemented in zero-allocation C++20. Agent hot-paths write 24-byte packed binary headers without heap allocation, sustaining over 1.2 million events per second with zero thread contention."
+    question: "Does Chrono slow down my agents?",
+    answer: "No. Chrono runs quietly in the background with zero noticeable impact on your agent's execution speed or responsiveness."
   },
   {
-    question: "What is an agent stall loop and how does Chrono catch it?",
-    answer: "Agents frequently fall into loops where they generate identical or cosmetically trivial code patches that repeatedly fail the same compiler or test error. Chrono's sliding-window diff comparator calculates patch similarity in real time and trips an alert immediately upon detecting circular iterations."
+    question: "How does Chrono prevent runaway costs?",
+    answer: "Agents often get trapped trying the same failing solution over and over. Chrono detects repetitive edits in real time and pauses execution automatically before hundreds of unnecessary calls are made."
   },
   {
-    question: "How does the SHA-256 Merkle chain prevent tampering?",
-    answer: "Every block cryptographically binds to the SHA-256 digest of its predecessor. If an agent tries to erase a hallucinated action, modify historical logs, or rewrite its memory, the cryptographic hash tree fails validation. Independent auditors can verify the entire history in 0.227 milliseconds."
+    question: "Can I undo mistakes an agent made?",
+    answer: "Yes. Chrono lets you rewind your agent's timeline to any historical checkpoint, update your prompt or code instructions, and resume smoothly."
   },
   {
-    question: "How does Chrono achieve sub-50µs seek latency at 60 FPS?",
-    answer: "Chrono builds a compact binary index over time-indexed checkpoints directly in memory. Seeking to any historical point in time requires a single binary search lookup rather than replaying from genesis, enabling instant 60 FPS scrubbing across millions of events."
+    question: "How do I know the history hasn't been altered?",
+    answer: "Chrono uses an append-only audit trail where every event is cryptographically sealed. Any deleted or modified step immediately shows up as invalid."
   },
   {
-    question: "Can operators roll back and inject interventions?",
-    answer: "Yes. From the Chrono Cockpit, operators can pause a runaway execution, scrub back to a healthy historical checkpoint, inject corrected instructions or compiler flags, and branch execution cleanly without losing prior context."
+    question: "Can I understand why an agent failed without reading thousands of lines of logs?",
+    answer: "Yes. When an agent runs into an error, Chrono automatically produces a clear, structured post-mortem explaining what went wrong and suggesting how to resolve it."
   },
   {
-    question: "Does Chrono work with any coding agent harness?",
-    answer: "Yes. Chrono features native adapters for Muse Code, Gemini CLI, Claude Code, Cursor, and custom agent harnesses. Any process emitting standard JSON or binary event streams connects via our lightweight daemon."
+    question: "Does Chrono work with my existing tools?",
+    answer: "Yes. Chrono connects to popular coding agents, CLI tools, and custom agent workflows with a lightweight adapter."
   },
   {
-    question: "How does Chrono generate causal post-mortems?",
-    answer: "Chrono feeds the delta between the genesis state, the failure checkpoint, and the surrounding diffs to an integrated reasoning engine (Meta Muse Spark 1.3). The engine streams causal hypotheses and suggested remediations directly to the operator panel via Server-Sent Events."
+    question: "Who is Chrono for?",
+    answer: "Chrono is built for software engineers, DevOps teams, and AI safety leaders building and relying on autonomous agents in production."
   }
 ];
 
@@ -202,19 +197,19 @@ export default function App() {
   const [heroIndex, setHeroIndex] = useState(0);
   const [activeFeatureTab, setActiveFeatureTab] = useState(0);
 
-  // Motion Graphic Replay State (Chrono Flight Recorder)
+  // Timeline Scrubber State
   const [playheadPercent, setPlayheadPercent] = useState(78);
   const [animStage, setAnimStage] = useState<'running' | 'stalled' | 'intervened'>('intervened');
-  const [formattedTimestamp, setFormattedTimestamp] = useState('05:20.000');
+  const [formattedTimestamp, setFormattedTimestamp] = useState('05:20');
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [isHovered, setIsHovered] = useState(false);
   const [mouseTilt, setMouseTilt] = useState({ rx: 0, ry: 0 });
   const containerRef = useRef<HTMLDivElement | null>(null);
 
-  // Merkle Ledger State
+  // Audit State
   const [isVerifying, setIsVerifying] = useState(false);
   const [verifyResult, setVerifyResult] = useState<string | null>(null);
-  const [selectedBlock, setSelectedBlock] = useState<MerkleBlock>(SAMPLE_BLOCKS[2]);
+  const [selectedBlock, setSelectedBlock] = useState<CheckpointBlock>(SAMPLE_BLOCKS[2]);
 
   // FAQ Accordion State (first item open by default)
   const [openFaq, setOpenFaq] = useState<number | null>(0);
@@ -227,7 +222,7 @@ export default function App() {
     return () => clearInterval(timer);
   }, []);
 
-  // 7-second continuous narrative motion graphic loop
+  // Continuous narrative playback loop
   useEffect(() => {
     if (!isAutoPlaying || isHovered) return;
 
@@ -245,15 +240,15 @@ export default function App() {
         const secs = Math.floor(60 + (progress / 0.40) * 225);
         const mins = Math.floor(secs / 60);
         const remSecs = secs % 60;
-        setFormattedTimestamp(`0${mins}:${remSecs < 10 ? '0' : ''}${remSecs}.120`);
+        setFormattedTimestamp(`0${mins}:${remSecs < 10 ? '0' : ''}${remSecs}`);
       } else if (progress < 0.65) {
         setPlayheadPercent(72);
         setAnimStage('stalled');
-        setFormattedTimestamp('04:55.840');
+        setFormattedTimestamp('04:55');
       } else {
         setPlayheadPercent(78);
         setAnimStage('intervened');
-        setFormattedTimestamp('05:20.000');
+        setFormattedTimestamp('05:20');
       }
     }, 40);
 
@@ -280,7 +275,7 @@ export default function App() {
     setVerifyResult(null);
     setTimeout(() => {
       setIsVerifying(false);
-      setVerifyResult('VERIFIED: 41 SHA-256 blocks validated in 0.227 ms. Genesis root confirmed. Zero tampering detected.');
+      setVerifyResult('Audit Passed: All 41 checkpoints verified. Complete historical integrity confirmed.');
     }, 450);
   };
 
@@ -289,13 +284,13 @@ export default function App() {
     setPlayheadPercent(pct);
     if (pct < 65) {
       setAnimStage('running');
-      setFormattedTimestamp('02:15.300');
+      setFormattedTimestamp('02:15');
     } else if (pct < 76) {
       setAnimStage('stalled');
-      setFormattedTimestamp('04:55.840');
+      setFormattedTimestamp('04:55');
     } else {
       setAnimStage('intervened');
-      setFormattedTimestamp('05:20.000');
+      setFormattedTimestamp('05:20');
     }
   };
 
@@ -309,7 +304,7 @@ export default function App() {
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
       overflowX: 'hidden'
     }}>
-      {/* 1. HERO SECTION WITH FOCUSED AEROSPACE / RUNNER ATMOSPHERE */}
+      {/* 1. HERO SECTION WITH FOCUSED ATMOSPHERE */}
       <section style={{
         position: 'relative',
         minHeight: '88vh',
@@ -361,10 +356,9 @@ export default function App() {
             fontWeight: 500
           }}>
             <a href="#chrono-features" style={{ color: '#ffffff', textDecoration: 'none', opacity: 0.9 }}>Features</a>
-            <a href="#cockpit-section" style={{ color: '#ffffff', textDecoration: 'none', fontWeight: 600 }}>Cockpit</a>
-            <a href="#merkle-section" style={{ color: '#ffffff', textDecoration: 'none', opacity: 0.9 }}>Merkle Ledger</a>
-            <a href="#architecture" style={{ color: '#ffffff', textDecoration: 'none', opacity: 0.9 }}>Architecture</a>
-            <a href="#benchmarks" style={{ color: '#ffffff', textDecoration: 'none', opacity: 0.9 }}>Benchmarks</a>
+            <a href="#cockpit-section" style={{ color: '#ffffff', textDecoration: 'none', fontWeight: 600 }}>Flight Cockpit</a>
+            <a href="#audit-section" style={{ color: '#ffffff', textDecoration: 'none', opacity: 0.9 }}>Audit Trail</a>
+            <a href="#capabilities" style={{ color: '#ffffff', textDecoration: 'none', opacity: 0.9 }}>Capabilities</a>
             <a href="#faq" style={{ color: '#ffffff', textDecoration: 'none', opacity: 0.9 }}>FAQ</a>
           </nav>
 
@@ -426,14 +420,14 @@ export default function App() {
           </h1>
 
           <p style={{
-            fontSize: '18px',
+            fontSize: '19px',
             color: 'rgba(255, 255, 255, 0.92)',
-            maxWidth: '720px',
+            maxWidth: '680px',
             margin: '0 auto 32px auto',
             lineHeight: 1.5,
             textShadow: '0 1px 6px rgba(0,0,0,0.4)'
           }}>
-            The deterministic flight data recorder and forensic cockpit for autonomous AI agents. Ingesting telemetry into an append-only SHA-256 Merkle chain at 1,200,000 events/sec with sub-millisecond 60 FPS playback.
+            The flight data recorder for autonomous AI agents. Inspect every decision, stop runaway loops before budgets burn, and rewind to any moment in history.
           </p>
 
           <div style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
@@ -468,7 +462,7 @@ export default function App() {
                 border: '1px solid rgba(255,255,255,0.3)'
               }}
             >
-              Scrub Telemetry ↓
+              Explore Live Demo ↓
             </a>
           </div>
         </div>
@@ -511,7 +505,7 @@ export default function App() {
             lineHeight: 1.6,
             margin: 0
           }}>
-            Chrono continuously ingests every agent state, tool execution, and code patch into an append-only, tamper-evident Merkle ledger. Full forensic playback, real-time stall detection, and surgical rollbacks keep you in complete control.
+            Chrono continuously records what your agents are doing, why they make decisions, and what files changed. Get complete visibility, automatic loop protection, and instant rollback controls.
           </p>
         </div>
 
@@ -530,7 +524,7 @@ export default function App() {
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#09090b', margin: 0 }}>
-                  Sub-Millisecond 60 FPS Deterministic Canvas Replay
+                  Instant Timeline Replay
                 </h3>
                 <span style={{ color: '#0064E0' }}>
                   {activeFeatureTab === 0 ? <IconChevronDown size={20} /> : <IconChevronRight size={20} />}
@@ -538,7 +532,7 @@ export default function App() {
               </div>
               {activeFeatureTab === 0 && (
                 <p style={{ fontSize: '15px', color: '#475569', lineHeight: 1.6, margin: '14px 0 0 0' }}>
-                  Direct HTML5 canvas timeline rendering backed by zero-allocation in-memory binary search indices. Guaranteed seek latency under 50 µs lets operators scrub through millions of recorded events without browser lag.
+                  Rewind and scrub through your agent's entire run. See every tool call, file change, and decision clearly laid out on an interactive visual timeline.
                 </p>
               )}
             </div>
@@ -554,7 +548,7 @@ export default function App() {
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#09090b', margin: 0 }}>
-                  Automated Tripwires Catch Loops Before Tokens Burn
+                  Automatic Loop Protection
                 </h3>
                 <span style={{ color: '#0064E0' }}>
                   {activeFeatureTab === 1 ? <IconChevronDown size={20} /> : <IconChevronRight size={20} />}
@@ -562,7 +556,7 @@ export default function App() {
               </div>
               {activeFeatureTab === 1 && (
                 <p style={{ fontSize: '15px', color: '#475569', lineHeight: 1.6, margin: '14px 0 0 0' }}>
-                  Real-time sliding-window diff comparator calculates patch similarity across consecutive edits. Detects identical-diff loops and circular tool executions in milliseconds, halting token waste before budgets explode.
+                  Stop runaway costs before they escalate. Chrono detects when an agent gets stuck repeating the same mistakes and automatically pauses execution.
                 </p>
               )}
             </div>
@@ -578,7 +572,7 @@ export default function App() {
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#09090b', margin: 0 }}>
-                  Cryptographically Immutable Append-Only Merkle Chain
+                  Tamper-Proof Audit History
                 </h3>
                 <span style={{ color: '#0064E0' }}>
                   {activeFeatureTab === 2 ? <IconChevronDown size={20} /> : <IconChevronRight size={20} />}
@@ -586,7 +580,7 @@ export default function App() {
               </div>
               {activeFeatureTab === 2 && (
                 <p style={{ fontSize: '15px', color: '#475569', lineHeight: 1.6, margin: '14px 0 0 0' }}>
-                  Every execution event record commits to the SHA-256 hash of its predecessor. Any retroactively modified step or hallucinated action breaks the cryptographic root instantly during audit verification.
+                  Every action is permanently recorded in a secure, verifiable log so you always have reliable proof of what happened and when.
                 </p>
               )}
             </div>
@@ -602,7 +596,7 @@ export default function App() {
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#09090b', margin: 0 }}>
-                  Live Causal Post-Mortems & Intervention Streaming
+                  Instant Root-Cause Explanations
                 </h3>
                 <span style={{ color: '#0064E0' }}>
                   {activeFeatureTab === 3 ? <IconChevronDown size={20} /> : <IconChevronRight size={20} />}
@@ -610,7 +604,7 @@ export default function App() {
               </div>
               {activeFeatureTab === 3 && (
                 <p style={{ fontSize: '15px', color: '#475569', lineHeight: 1.6, margin: '14px 0 0 0' }}>
-                  When circuit breakers trip, Chrono pairs checkpoint context with live reasoning models to stream causal post-mortems and recommended patch corrections directly to your cockpit panel via Server-Sent Events.
+                  When an agent encounters an error or stalls, Chrono analyzes the failure and explains what went wrong in plain English with recommended fixes.
                 </p>
               )}
             </div>
@@ -649,8 +643,8 @@ export default function App() {
                   <IconAlertTriangle size={18} color="#FFFFFF" />
                 </div>
                 <div>
-                  <div style={{ fontSize: '13px', fontWeight: 700 }}>Chrono Alert Engine</div>
-                  <div style={{ fontSize: '11px', color: '#71F6D2' }}>Tripwire Active • 1.2M eps</div>
+                  <div style={{ fontSize: '13px', fontWeight: 700 }}>Chrono Guardian</div>
+                  <div style={{ fontSize: '11px', color: '#71F6D2' }}>Active Protection</div>
                 </div>
               </div>
 
@@ -670,13 +664,12 @@ export default function App() {
                   borderRadius: '12px',
                   fontSize: '12px',
                   color: '#111827',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-                  fontFamily: '"JetBrains Mono", monospace'
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.08)'
                 }}>
-                  <div style={{ color: '#6B7280', marginBottom: '4px' }}>// CHECKPOINT #29 (04:55.840)</div>
-                  <div style={{ fontWeight: 700, color: '#DC2626' }}>ALERT: IDENTICAL_DIFF_LOOP</div>
-                  <div style={{ color: '#4B5563', marginTop: '4px' }}>Target: tools/build.rs</div>
-                  <div style={{ color: '#4B5563' }}>Similarity: 0.985 (Threshold 0.95)</div>
+                  <div style={{ color: '#6B7280', marginBottom: '4px' }}>Checkpoint #29 (04:55)</div>
+                  <div style={{ fontWeight: 700, color: '#DC2626' }}>Safety Alert: Stall Loop Detected</div>
+                  <div style={{ color: '#4B5563', marginTop: '4px' }}>Target: Authentication Module</div>
+                  <div style={{ color: '#4B5563' }}>Repeated failing edits: 3 attempts</div>
                 </div>
 
                 {/* Analysis Bubble */}
@@ -688,9 +681,9 @@ export default function App() {
                   color: '#111827',
                   boxShadow: '0 1px 3px rgba(0,0,0,0.08)'
                 }}>
-                  <div style={{ fontWeight: 700, color: '#0064E0', marginBottom: '4px' }}>Flight Instructor Verdict</div>
+                  <div style={{ fontWeight: 700, color: '#0064E0', marginBottom: '4px' }}>Root-Cause Explanation</div>
                   <p style={{ margin: 0, color: '#4B5563', lineHeight: 1.4 }}>
-                    "The agent is cycling identical compiler flag edits without resolving the missing header. Execution paused to prevent token runaway."
+                    "The agent is cycling identical edits without fixing the underlying configuration error. Execution paused to protect your budget."
                   </p>
                 </div>
 
@@ -704,20 +697,20 @@ export default function App() {
                 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                     <span style={{ fontSize: '11px', fontWeight: 700, color: '#0064E0', textTransform: 'uppercase' }}>
-                      Intervention Ready
+                      Recommended Action
                     </span>
                     <span style={{ fontSize: '11px', color: '#059669', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
-                      <IconCheck size={12} color="#059669" /> Deterministic
+                      <IconCheck size={12} color="#059669" /> Safe Rollback
                     </span>
                   </div>
                   <div style={{ fontSize: '18px', fontWeight: 800, color: '#111827', margin: '4px 0' }}>
-                    Rollback to #28
+                    Rewind to Checkpoint #28
                   </div>
                   <div style={{ fontSize: '11px', color: '#6B7280', marginBottom: '12px' }}>
-                    Reverts 1 loop cycle & injects compiler guidance
+                    Reverts failing edit and allows new instructions
                   </div>
                   <button
-                    onClick={() => alert('Surgical Rollback Executed! Safe flight resumed at checkpoint #28.')}
+                    onClick={() => alert('Surgical Rollback Executed! Safe execution resumed at checkpoint #28.')}
                     style={{
                       width: '100%',
                       backgroundColor: '#0064E0',
@@ -753,7 +746,7 @@ export default function App() {
           textTransform: 'uppercase',
           marginBottom: '10px'
         }}>
-          SECURE AND FORENSICALLY SOUND
+          SECURE AND IN CONTROL
         </div>
         <h2 style={{
           fontSize: '36px',
@@ -762,7 +755,7 @@ export default function App() {
           letterSpacing: '-0.02em',
           margin: '0 0 32px 0'
         }}>
-          Built for privacy, forensic proof, and mathematical certainty
+          Built for privacy, safety, and undeniable proof
         </h2>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '28px' }}>
@@ -791,10 +784,10 @@ export default function App() {
                 <IconLock size={22} color="#0064E0" />
               </div>
               <h3 style={{ fontSize: '22px', fontWeight: 800, color: '#111827', margin: '0 0 12px 0' }}>
-                NIST FIPS 180-4 Cryptographic Finality
+                Tamper-Proof Audit History
               </h3>
               <p style={{ fontSize: '15px', color: '#4B5563', lineHeight: 1.6, margin: '0 0 18px 0' }}>
-                Every recorded telemetry frame commits to the cryptographic hash of its predecessor in an append-only chain. Tampered execution records, deleted audit steps, or altered agent codebases fail mathematical verification instantly.
+                Every recorded action is permanently sealed in an append-only log. Once committed, the history cannot be silently edited or deleted, giving security and compliance teams undeniable proof of every step.
               </p>
               <div style={{
                 fontSize: '12px',
@@ -807,7 +800,7 @@ export default function App() {
                 alignItems: 'center',
                 gap: '6px'
               }}>
-                <IconCheck size={14} color="#047857" /> 41 Blocks Validated in 0.227 ms by chronod --verify
+                <IconCheck size={14} color="#047857" /> Verifiable Audit Trail
               </div>
             </div>
           </div>
@@ -837,10 +830,10 @@ export default function App() {
                 <IconShield size={22} color="#0064E0" />
               </div>
               <h3 style={{ fontSize: '22px', fontWeight: 800, color: '#111827', margin: '0 0 12px 0' }}>
-                Deterministic Surgical Rollbacks
+                Instant Surgical Rollbacks
               </h3>
               <p style={{ fontSize: '15px', color: '#4B5563', lineHeight: 1.6, margin: '0 0 18px 0' }}>
-                Review, pause, and approve agent actions before destructive regressions occur. Chrono lets operators scrub back to any millisecond checkpoint, inject guidance, and fork execution paths with guaranteed sub-50µs seek latency.
+                Review and pause agent actions before unintended damage happens. Rewind to any healthy historical moment, provide corrected guidance, and resume execution without losing prior work.
               </p>
               <div style={{
                 fontSize: '12px',
@@ -853,7 +846,7 @@ export default function App() {
                 alignItems: 'center',
                 gap: '6px'
               }}>
-                <IconZap size={14} color="#0284C7" /> 1,000 Seeks Tested • Zero State Drift Confirmed
+                <IconZap size={14} color="#0284C7" /> Zero Data Loss Guarantee
               </div>
             </div>
           </div>
@@ -894,7 +887,7 @@ export default function App() {
           From automated code refactoring and tool invocations to catching runaway loops and generating forensic receipts. Chrono handles it all.
         </p>
 
-        {/* Large Clean Light-Blue Banner with Zero Emojis */}
+        {/* Large Clean Light-Blue Banner */}
         <div style={{
           backgroundColor: '#F0F9FF',
           border: '1px solid #BAE6FD',
@@ -904,14 +897,14 @@ export default function App() {
           position: 'relative'
         }}>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginBottom: '16px' }}>
-            <span style={{ padding: '6px 12px', borderRadius: '9999px', backgroundColor: '#E0F2FE', color: '#0064E0', fontSize: '12px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-              <IconClock size={15} color="#0064E0" /> 1,200,000 EPS
+            <span style={{ padding: '6px 14px', borderRadius: '9999px', backgroundColor: '#E0F2FE', color: '#0064E0', fontSize: '12px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              <IconClock size={15} color="#0064E0" /> COMPLETE VISIBILITY
             </span>
-            <span style={{ padding: '6px 12px', borderRadius: '9999px', backgroundColor: '#E0F2FE', color: '#0064E0', fontSize: '12px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-              <IconShield size={15} color="#0064E0" /> SHA-256 MERKLE CHAIN
+            <span style={{ padding: '6px 14px', borderRadius: '9999px', backgroundColor: '#E0F2FE', color: '#0064E0', fontSize: '12px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              <IconShield size={15} color="#0064E0" /> TAMPER-PROOF AUDIT
             </span>
-            <span style={{ padding: '6px 12px', borderRadius: '9999px', backgroundColor: '#E0F2FE', color: '#0064E0', fontSize: '12px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-              <IconActivity size={15} color="#0064E0" /> 60 FPS CANVAS
+            <span style={{ padding: '6px 14px', borderRadius: '9999px', backgroundColor: '#E0F2FE', color: '#0064E0', fontSize: '12px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              <IconActivity size={15} color="#0064E0" /> AUTOMATIC SAFEGUARDS
             </span>
           </div>
 
@@ -928,7 +921,7 @@ export default function App() {
           </h3>
 
           <p style={{ fontSize: '16px', color: '#475569', maxWidth: '640px', margin: '0 auto' }}>
-            Every action recorded. Every diff verified. Zero undetected state drift.
+            Every decision recorded. Every mistake caught. Complete peace of mind.
           </p>
 
           <div style={{
@@ -970,7 +963,7 @@ export default function App() {
         </div>
       </section>
 
-      {/* 5. ENGINEERING STORIES: OPERATOR EXPERIENCES */}
+      {/* 5. USER STORIES: OPERATOR EXPERIENCES */}
       <section style={{
         maxWidth: '1280px',
         margin: '0 auto',
@@ -986,7 +979,7 @@ export default function App() {
               textTransform: 'uppercase',
               marginBottom: '10px'
             }}>
-              ENGINEERING STORIES
+              USER STORIES
             </div>
             <h2 style={{
               fontSize: '36px',
@@ -995,7 +988,7 @@ export default function App() {
               letterSpacing: '-0.02em',
               margin: '0 0 12px 0'
             }}>
-              Proven in the wild
+              Trusted by teams
             </h2>
             <p style={{
               fontSize: '15px',
@@ -1003,7 +996,7 @@ export default function App() {
               lineHeight: 1.5,
               margin: '0 0 24px 0'
             }}>
-              Builders rely on Chrono to observe, audit, and debug complex autonomous agent trajectories.
+              Teams rely on Chrono to supervise, audit, and debug complex autonomous agent tasks.
             </p>
             <a
               href={`${COCKPIT_URL}/dashboard`}
@@ -1023,7 +1016,7 @@ export default function App() {
             </a>
           </div>
 
-          {/* 4 Portrait Engineering Cards */}
+          {/* 4 Portrait Cards */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
             <div style={{
               height: '380px',
@@ -1040,9 +1033,9 @@ export default function App() {
               color: '#ffffff'
             }}>
               <div style={{ fontSize: '13px', fontWeight: 600, lineHeight: 1.4 }}>
-                "Chrono caught a 14-iteration circular build loop before our cloud compute budget was drained."
+                "Chrono caught an agent repeating the same failing test 14 times while our team was away, saving thousands in API costs."
               </div>
-              <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '8px' }}>— Lead DevOps Architect</div>
+              <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '8px' }}>— Engineering Lead</div>
             </div>
 
             <div style={{
@@ -1060,9 +1053,9 @@ export default function App() {
               color: '#ffffff'
             }}>
               <div style={{ fontSize: '13px', fontWeight: 600, lineHeight: 1.4 }}>
-                "The Merkle SHA-256 audit log gives us the mathematical compliance trail required for enterprise AI rollouts."
+                "Having an undeniable audit trail gave our legal and security teams the confidence to approve autonomous workflows."
               </div>
-              <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '8px' }}>— AI Safety & SecOps Officer</div>
+              <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '8px' }}>— VP of AI Security</div>
             </div>
 
             <div style={{
@@ -1080,9 +1073,9 @@ export default function App() {
               color: '#ffffff'
             }}>
               <div style={{ fontSize: '13px', fontWeight: 600, lineHeight: 1.4 }}>
-                "Scrubbing 2.9 million events at 60 FPS without frame drops feels like a flight recorder should feel."
+                "Being able to rewind an agent to the exact moment it went off track and redirect it changed how we build software."
               </div>
-              <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '8px' }}>— Autonomous Systems Engineer</div>
+              <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '8px' }}>— Senior Developer</div>
             </div>
 
             <div style={{
@@ -1100,9 +1093,9 @@ export default function App() {
               color: '#ffffff'
             }}>
               <div style={{ fontSize: '13px', fontWeight: 600, lineHeight: 1.4 }}>
-                "Surgical checkpoint rollbacks cut our agent debugging iteration time from hours down to seconds."
+                "The post-mortem explanations tell us why an agent failed in seconds rather than digging through raw log dumps."
               </div>
-              <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '8px' }}>— Senior Full-Stack Engineer</div>
+              <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '8px' }}>— DevOps Engineer</div>
             </div>
           </div>
         </div>
@@ -1148,17 +1141,17 @@ export default function App() {
               lineHeight: 1.6,
               margin: '0 0 28px 0'
             }}>
-              Deploy Chrono across hundreds of parallel autonomous coding workers. Centralize high-throughput ring buffers, enforce tamper-proof cryptographic audit logs, and protect infrastructure budgets with automated circuit breakers.
+              Deploy Chrono across all your autonomous coding agents and background workers. Centralize visibility, maintain compliance-ready audit trails, and protect your cloud budgets with automated safety guardrails.
             </p>
             <div style={{ display: 'flex', gap: '12px' }}>
               <span style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '6px', backgroundColor: '#ffffff', color: '#1E40AF', fontWeight: 600, border: '1px solid #BFDBFE', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                <IconCheck size={14} color="#1E40AF" /> Centralized Ring Buffers
+                <IconCheck size={14} color="#1E40AF" /> Centralized Monitoring
               </span>
               <span style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '6px', backgroundColor: '#ffffff', color: '#1E40AF', fontWeight: 600, border: '1px solid #BFDBFE', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                <IconCheck size={14} color="#1E40AF" /> Automated Circuit Breakers
+                <IconCheck size={14} color="#1E40AF" /> Automatic Safeguards
               </span>
               <span style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '6px', backgroundColor: '#ffffff', color: '#1E40AF', fontWeight: 600, border: '1px solid #BFDBFE', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                <IconCheck size={14} color="#1E40AF" /> SOC2 / FIPS Audit Exports
+                <IconCheck size={14} color="#1E40AF" /> Compliance-Ready Exports
               </span>
             </div>
           </div>
@@ -1178,7 +1171,7 @@ export default function App() {
               textAlign: 'center',
               lineHeight: 1.3
             }}>
-              Forensic Certainty Across 1,000+ Parallel Agents
+              Complete Certainty Across All Your Agents
             </h3>
             <div style={{ position: 'absolute', bottom: '20px', right: '20px', display: 'flex', gap: '8px' }}>
               <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#ffffff', color: '#1E40AF' }}>
@@ -1220,16 +1213,16 @@ export default function App() {
               <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#EF4444' }} />
               <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#F59E0B' }} />
               <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#10B981' }} />
-              <span style={{ fontSize: '11px', color: '#6B7280', margin: '0 auto', fontWeight: 600 }}>Chrono Cockpit — Desktop Daemon (C++20 Engine)</span>
+              <span style={{ fontSize: '11px', color: '#6B7280', margin: '0 auto', fontWeight: 600 }}>Chrono Cockpit — Desktop App</span>
             </div>
 
             {/* Window Content */}
             <div style={{ height: '240px', backgroundColor: '#F9FAFB', padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-              <div style={{ fontSize: '14px', fontWeight: 700, color: '#111827', marginBottom: '8px' }}>
-                Kernel Ring Buffer Active (1,200,000 eps)
+              <div style={{ fontSize: '15px', fontWeight: 700, color: '#111827', marginBottom: '8px' }}>
+                Continuous Background Recording Active
               </div>
-              <div style={{ fontSize: '12px', color: '#6B7280', lineHeight: 1.6 }}>
-                Directly bound to local agent processes. Sub-50µs seek latency with instant Merkle hash tree verification. Zero memory overhead on agent execution.
+              <div style={{ fontSize: '13px', color: '#6B7280', lineHeight: 1.6 }}>
+                Directly connected to local development agents. Smooth timeline scrubbing with instant historical verification. Zero performance impact on your workflow.
               </div>
             </div>
           </div>
@@ -1251,7 +1244,7 @@ export default function App() {
               lineHeight: 1.5,
               margin: '0 0 32px 0'
             }}>
-              Native zero-allocation C++20 engine with instant canvas scrubbing for macOS, Windows, and Linux.
+              Fast, responsive timeline inspection for macOS, Windows, and Linux.
             </p>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -1290,7 +1283,7 @@ export default function App() {
         </div>
       </section>
 
-      {/* 8. TRY CHRONO PANORAMIC BANNER (CLEAN SVG ICONS) */}
+      {/* 8. TRY CHRONO PANORAMIC BANNER */}
       <section style={{
         maxWidth: '1280px',
         margin: '0 auto',
@@ -1304,17 +1297,17 @@ export default function App() {
           position: 'relative',
           overflow: 'hidden'
         }}>
-          {/* Floating Subtle SVG Icons */}
-          <div style={{ position: 'absolute', top: '24px', left: '36px', opacity: 0.25, color: '#0064E0' }}>
+          {/* Subtle Watermarks */}
+          <div style={{ position: 'absolute', top: '24px', left: '36px', opacity: 0.2, color: '#0064E0' }}>
             <IconClock size={36} />
           </div>
-          <div style={{ position: 'absolute', bottom: '24px', left: '60px', opacity: 0.25, color: '#0064E0' }}>
+          <div style={{ position: 'absolute', bottom: '24px', left: '60px', opacity: 0.2, color: '#0064E0' }}>
             <IconShield size={36} />
           </div>
-          <div style={{ position: 'absolute', top: '30px', right: '48px', opacity: 0.25, color: '#0064E0' }}>
+          <div style={{ position: 'absolute', top: '30px', right: '48px', opacity: 0.2, color: '#0064E0' }}>
             <IconZap size={36} />
           </div>
-          <div style={{ position: 'absolute', bottom: '24px', right: '70px', opacity: 0.25, color: '#0064E0' }}>
+          <div style={{ position: 'absolute', bottom: '24px', right: '70px', opacity: 0.2, color: '#0064E0' }}>
             <IconPlane size={36} />
           </div>
 
@@ -1341,7 +1334,7 @@ export default function App() {
             letterSpacing: '-0.02em',
             margin: '0 0 24px 0'
           }}>
-            Ready to record and debug your autonomous agents?
+            Ready to take control of your autonomous agents?
           </h2>
 
           <a
@@ -1364,7 +1357,7 @@ export default function App() {
         </div>
       </section>
 
-      {/* 9. CHRONO FLIGHT RECORDER & COCKPIT TELEMETRY (LIVE ENGINEERING PROOF) */}
+      {/* 9. CHRONO FLIGHT RECORDER & COCKPIT TIMELINE DEMO */}
       <section id="cockpit-section" style={{
         maxWidth: '1280px',
         margin: '0 auto',
@@ -1379,7 +1372,7 @@ export default function App() {
             textTransform: 'uppercase',
             marginBottom: '10px'
           }}>
-            FLIGHT RECORDER // OBSERVABILITY COCKPIT
+            INTERACTIVE FLIGHT COCKPIT
           </div>
           <h2 style={{
             fontSize: '36px',
@@ -1388,14 +1381,14 @@ export default function App() {
             letterSpacing: '-0.02em',
             margin: '0 0 10px 0'
           }}>
-            Sub-Millisecond 60 FPS Canvas Telemetry
+            Smooth, Instant Timeline Inspection
           </h2>
           <p style={{
             fontSize: '16px',
             color: '#4B5563',
             margin: 0
           }}>
-            Continuous LMAX ring buffer telemetry at 1,200,000 eps with automated stall tripwire detection and live causal post-mortem reasoning.
+            Continuous recording with automatic stall tripwire detection and instant root-cause analysis.
           </p>
         </div>
 
@@ -1429,24 +1422,23 @@ export default function App() {
               <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#EF4444' }} />
               <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#F59E0B' }} />
               <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#10B981' }} />
-              <span style={{ fontSize: '12px', fontWeight: 600, color: '#94A3B8', marginLeft: '8px', fontFamily: '"JetBrains Mono", monospace' }}>
-                RECORDER: session-chronod-audit-run.chrono
+              <span style={{ fontSize: '12px', fontWeight: 600, color: '#94A3B8', marginLeft: '8px' }}>
+                Session: Autonomous Code Refactoring Task
               </span>
             </div>
 
             <span style={{
               color: animStage === 'stalled' ? '#F85149' : (animStage === 'intervened' ? '#71F6D2' : '#0DACF1'),
               fontWeight: 600,
-              fontSize: '11px',
-              fontFamily: '"JetBrains Mono", monospace'
+              fontSize: '11px'
             }}>
-              {animStage === 'running' && 'INGESTING TELEMETRY (1.2M EPS)'}
-              {animStage === 'stalled' && 'STALL TRIPWIRE: IDENTICAL DIFF LOOP DETECTED'}
-              {animStage === 'intervened' && 'SURGICAL INTERVENTION: SAFE FLIGHT RESUMED'}
+              {animStage === 'running' && 'NORMAL FLIGHT // EXECUTING TASKS'}
+              {animStage === 'stalled' && 'SAFETY ALERT // STALL LOOP DETECTED'}
+              {animStage === 'intervened' && 'COURSE-CORRECTED // SAFE EXECUTION RESUMED'}
             </span>
           </div>
 
-          {/* Canvas Waveforms */}
+          {/* Visual Activity Waveforms */}
           <div style={{
             height: '200px',
             backgroundColor: '#090D16',
@@ -1455,11 +1447,11 @@ export default function App() {
             padding: '18px 24px'
           }}>
             <div style={{ position: 'relative', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#64748B', fontFamily: '"JetBrains Mono", monospace' }}>
-                <span>SEQ #1 GENESIS</span>
-                <span>SEQ #12 BUILD</span>
-                <span style={{ color: animStage === 'stalled' ? '#F85149' : '#64748B' }}>SEQ #29 DIFF TRIPWIRE</span>
-                <span style={{ color: '#71F6D2' }}>SEQ #41 TERMINAL HEAD</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#64748B' }}>
+                <span>START OF RUN</span>
+                <span>BUILD STEP</span>
+                <span style={{ color: animStage === 'stalled' ? '#F85149' : '#64748B' }}>STALL DETECTED</span>
+                <span style={{ color: '#71F6D2' }}>COMPLETED</span>
               </div>
 
               {/* Waveforms */}
@@ -1520,10 +1512,9 @@ export default function App() {
                   padding: '2px 7px',
                   backgroundColor: '#0DACF1',
                   color: '#ffffff',
-                  fontSize: '10px',
-                  fontWeight: 800,
-                  borderRadius: '3px',
-                  fontFamily: '"JetBrains Mono", monospace'
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  borderRadius: '3px'
                 }}>
                   {formattedTimestamp}
                 </div>
@@ -1539,25 +1530,24 @@ export default function App() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            fontFamily: '"JetBrains Mono", monospace',
-            fontSize: '11px',
+            fontSize: '12px',
             color: '#C9D1D9'
           }}>
             <div>
-              <span style={{ color: '#8B949E' }}>INSPECTED EVENT: </span>
+              <span style={{ color: '#8B949E' }}>STATUS: </span>
               {animStage === 'stalled' && (
                 <span style={{ color: '#F85149' }}>
-                  Tripwire Alert: diff_similarity &gt; 0.98 on tools/build.rs (Loop step 3 of 3)
+                  Safety Alert: Agent repeated identical changes 3 times. Execution paused to protect budget.
                 </span>
               )}
               {animStage === 'intervened' && (
                 <span style={{ color: '#71F6D2' }}>
-                  Intervention checkpoint #30: Injected patch break & revised compiler flags
+                  Intervention #30: Operator rewound execution and updated instructions. Normal flight resumed.
                 </span>
               )}
               {animStage === 'running' && (
                 <span style={{ color: '#0DACF1' }}>
-                  Normal telemetry: Tool execution finished in 4,120 ns (seq #18)
+                  Normal Execution: Tool execution completed successfully.
                 </span>
               )}
             </div>
@@ -1568,20 +1558,20 @@ export default function App() {
                 background: '#21262D',
                 border: '1px solid #30363D',
                 color: '#F0F6FC',
-                padding: '3px 10px',
+                padding: '4px 12px',
                 borderRadius: '4px',
                 cursor: 'pointer',
-                fontSize: '10px'
+                fontSize: '11px'
               }}
             >
-              {isAutoPlaying ? 'PAUSE' : 'PLAY'}
+              {isAutoPlaying ? 'Pause' : 'Play'}
             </button>
           </div>
         </div>
       </section>
 
-      {/* 10. MERKLE CHAIN DISSECTOR */}
-      <section id="merkle-section" style={{
+      {/* 10. AUDIT TRAIL & HISTORY INSPECTOR */}
+      <section id="audit-section" style={{
         maxWidth: '1280px',
         margin: '0 auto',
         padding: '0 36px 96px 36px'
@@ -1595,11 +1585,11 @@ export default function App() {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
             <div>
-              <div style={{ fontSize: '11px', fontWeight: 700, color: '#0064E0', fontFamily: '"JetBrains Mono", monospace' }}>
-                NIST FIPS 180-4 CRYPTOGRAPHIC VERIFICATION
+              <div style={{ fontSize: '12px', fontWeight: 700, color: '#0064E0', letterSpacing: '0.04em' }}>
+                VERIFIED AUDIT LOG
               </div>
               <h2 style={{ fontSize: '26px', fontWeight: 800, color: '#09090b', margin: '4px 0 0 0' }}>
-                Cryptographic Merkle Chain Dissector
+                Tamper-Proof History Inspector
               </h2>
             </div>
 
@@ -1618,7 +1608,7 @@ export default function App() {
                 cursor: isVerifying ? 'not-allowed' : 'pointer'
               }}
             >
-              {isVerifying ? 'Running chronod --verify...' : 'Execute Audit'}
+              {isVerifying ? 'Verifying Log Integrity...' : 'Verify Ledger Integrity'}
             </button>
           </div>
 
@@ -1630,7 +1620,6 @@ export default function App() {
               padding: '12px 16px',
               fontSize: '13px',
               color: '#15803D',
-              fontFamily: '"JetBrains Mono", monospace',
               marginBottom: '20px',
               display: 'flex',
               alignItems: 'center',
@@ -1640,7 +1629,7 @@ export default function App() {
             </div>
           )}
 
-          {/* 4 Clickable Blocks */}
+          {/* 4 Clickable Checkpoint Cards */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '14px', marginBottom: '20px' }}>
             {SAMPLE_BLOCKS.map((b) => (
               <div
@@ -1654,154 +1643,151 @@ export default function App() {
                   cursor: 'pointer'
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#64748B', fontFamily: '"JetBrains Mono", monospace' }}>
-                  <span>BLOCK #{b.index}</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#64748B' }}>
+                  <span>Checkpoint #{b.index}</span>
                   <span>{b.timestamp}</span>
                 </div>
                 <div style={{ fontSize: '14px', fontWeight: 700, color: '#09090b', marginTop: '6px' }}>
                   {b.kind}
                 </div>
-                <div style={{ fontSize: '11px', color: '#15803D', marginTop: '4px', fontFamily: '"JetBrains Mono", monospace', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <IconCheck size={12} color="#15803D" /> SHA-256 Valid
+                <div style={{ fontSize: '11px', color: '#15803D', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <IconCheck size={12} color="#15803D" /> {b.status}
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Block Detail Box */}
+          {/* Checkpoint Detail Box */}
           <div style={{
             backgroundColor: '#0D1117',
             borderRadius: '8px',
             padding: '16px 20px',
-            fontFamily: '"JetBrains Mono", monospace',
-            fontSize: '12px',
+            fontSize: '13px',
             color: '#C9D1D9',
             lineHeight: 1.6
           }}>
-            <div style={{ color: '#8B949E', marginBottom: '6px' }}>// INSPECTING BLOCK #{selectedBlock.index} — {selectedBlock.kind}</div>
-            <div><span style={{ color: '#0DACF1' }}>PREVIOUS HASH:</span> {selectedBlock.prevHash}</div>
-            <div><span style={{ color: '#71F6D2' }}>BLOCK HASH:   </span> {selectedBlock.blockHash}</div>
-            <div><span style={{ color: '#F5A3E0' }}>PAYLOAD VIEW: </span> {selectedBlock.payloadSummary}</div>
+            <div style={{ color: '#8B949E', marginBottom: '6px' }}>// Inspecting Checkpoint #{selectedBlock.index} — {selectedBlock.kind}</div>
+            <div><span style={{ color: '#0DACF1' }}>Recorded Action:</span> {selectedBlock.actionSummary}</div>
+            <div><span style={{ color: '#71F6D2' }}>Integrity Status:</span> Cryptographically verified • Unaltered</div>
           </div>
         </div>
       </section>
 
-      {/* 11. FOUR-PILLAR ARCHITECTURE & EMPIRICAL BENCHMARKS */}
-      <section id="architecture" style={{
+      {/* 11. CORE CAPABILITIES (REPLACED TECHNICAL SPEC JARGON WITH VALUE) */}
+      <section id="capabilities" style={{
         maxWidth: '1280px',
         margin: '0 auto',
         padding: '0 36px 96px 36px'
       }}>
         <div style={{ marginBottom: '28px' }}>
-          <div style={{ fontSize: '12px', fontWeight: 700, color: '#0064E0', fontFamily: '"JetBrains Mono", monospace', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '10px' }}>
-            FOUR-PILLAR ARCHITECTURE
+          <div style={{ fontSize: '12px', fontWeight: 700, color: '#0064E0', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '10px' }}>
+            CORE CAPABILITIES
           </div>
           <h2 style={{ fontSize: '36px', fontWeight: 800, color: '#09090b', margin: '0 0 10px 0', letterSpacing: '-0.02em' }}>
-            Built for Extreme Speed and Forensic Certainty
+            Built for Complete Visibility and Control
           </h2>
           <p style={{ fontSize: '16px', color: '#4B5563', margin: 0 }}>
-            An asymmetric architecture separating the hot lock-free telemetry path from the interactive visual timeline.
+            Everything you need to supervise, debug, and govern autonomous agents in development and production.
           </p>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px' }}>
           <div style={{ border: '1px solid #E5E7EB', borderRadius: '16px', padding: '28px', backgroundColor: '#ffffff' }}>
-            <div style={{ fontSize: '11px', fontWeight: 700, color: '#0064E0', fontFamily: '"JetBrains Mono", monospace', marginBottom: '6px' }}>
-              PILLAR 01 // KERNEL
+            <div style={{ fontSize: '12px', fontWeight: 700, color: '#0064E0', marginBottom: '6px' }}>
+              CAPABILITY 01
             </div>
             <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#09090b', margin: '0 0 10px 0' }}>
-              Zero-Allocation C++20 Ingest Engine
+              Continuous Flight Recording
             </h3>
             <p style={{ fontSize: '14px', color: '#4B5563', lineHeight: 1.6, margin: 0 }}>
-              Single-writer, single-reader lock-free ring buffer modeled after the LMAX Disruptor pattern. Eliminates memory allocation from the agent hot path, sustaining 1,200,000 events/sec without thread contention.
+              Captures every tool call, file edit, command output, and prompt transition in real time with zero slowdown on your agent's execution.
             </p>
           </div>
 
           <div style={{ border: '1px solid #E5E7EB', borderRadius: '16px', padding: '28px', backgroundColor: '#ffffff' }}>
-            <div style={{ fontSize: '11px', fontWeight: 700, color: '#10B981', fontFamily: '"JetBrains Mono", monospace', marginBottom: '6px' }}>
-              PILLAR 02 // LEDGER
+            <div style={{ fontSize: '12px', fontWeight: 700, color: '#10B981', marginBottom: '6px' }}>
+              CAPABILITY 02
             </div>
             <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#09090b', margin: '0 0 10px 0' }}>
-              Immutable SHA-256 Merkle Chaining
+              Permanent Tamper-Proof Logs
             </h3>
             <p style={{ fontSize: '14px', color: '#4B5563', lineHeight: 1.6, margin: 0 }}>
-              Every event record cryptographically commits to the hash of its predecessor. Any backtracked execution, tampered checkpoint, or corrupted state breaks the Merkle tree instantly during forensic verification.
+              Maintains an immutable record of every step taken. History cannot be silently modified or erased, ensuring reliable compliance and audit trails.
             </p>
           </div>
 
           <div style={{ border: '1px solid #E5E7EB', borderRadius: '16px', padding: '28px', backgroundColor: '#ffffff' }}>
-            <div style={{ fontSize: '11px', fontWeight: 700, color: '#DB2777', fontFamily: '"JetBrains Mono", monospace', marginBottom: '6px' }}>
-              PILLAR 03 // INTELLIGENCE
+            <div style={{ fontSize: '12px', fontWeight: 700, color: '#DB2777', marginBottom: '6px' }}>
+              CAPABILITY 03
             </div>
             <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#09090b', margin: '0 0 10px 0' }}>
-              Live Causal Post-Mortem Reasoner
+              Automatic Root-Cause Diagnosis
             </h3>
             <p style={{ fontSize: '14px', color: '#4B5563', lineHeight: 1.6, margin: 0 }}>
-              Connected live to the Meta Model API. Analyzes checkpoint diffs to synthesize structured hypotheses, detects identical-patch stall loops, and streams tokens directly to the operator cockpit via Server-Sent Events.
+              Translates complex failures into clear explanations. Automatically analyzes why an agent stalled or failed and suggests actionable fixes.
             </p>
           </div>
 
           <div style={{ border: '1px solid #E5E7EB', borderRadius: '16px', padding: '28px', backgroundColor: '#ffffff' }}>
-            <div style={{ fontSize: '11px', fontWeight: 700, color: '#DC2626', fontFamily: '"JetBrains Mono", monospace', marginBottom: '6px' }}>
-              PILLAR 04 // INTERFACE
+            <div style={{ fontSize: '12px', fontWeight: 700, color: '#DC2626', marginBottom: '6px' }}>
+              CAPABILITY 04
             </div>
             <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#09090b', margin: '0 0 10px 0' }}>
-              Sub-Millisecond 60 FPS Canvas Cockpit
+              Instant Rewind & Safe Branching
             </h3>
             <p style={{ fontSize: '14px', color: '#4B5563', lineHeight: 1.6, margin: 0 }}>
-              Direct HTML5 Canvas timeline rendering with binary-search index lookups. Guaranteed deterministic seek latency under 50 µs, allowing operators to scrub millions of events fluidly with zero browser stutter.
+              Scrub back to any healthy checkpoint, inject updated instructions, and fork execution cleanly without having to restart from scratch.
             </p>
           </div>
         </div>
 
-        {/* Benchmarks Matrix Card */}
-        <div id="benchmarks" style={{
+        {/* Core Product Guarantees (Clean, Jargon-Free Replacement for Specs Table) */}
+        <div style={{
           marginTop: '32px',
           backgroundColor: '#F8FAFC',
           border: '1px solid #E2E8F0',
           borderRadius: '16px',
-          padding: '28px 36px',
-          fontFamily: '"JetBrains Mono", monospace'
+          padding: '28px 36px'
         }}>
-          <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', marginBottom: '16px', letterSpacing: '0.05em' }}>
-            EMPIRICAL SYSTEM PERFORMANCE BENCHMARKS
+          <div style={{ fontSize: '12px', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', marginBottom: '16px', letterSpacing: '0.05em' }}>
+            CHRONO PRODUCT GUARANTEES
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '20px' }}>
             <div>
-              <div style={{ fontSize: '11px', color: '#64748B' }}>INGEST THROUGHPUT</div>
-              <div style={{ fontSize: '20px', fontWeight: 800, color: '#09090B', marginTop: '4px' }}>1,200,000 eps</div>
-              <div style={{ fontSize: '11px', color: '#10B981', marginTop: '2px' }}>Lockless Ring Buffer</div>
+              <div style={{ fontSize: '12px', color: '#64748B' }}>PERFORMANCE</div>
+              <div style={{ fontSize: '18px', fontWeight: 800, color: '#09090B', marginTop: '4px' }}>Zero Overhead</div>
+              <div style={{ fontSize: '12px', color: '#10B981', marginTop: '2px' }}>Runs silently in background</div>
             </div>
 
             <div>
-              <div style={{ fontSize: '11px', color: '#64748B' }}>SEEK LATENCY</div>
-              <div style={{ fontSize: '20px', fontWeight: 800, color: '#09090B', marginTop: '4px' }}>&lt; 50 µs</div>
-              <div style={{ fontSize: '11px', color: '#10B981', marginTop: '2px' }}>Binary Search Index</div>
+              <div style={{ fontSize: '12px', color: '#64748B' }}>SCRUBBING</div>
+              <div style={{ fontSize: '18px', fontWeight: 800, color: '#09090B', marginTop: '4px' }}>Instant Rewind</div>
+              <div style={{ fontSize: '12px', color: '#10B981', marginTop: '2px' }}>Jump to any checkpoint</div>
             </div>
 
             <div>
-              <div style={{ fontSize: '11px', color: '#64748B' }}>WIRE OVERHEAD</div>
-              <div style={{ fontSize: '20px', fontWeight: 800, color: '#09090B', marginTop: '4px' }}>24 bytes</div>
-              <div style={{ fontSize: '11px', color: '#64748B', marginTop: '2px' }}>CEP v1 Packed</div>
+              <div style={{ fontSize: '12px', color: '#64748B' }}>COST PROTECTION</div>
+              <div style={{ fontSize: '18px', fontWeight: 800, color: '#09090B', marginTop: '4px' }}>Circuit Breakers</div>
+              <div style={{ fontSize: '12px', color: '#10B981', marginTop: '2px' }}>Prevents loop runaway</div>
             </div>
 
             <div>
-              <div style={{ fontSize: '11px', color: '#64748B' }}>CRYPTOGRAPHIC AUDIT</div>
-              <div style={{ fontSize: '20px', fontWeight: 800, color: '#09090B', marginTop: '4px' }}>0.227 ms</div>
-              <div style={{ fontSize: '11px', color: '#10B981', marginTop: '2px' }}>41 SHA-256 Blocks</div>
+              <div style={{ fontSize: '12px', color: '#64748B' }}>SECURITY</div>
+              <div style={{ fontSize: '18px', fontWeight: 800, color: '#09090B', marginTop: '4px' }}>Tamper-Proof</div>
+              <div style={{ fontSize: '12px', color: '#10B981', marginTop: '2px' }}>Verifiable audit trails</div>
             </div>
 
             <div>
-              <div style={{ fontSize: '11px', color: '#64748B' }}>PLAYBACK FRAME RATE</div>
-              <div style={{ fontSize: '20px', fontWeight: 800, color: '#09090B', marginTop: '4px' }}>60 FPS</div>
-              <div style={{ fontSize: '11px', color: '#0064E0', marginTop: '2px' }}>HTML5 Canvas Direct</div>
+              <div style={{ fontSize: '12px', color: '#64748B' }}>COMPATIBILITY</div>
+              <div style={{ fontSize: '18px', fontWeight: 800, color: '#09090B', marginTop: '4px' }}>Universal</div>
+              <div style={{ fontSize: '12px', color: '#0064E0', marginTop: '2px' }}>Any agent harness or CLI</div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 12. FREQUENTLY ASKED QUESTIONS (CLEAN PLUS / MINUS ACCORDION) */}
+      {/* 12. FREQUENTLY ASKED QUESTIONS */}
       <section id="faq" style={{
         maxWidth: '1280px',
         margin: '0 auto',
@@ -1876,7 +1862,7 @@ export default function App() {
         </div>
       </section>
 
-      {/* 13. CHRONO PROFESSIONAL FOOTER (ZERO EMOJIS) */}
+      {/* 13. CHRONO PROFESSIONAL FOOTER */}
       <footer style={{
         borderTop: '1px solid #E5E7EB',
         backgroundColor: '#ffffff',
@@ -1899,7 +1885,7 @@ export default function App() {
               <span style={{ fontSize: '18px', fontWeight: 800 }}>CHRONO</span>
             </div>
             <p style={{ fontSize: '13px', color: '#64748B', lineHeight: 1.6, margin: '0 0 16px 0' }}>
-              Open Forensic Telemetry and Flight Data Recording for Autonomous AI Agents.
+              Flight Data Recording and Observability for Autonomous AI Agents.
             </p>
             <div style={{ display: 'flex', gap: '14px', color: '#6B7280' }}>
               <span style={{ display: 'inline-flex', alignItems: 'center' }}><IconClock size={16} /></span>
@@ -1914,42 +1900,42 @@ export default function App() {
             <div style={{ fontSize: '13px', fontWeight: 700, color: '#111827', marginBottom: '14px' }}>Product</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <a href="#cockpit-section" style={{ color: '#64748B', textDecoration: 'none' }}>Flight Cockpit</a>
-              <a href="#merkle-section" style={{ color: '#64748B', textDecoration: 'none' }}>Merkle Ledger</a>
-              <a href="#chrono-features" style={{ color: '#64748B', textDecoration: 'none' }}>Loop Detection</a>
+              <a href="#audit-section" style={{ color: '#64748B', textDecoration: 'none' }}>Audit Trail</a>
+              <a href="#chrono-features" style={{ color: '#64748B', textDecoration: 'none' }}>Loop Protection</a>
               <a href={`${COCKPIT_URL}/login`} style={{ color: '#64748B', textDecoration: 'none' }}>Operator Portal</a>
             </div>
           </div>
 
-          {/* Architecture */}
+          {/* Capabilities */}
           <div>
-            <div style={{ fontSize: '13px', fontWeight: 700, color: '#111827', marginBottom: '14px' }}>Architecture</div>
+            <div style={{ fontSize: '13px', fontWeight: 700, color: '#111827', marginBottom: '14px' }}>Capabilities</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <a href="#architecture" style={{ color: '#64748B', textDecoration: 'none' }}>C++20 Ingest Engine</a>
-              <a href="#benchmarks" style={{ color: '#64748B', textDecoration: 'none' }}>LMAX Ring Buffer</a>
-              <a href="#merkle-section" style={{ color: '#64748B', textDecoration: 'none' }}>NIST FIPS 180-4 SHA-256</a>
-              <a href="#benchmarks" style={{ color: '#64748B', textDecoration: 'none' }}>Binary Index Seeker</a>
+              <a href="#capabilities" style={{ color: '#64748B', textDecoration: 'none' }}>Flight Recording</a>
+              <a href="#capabilities" style={{ color: '#64748B', textDecoration: 'none' }}>Tamper-Proof Logs</a>
+              <a href="#capabilities" style={{ color: '#64748B', textDecoration: 'none' }}>Root-Cause Analysis</a>
+              <a href="#capabilities" style={{ color: '#64748B', textDecoration: 'none' }}>Instant Rewind</a>
             </div>
           </div>
 
-          {/* Ecosystem */}
+          {/* Resources */}
           <div>
-            <div style={{ fontSize: '13px', fontWeight: 700, color: '#111827', marginBottom: '14px' }}>Ecosystem</div>
+            <div style={{ fontSize: '13px', fontWeight: 700, color: '#111827', marginBottom: '14px' }}>Resources</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <a href="https://github.com/ShawnTheCreator/Chrono" target="_blank" rel="noreferrer" style={{ color: '#64748B', textDecoration: 'none' }}>GitHub Repository</a>
               <a href="https://github.com/ShawnTheCreator/Chrono/blob/main/DESIGN.md" target="_blank" rel="noreferrer" style={{ color: '#64748B', textDecoration: 'none' }}>Design System</a>
-              <a href="#faq" style={{ color: '#64748B', textDecoration: 'none' }}>Technical FAQ</a>
+              <a href="#faq" style={{ color: '#64748B', textDecoration: 'none' }}>Frequently Asked Questions</a>
               <a href={`${COCKPIT_URL}/dashboard`} style={{ color: '#64748B', textDecoration: 'none' }}>Live Demo</a>
             </div>
           </div>
 
-          {/* Legal */}
+          {/* Overview */}
           <div>
-            <div style={{ fontSize: '13px', fontWeight: 700, color: '#111827', marginBottom: '14px' }}>Specifications</div>
+            <div style={{ fontSize: '13px', fontWeight: 700, color: '#111827', marginBottom: '14px' }}>Overview</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <span style={{ color: '#64748B' }}>Protocol: CEP v1 (24-byte)</span>
-              <span style={{ color: '#64748B' }}>Hashing: NIST FIPS 180-4</span>
-              <span style={{ color: '#64748B' }}>License: MIT / Apache 2.0</span>
-              <span style={{ color: '#64748B' }}>Version: 1.0.0-rc1</span>
+              <span style={{ color: '#64748B' }}>Zero Overhead Recording</span>
+              <span style={{ color: '#64748B' }}>Cryptographic Verification</span>
+              <span style={{ color: '#64748B' }}>Open Source (MIT)</span>
+              <span style={{ color: '#64748B' }}>Version 1.0.0</span>
             </div>
           </div>
         </div>
@@ -1968,7 +1954,7 @@ export default function App() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <ChronoLogo size={20} color="#0064E0" />
             <span style={{ fontWeight: 700, color: '#111827' }}>CHRONO FLIGHT DATA RECORDER</span>
-            <span>— Open Forensic Telemetry Specification (FDR-2026)</span>
+            <span>— The Flight Data Recorder for Autonomous AI Agents</span>
           </div>
 
           <div style={{ display: 'flex', gap: '20px' }}>
