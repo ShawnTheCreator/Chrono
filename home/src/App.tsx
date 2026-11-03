@@ -51,6 +51,98 @@ const SAMPLE_BLOCKS: MerkleBlock[] = [
   }
 ];
 
+// Clean Modern SVG Icons (Zero Emojis)
+const IconShield = ({ size = 20, color = 'currentColor' }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+  </svg>
+);
+
+const IconLock = ({ size = 20, color = 'currentColor' }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+  </svg>
+);
+
+const IconAlertTriangle = ({ size = 20, color = 'currentColor' }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+    <line x1="12" y1="9" x2="12" y2="13" />
+    <line x1="12" y1="17" x2="12.01" y2="17" />
+  </svg>
+);
+
+const IconZap = ({ size = 20, color = 'currentColor' }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+  </svg>
+);
+
+const IconCheck = ({ size = 16, color = 'currentColor' }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="20 6 9 17 4 12" />
+  </svg>
+);
+
+const IconClock = ({ size = 20, color = 'currentColor' }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <polyline points="12 6 12 12 16 14" />
+  </svg>
+);
+
+const IconPlane = ({ size = 20, color = 'currentColor' }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z" />
+  </svg>
+);
+
+const IconActivity = ({ size = 20, color = 'currentColor' }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+  </svg>
+);
+
+const IconThumbsUp = ({ size = 16, color = 'currentColor' }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M7 10v12" />
+    <path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h3" />
+  </svg>
+);
+
+const IconThumbsDown = ({ size = 16, color = 'currentColor' }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17 14V2" />
+    <path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-3" />
+  </svg>
+);
+
+const IconChevronDown = ({ size = 18, color = 'currentColor' }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="6 9 12 15 18 9" />
+  </svg>
+);
+
+const IconChevronRight = ({ size = 18, color = 'currentColor' }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="9 18 15 12 9 6" />
+  </svg>
+);
+
+const IconPlus = ({ size = 18, color = 'currentColor' }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="12" y1="5" x2="12" y2="19" />
+    <line x1="5" y1="12" x2="19" y2="12" />
+  </svg>
+);
+
+const IconMinus = ({ size = 18, color = 'currentColor' }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="5" y1="12" x2="19" y2="12" />
+  </svg>
+);
+
 // Chrono Primary Compass / Chronometer Logo
 const ChronoLogo = ({ size = 28, color = '#0064E0' }: { size?: number; color?: string }) => (
   <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
@@ -440,7 +532,9 @@ export default function App() {
                 <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#09090b', margin: 0 }}>
                   Sub-Millisecond 60 FPS Deterministic Canvas Replay
                 </h3>
-                <span style={{ fontSize: '20px', color: '#64748b' }}>{activeFeatureTab === 0 ? '⌄' : '›'}</span>
+                <span style={{ color: '#0064E0' }}>
+                  {activeFeatureTab === 0 ? <IconChevronDown size={20} /> : <IconChevronRight size={20} />}
+                </span>
               </div>
               {activeFeatureTab === 0 && (
                 <p style={{ fontSize: '15px', color: '#475569', lineHeight: 1.6, margin: '14px 0 0 0' }}>
@@ -462,7 +556,9 @@ export default function App() {
                 <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#09090b', margin: 0 }}>
                   Automated Tripwires Catch Loops Before Tokens Burn
                 </h3>
-                <span style={{ fontSize: '20px', color: '#64748b' }}>{activeFeatureTab === 1 ? '⌄' : '›'}</span>
+                <span style={{ color: '#0064E0' }}>
+                  {activeFeatureTab === 1 ? <IconChevronDown size={20} /> : <IconChevronRight size={20} />}
+                </span>
               </div>
               {activeFeatureTab === 1 && (
                 <p style={{ fontSize: '15px', color: '#475569', lineHeight: 1.6, margin: '14px 0 0 0' }}>
@@ -484,7 +580,9 @@ export default function App() {
                 <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#09090b', margin: 0 }}>
                   Cryptographically Immutable Append-Only Merkle Chain
                 </h3>
-                <span style={{ fontSize: '20px', color: '#64748b' }}>{activeFeatureTab === 2 ? '⌄' : '›'}</span>
+                <span style={{ color: '#0064E0' }}>
+                  {activeFeatureTab === 2 ? <IconChevronDown size={20} /> : <IconChevronRight size={20} />}
+                </span>
               </div>
               {activeFeatureTab === 2 && (
                 <p style={{ fontSize: '15px', color: '#475569', lineHeight: 1.6, margin: '14px 0 0 0' }}>
@@ -506,7 +604,9 @@ export default function App() {
                 <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#09090b', margin: 0 }}>
                   Live Causal Post-Mortems & Intervention Streaming
                 </h3>
-                <span style={{ fontSize: '20px', color: '#64748b' }}>{activeFeatureTab === 3 ? '⌄' : '›'}</span>
+                <span style={{ color: '#0064E0' }}>
+                  {activeFeatureTab === 3 ? <IconChevronDown size={20} /> : <IconChevronRight size={20} />}
+                </span>
               </div>
               {activeFeatureTab === 3 && (
                 <p style={{ fontSize: '15px', color: '#475569', lineHeight: 1.6, margin: '14px 0 0 0' }}>
@@ -544,11 +644,9 @@ export default function App() {
                   backgroundColor: '#EF4444',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center',
-                  fontWeight: 800,
-                  fontSize: '15px'
+                  justifyContent: 'center'
                 }}>
-                  ⚠️
+                  <IconAlertTriangle size={18} color="#FFFFFF" />
                 </div>
                 <div>
                   <div style={{ fontSize: '13px', fontWeight: 700 }}>Chrono Alert Engine</div>
@@ -608,7 +706,9 @@ export default function App() {
                     <span style={{ fontSize: '11px', fontWeight: 700, color: '#0064E0', textTransform: 'uppercase' }}>
                       Intervention Ready
                     </span>
-                    <span style={{ fontSize: '11px', color: '#059669', fontWeight: 600 }}>Deterministic ✓</span>
+                    <span style={{ fontSize: '11px', color: '#059669', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                      <IconCheck size={12} color="#059669" /> Deterministic
+                    </span>
                   </div>
                   <div style={{ fontSize: '18px', fontWeight: 800, color: '#111827', margin: '4px 0' }}>
                     Rollback to #28
@@ -682,14 +782,13 @@ export default function App() {
                 height: '44px',
                 borderRadius: '50%',
                 backgroundColor: '#E0F2FE',
-                color: '#0284C7',
+                color: '#0064E0',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: '20px',
                 marginBottom: '20px'
               }}>
-                🔒
+                <IconLock size={22} color="#0064E0" />
               </div>
               <h3 style={{ fontSize: '22px', fontWeight: 800, color: '#111827', margin: '0 0 12px 0' }}>
                 NIST FIPS 180-4 Cryptographic Finality
@@ -704,9 +803,11 @@ export default function App() {
                 backgroundColor: '#ECFDF5',
                 padding: '8px 14px',
                 borderRadius: '8px',
-                display: 'inline-block'
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px'
               }}>
-                ✓ 41 Blocks Validated in 0.227 ms by chronod --verify
+                <IconCheck size={14} color="#047857" /> 41 Blocks Validated in 0.227 ms by chronod --verify
               </div>
             </div>
           </div>
@@ -727,14 +828,13 @@ export default function App() {
                 height: '44px',
                 borderRadius: '50%',
                 backgroundColor: '#E0F2FE',
-                color: '#0284C7',
+                color: '#0064E0',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: '20px',
                 marginBottom: '20px'
               }}>
-                🛡️
+                <IconShield size={22} color="#0064E0" />
               </div>
               <h3 style={{ fontSize: '22px', fontWeight: 800, color: '#111827', margin: '0 0 12px 0' }}>
                 Deterministic Surgical Rollbacks
@@ -749,9 +849,11 @@ export default function App() {
                 backgroundColor: '#F0F9FF',
                 padding: '8px 14px',
                 borderRadius: '8px',
-                display: 'inline-block'
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px'
               }}>
-                ⚡ 1,000 Seeks Tested • Zero State Drift Confirmed
+                <IconZap size={14} color="#0284C7" /> 1,000 Seeks Tested • Zero State Drift Confirmed
               </div>
             </div>
           </div>
@@ -792,7 +894,7 @@ export default function App() {
           From automated code refactoring and tool invocations to catching runaway loops and generating forensic receipts. Chrono handles it all.
         </p>
 
-        {/* Large Playful Light-Blue Banner */}
+        {/* Large Clean Light-Blue Banner with Zero Emojis */}
         <div style={{
           backgroundColor: '#F0F9FF',
           border: '1px solid #BAE6FD',
@@ -801,17 +903,33 @@ export default function App() {
           textAlign: 'center',
           position: 'relative'
         }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginBottom: '16px' }}>
+            <span style={{ padding: '6px 12px', borderRadius: '9999px', backgroundColor: '#E0F2FE', color: '#0064E0', fontSize: '12px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              <IconClock size={15} color="#0064E0" /> 1,200,000 EPS
+            </span>
+            <span style={{ padding: '6px 12px', borderRadius: '9999px', backgroundColor: '#E0F2FE', color: '#0064E0', fontSize: '12px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              <IconShield size={15} color="#0064E0" /> SHA-256 MERKLE CHAIN
+            </span>
+            <span style={{ padding: '6px 12px', borderRadius: '9999px', backgroundColor: '#E0F2FE', color: '#0064E0', fontSize: '12px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              <IconActivity size={15} color="#0064E0" /> 60 FPS CANVAS
+            </span>
+          </div>
+
           <h3 style={{
-            fontSize: '50px',
+            fontSize: '48px',
             fontWeight: 800,
             letterSpacing: '-0.03em',
             color: '#0F172A',
             lineHeight: 1.25,
-            margin: '0 0 20px 0'
+            margin: '0 0 12px 0'
           }}>
-            Chrono ⏱️ is the flight data recorder ✈️ <br />
-            for autonomous AI agents 🤖
+            Chrono is the flight data recorder<br />
+            for autonomous AI agents
           </h3>
+
+          <p style={{ fontSize: '16px', color: '#475569', maxWidth: '640px', margin: '0 auto' }}>
+            Every action recorded. Every diff verified. Zero undetected state drift.
+          </p>
 
           <div style={{
             position: 'absolute',
@@ -830,9 +948,9 @@ export default function App() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '16px'
+              color: '#0064E0'
             }}>
-              👍
+              <IconThumbsUp size={16} />
             </button>
             <button style={{
               width: '36px',
@@ -844,9 +962,9 @@ export default function App() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '16px'
+              color: '#64748B'
             }}>
-              👎
+              <IconThumbsDown size={16} />
             </button>
           </div>
         </div>
@@ -1033,14 +1151,14 @@ export default function App() {
               Deploy Chrono across hundreds of parallel autonomous coding workers. Centralize high-throughput ring buffers, enforce tamper-proof cryptographic audit logs, and protect infrastructure budgets with automated circuit breakers.
             </p>
             <div style={{ display: 'flex', gap: '12px' }}>
-              <span style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '6px', backgroundColor: '#ffffff', color: '#1E40AF', fontWeight: 600, border: '1px solid #BFDBFE' }}>
-                ✓ Centralized Ring Buffers
+              <span style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '6px', backgroundColor: '#ffffff', color: '#1E40AF', fontWeight: 600, border: '1px solid #BFDBFE', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                <IconCheck size={14} color="#1E40AF" /> Centralized Ring Buffers
               </span>
-              <span style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '6px', backgroundColor: '#ffffff', color: '#1E40AF', fontWeight: 600, border: '1px solid #BFDBFE' }}>
-                ✓ Automated Circuit Breakers
+              <span style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '6px', backgroundColor: '#ffffff', color: '#1E40AF', fontWeight: 600, border: '1px solid #BFDBFE', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                <IconCheck size={14} color="#1E40AF" /> Automated Circuit Breakers
               </span>
-              <span style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '6px', backgroundColor: '#ffffff', color: '#1E40AF', fontWeight: 600, border: '1px solid #BFDBFE' }}>
-                ✓ SOC2 / FIPS Audit Exports
+              <span style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '6px', backgroundColor: '#ffffff', color: '#1E40AF', fontWeight: 600, border: '1px solid #BFDBFE', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                <IconCheck size={14} color="#1E40AF" /> SOC2 / FIPS Audit Exports
               </span>
             </div>
           </div>
@@ -1063,8 +1181,12 @@ export default function App() {
               Forensic Certainty Across 1,000+ Parallel Agents
             </h3>
             <div style={{ position: 'absolute', bottom: '20px', right: '20px', display: 'flex', gap: '8px' }}>
-              <span style={{ fontSize: '18px' }}>🛡️</span>
-              <span style={{ fontSize: '18px' }}>⚡</span>
+              <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#ffffff', color: '#1E40AF' }}>
+                <IconShield size={16} color="#1E40AF" />
+              </span>
+              <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#ffffff', color: '#1E40AF' }}>
+                <IconZap size={16} color="#1E40AF" />
+              </span>
             </div>
           </div>
         </div>
@@ -1168,7 +1290,7 @@ export default function App() {
         </div>
       </section>
 
-      {/* 8. TRY CHRONO PANORAMIC BANNER */}
+      {/* 8. TRY CHRONO PANORAMIC BANNER (CLEAN SVG ICONS) */}
       <section style={{
         maxWidth: '1280px',
         margin: '0 auto',
@@ -1182,11 +1304,19 @@ export default function App() {
           position: 'relative',
           overflow: 'hidden'
         }}>
-          {/* Floating Icons */}
-          <div style={{ position: 'absolute', top: '24px', left: '36px', fontSize: '32px' }}>⏱️</div>
-          <div style={{ position: 'absolute', bottom: '24px', left: '60px', fontSize: '32px' }}>🛡️</div>
-          <div style={{ position: 'absolute', top: '30px', right: '48px', fontSize: '32px' }}>⚡</div>
-          <div style={{ position: 'absolute', bottom: '24px', right: '70px', fontSize: '32px' }}>✈️</div>
+          {/* Floating Subtle SVG Icons */}
+          <div style={{ position: 'absolute', top: '24px', left: '36px', opacity: 0.25, color: '#0064E0' }}>
+            <IconClock size={36} />
+          </div>
+          <div style={{ position: 'absolute', bottom: '24px', left: '60px', opacity: 0.25, color: '#0064E0' }}>
+            <IconShield size={36} />
+          </div>
+          <div style={{ position: 'absolute', top: '30px', right: '48px', opacity: 0.25, color: '#0064E0' }}>
+            <IconZap size={36} />
+          </div>
+          <div style={{ position: 'absolute', bottom: '24px', right: '70px', opacity: 0.25, color: '#0064E0' }}>
+            <IconPlane size={36} />
+          </div>
 
           {/* Center Chrono Logo */}
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
@@ -1501,9 +1631,12 @@ export default function App() {
               fontSize: '13px',
               color: '#15803D',
               fontFamily: '"JetBrains Mono", monospace',
-              marginBottom: '20px'
+              marginBottom: '20px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
             }}>
-              ✓ {verifyResult}
+              <IconCheck size={16} color="#15803D" /> {verifyResult}
             </div>
           )}
 
@@ -1528,8 +1661,8 @@ export default function App() {
                 <div style={{ fontSize: '14px', fontWeight: 700, color: '#09090b', marginTop: '6px' }}>
                   {b.kind}
                 </div>
-                <div style={{ fontSize: '11px', color: '#15803D', marginTop: '4px', fontFamily: '"JetBrains Mono", monospace' }}>
-                  ✓ SHA-256 Valid
+                <div style={{ fontSize: '11px', color: '#15803D', marginTop: '4px', fontFamily: '"JetBrains Mono", monospace', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <IconCheck size={12} color="#15803D" /> SHA-256 Valid
                 </div>
               </div>
             ))}
@@ -1668,7 +1801,7 @@ export default function App() {
         </div>
       </section>
 
-      {/* 12. FREQUENTLY ASKED QUESTIONS */}
+      {/* 12. FREQUENTLY ASKED QUESTIONS (CLEAN PLUS / MINUS ACCORDION) */}
       <section id="faq" style={{
         maxWidth: '1280px',
         margin: '0 auto',
@@ -1722,8 +1855,8 @@ export default function App() {
                   }}
                 >
                   <span>{item.question}</span>
-                  <span style={{ fontSize: '22px', color: '#6B7280', fontWeight: 300 }}>
-                    {isOpen ? '−' : '+'}
+                  <span style={{ color: '#0064E0' }}>
+                    {isOpen ? <IconMinus size={20} /> : <IconPlus size={20} />}
                   </span>
                 </button>
                 {isOpen && (
@@ -1743,7 +1876,7 @@ export default function App() {
         </div>
       </section>
 
-      {/* 13. CHRONO PROFESSIONAL FOOTER */}
+      {/* 13. CHRONO PROFESSIONAL FOOTER (ZERO EMOJIS) */}
       <footer style={{
         borderTop: '1px solid #E5E7EB',
         backgroundColor: '#ffffff',
@@ -1768,11 +1901,11 @@ export default function App() {
             <p style={{ fontSize: '13px', color: '#64748B', lineHeight: 1.6, margin: '0 0 16px 0' }}>
               Open Forensic Telemetry and Flight Data Recording for Autonomous AI Agents.
             </p>
-            <div style={{ display: 'flex', gap: '14px', fontSize: '16px', color: '#6B7280' }}>
-              <span>⏱️</span>
-              <span>✈️</span>
-              <span>🔒</span>
-              <span>⚡</span>
+            <div style={{ display: 'flex', gap: '14px', color: '#6B7280' }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center' }}><IconClock size={16} /></span>
+              <span style={{ display: 'inline-flex', alignItems: 'center' }}><IconPlane size={16} /></span>
+              <span style={{ display: 'inline-flex', alignItems: 'center' }}><IconLock size={16} /></span>
+              <span style={{ display: 'inline-flex', alignItems: 'center' }}><IconZap size={16} /></span>
             </div>
           </div>
 
