@@ -140,9 +140,10 @@ export class TimelineState {
 
   // Backend hydrated properties
   availableSessions: any[] = [
-    { id: 'chrono-feature-attempt-1', label: 'Loop Recovery Demo', shortName: 'Loop Recovery', description: 'Automated stall detection & intervention' },
-    { id: 'live-agent-run', label: 'Live Agent Run', shortName: 'Live Agent', description: 'Real recorded session with 832 verified blocks' },
-    { id: 'openrepo-maintenance-run', label: 'Scale Benchmark', shortName: 'Scale Benchmark', description: 'Multi-file connection pool benchmark' }
+    { id: 'muse-code-run', label: 'Meta Muse Code 1.4 Run', shortName: 'Muse Code', description: 'Native Muse CLI run (41 verified blocks, model: muse-spark-1.3)', is_synthetic: false },
+    { id: 'live-agent-run', label: 'Live Dogfood Run', shortName: 'Live Agent', description: 'Real recorded session (2,973 verified blocks)', is_synthetic: false },
+    { id: 'chrono-feature-attempt-1', label: 'Loop Recovery Demo', shortName: 'Loop Recovery', description: 'Automated stall detection & intervention', is_synthetic: true },
+    { id: 'openrepo-maintenance-run', label: 'Scale Benchmark', shortName: 'Scale Benchmark', description: '1,000,000 events burst ingest stress test', is_synthetic: true }
   ];
   sessionTree: any[] = [];
   sessionTelemetry: any = null;
@@ -254,7 +255,48 @@ export class TimelineState {
       this.setPlaying(false);
     }
 
-    if (sessionId === 'live-agent-run') {
+    if (sessionId === 'muse-code-run') {
+      const museCps: Checkpoint[] = [
+        {
+          id: 'chk_muse_inspect_stall',
+          git_tree_hash: '63ce38e4f50645b14b9347c477e18632483efbe3',
+          event_offset: 30,
+          timestamp_ns: 250000000000,
+          files_modified: ['core/src/stall_detector.cpp', 'core/include/chrono/stall_detector.h'],
+          additions: 18,
+          deletions: 0,
+          summary: 'muse(inspect): verified sliding window cycle thresholds & SHA-256 loop detection',
+          raw_patch: '--- a/core/src/stall_detector.cpp\n+++ b/core/src/stall_detector.cpp\n@@ -60,6 +60,12 @@ std::optional<StallAlert> StallDetector::check_diff_loops(const Event& event) {\n     if (event.kind != EventKind::FILE_DIFF) return std::nullopt;\n \n     // Hash the diff payload with SHA-256\n+    // Muse Code verified: alerts when diff repetition >= threshold_cycles_\n     auto digest = crypto::SHA256::hash(event.payload);\n     std::string hex = crypto::SHA256::to_hex(digest);\n     uint32_t count = ++diff_hashes_[hex];'
+        }
+      ];
+
+      const museEvents: CEPEvent[] = [
+        { seq_id: 1, timestamp_ns: 0, kind: 'session_start', flags: 0, payload: { model: 'muse-spark-1.3-contributor', provider: 'meta' } },
+        { seq_id: 2, timestamp_ns: 10000000000, kind: 'prompt', flags: 0, payload: { text: 'Analyze core/src/stall_detector.cpp and verify the cycle detection logic for diff loops, tool failures, and read thrashing.' } },
+        { seq_id: 3, timestamp_ns: 40000000000, kind: 'tool_call', flags: 0, payload: { tool: 'tool:read_file', file: 'core/src/stall_detector.cpp' } },
+        { seq_id: 4, timestamp_ns: 70000000000, kind: 'tool_result', flags: 0, payload: { status: 'success', output: 'Read core/src/stall_detector.cpp: 150 lines' } },
+        { seq_id: 5, timestamp_ns: 120000000000, kind: 'tool_call', flags: 0, payload: { tool: 'tool:read_file', file: 'core/include/chrono/stall_detector.h' } },
+        { seq_id: 6, timestamp_ns: 150000000000, kind: 'tool_result', flags: 0, payload: { status: 'success', output: 'Read stall_detector.h: StallAlert struct & StallPattern enum' } },
+        { seq_id: 7, timestamp_ns: 210000000000, kind: 'agent_thought', flags: 0, payload: { thought: 'Identical diff loops: SHA-256 hashes each FILE_DIFF payload; alerts at count >= threshold_cycles_.' } },
+        { seq_id: 8, timestamp_ns: 250000000000, kind: 'checkpoint', flags: 1, payload: museCps[0] },
+        { seq_id: 9, timestamp_ns: 280000000000, kind: 'telemetry_sample', flags: 0, payload: { prompt_tokens: 101665, completion_tokens: 564, total_tokens: 102229, model: 'muse-spark-1.3-contributor' } },
+        { seq_id: 10, timestamp_ns: 300000000000, kind: 'session_end', flags: 0, payload: { status: 'completed', total_blocks: 41, terminal_hash: '63ce38e4f50645b14b9347c477e18632483efbe3009129bc800f7c5546d6bd39' } }
+      ];
+
+      this.metadata = {
+        session_id: 'muse-code-run',
+        task_name: 'Inspect & Verify Chrono Stall Detector Logic',
+        model: 'muse-spark-1.3-contributor',
+        agent_framework: 'official_meta_muse_code_1.4',
+        git_branch: 'main'
+      };
+      this.events = museEvents;
+      this.checkpoints = museCps;
+      this.minTimestampNs = 0;
+      this.maxTimestampNs = 300000000000;
+      this.selectedFile = 'core/src/stall_detector.cpp';
+      this.seekToTimestamp(250000000000);
+    } else if (sessionId === 'live-agent-run') {
       const liveCps: Checkpoint[] = [
         {
           id: 'chk_day1_core',

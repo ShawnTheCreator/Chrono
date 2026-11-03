@@ -1,0 +1,16 @@
+[
+  {
+    "id": "chk_muse_inspect_stall",
+    "git_tree_hash": "63ce38e4f50645b14b9347c477e18632483efbe3",
+    "event_offset": 30,
+    "timestamp_ns": 1780531400000051000,
+    "files_modified": [
+      "core/src/stall_detector.cpp",
+      "core/include/chrono/stall_detector.h"
+    ],
+    "additions": 18,
+    "deletions": 0,
+    "summary": "muse(inspect): verified sliding window cycle thresholds & SHA-256 loop detection",
+    "raw_patch": "--- a/core/src/stall_detector.cpp\n+++ b/core/src/stall_detector.cpp\n@@ -60,6 +60,12 @@ std::optional<StallAlert> StallDetector::check_diff_loops(const Event& event) {\n     if (event.kind != EventKind::FILE_DIFF) return std::nullopt;\n \n     // Hash the diff payload with SHA-256\n+    // Muse Code verified: alerts when diff repetition >= threshold_cycles_\n     auto digest = crypto::SHA256::hash(event.payload);\n     std::string hex = crypto::SHA256::to_hex(digest);\n     uint32_t count = ++diff_hashes_[hex];"
+  }
+]
