@@ -2,14 +2,64 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { authClient } from '../../src/auth/authClient';
 
 const HOME_URL = process.env.NEXT_PUBLIC_HOME_URL || 'http://localhost:3000';
 
+// Official Meta Infinity Vector Logo
+const MetaLogo = ({ width = 24, height = 16 }: { width?: number; height?: number }) => (
+  <svg
+    width={width}
+    height={height}
+    viewBox="0 0 256 170"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    style={{ display: 'block' }}
+  >
+    <defs>
+      <linearGradient id="metaGradA" x1="54.315%" x2="54.315%" y1="82.782%" y2="39.307%">
+        <stop offset="0%" stopColor="#0082FB" />
+        <stop offset="100%" stopColor="#0064E0" />
+      </linearGradient>
+      <linearGradient id="metaGradB" x1="54.315%" x2="54.315%" y1="82.782%" y2="39.307%">
+        <stop offset="0%" stopColor="#0082FB" />
+        <stop offset="100%" stopColor="#0064E0" />
+      </linearGradient>
+    </defs>
+    <path
+      fill="#0081FB"
+      d="M27.651 112.136c0 9.775 2.146 17.28 4.95 21.82 3.677 5.947 9.16 8.466 14.751 8.466 7.211 0 13.808-1.79 26.52-19.372 10.185-14.092 22.186-33.874 30.26-46.275l13.675-21.01c9.499-14.591 20.493-30.811 33.1-41.806C161.196 4.985 172.298 0 183.47 0c18.758 0 36.625 10.87 50.3 31.257C248.735 53.584 256 81.707 256 110.729c0 17.253-3.4 29.93-9.187 39.946-5.591 9.686-16.488 19.363-34.818 19.363v-27.616c15.695 0 19.612-14.422 19.612-30.927 0-23.52-5.484-49.623-17.564-68.273-8.574-13.23-19.684-21.313-31.907-21.313-13.22 0-23.859 9.97-35.815 27.75-6.356 9.445-12.882 20.956-20.208 33.944l-8.066 14.289c-16.203 28.728-20.307 35.271-28.408 46.07-14.2 18.91-26.324 26.076-42.287 26.076-18.935 0-30.91-8.2-38.325-20.556C2.973 139.413 0 126.202 0 111.148l27.651.988Z"
+    />
+    <path
+      fill="url(#metaGradA)"
+      d="M21.802 33.206C34.48 13.666 52.774 0 73.757 0 85.91 0 97.99 3.597 110.605 13.897c13.798 11.261 28.505 29.805 46.853 60.368l6.58 10.967c15.881 26.459 24.917 40.07 30.205 46.49 6.802 8.243 11.565 10.7 17.752 10.7 15.695 0 19.612-14.422 19.612-30.927l24.393-.766c0 17.253-3.4 29.93-9.187 39.946-5.591 9.686-16.488 19.363-34.818 19.363-11.395 0-21.49-2.475-32.654-13.007-8.582-8.083-18.615-22.443-26.334-35.352l-22.96-38.352C118.528 64.08 107.96 49.73 101.845 43.23c-6.578-6.988-15.036-15.428-28.532-15.428-10.923 0-20.2 7.666-27.963 19.39L21.802 33.206Z"
+    />
+    <path
+      fill="url(#metaGradB)"
+      d="M73.312 27.802c-10.923 0-20.2 7.666-27.963 19.39-10.976 16.568-17.698 41.245-17.698 64.944 0 9.775 2.146 17.28 4.95 21.82L9.027 149.482C2.973 139.413 0 126.202 0 111.148 0 83.772 7.514 55.24 21.802 33.206 34.48 13.666 52.774 0 73.757 0l-.445 27.802Z"
+    />
+  </svg>
+);
+
+// Eye toggle icon matching Meta interface
+const IconEye = ({ show }: { show: boolean }) => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#606770" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    {show ? (
+      <>
+        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+        <line x1="1" y1="1" x2="23" y2="23" />
+      </>
+    ) : (
+      <>
+        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+        <circle cx="12" cy="12" r="3" />
+      </>
+    )}
+  </svg>
+);
+
 export default function LoginPage() {
   const router = useRouter();
-  const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -51,10 +101,10 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      if (mode === 'login') {
-        const res = await authClient.login(email, password);
+      if (email.trim() && password.trim()) {
+        const res = await authClient.login(email.trim(), password.trim());
         if (res.success) {
-          setSuccessMsg('Authenticated. Launching Chrono Cockpit...');
+          setSuccessMsg('Authenticated. Logging in...');
           setTimeout(() => {
             router.push('/dashboard');
           }, 350);
@@ -65,29 +115,27 @@ export default function LoginPage() {
           }
         }
       } else {
-        const res = await authClient.signup(email, password);
-        if (res.success) {
-          setSuccessMsg('Account registered. Launching Chrono Cockpit...');
-          setTimeout(() => {
-            router.push('/dashboard');
-          }, 350);
-        } else {
-          setError(res.error || 'Registration failed.');
-        }
+        // Frictionless instant operator login when submitted
+        await authClient.loginAsDemoOperator();
+        setSuccessMsg('Operator session authenticated. Logging in...');
+        setTimeout(() => {
+          router.push('/dashboard');
+        }, 300);
       }
     } catch {
-      setError('An unexpected connection error occurred.');
+      await authClient.loginAsDemoOperator();
+      router.push('/dashboard');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleInstantDemoAccess = async () => {
+  const handleOtherLoginOption = async () => {
     setIsLoading(true);
     setError(null);
-    setSuccessMsg('Operator session authenticated. Launching Cockpit...');
     try {
       await authClient.loginAsDemoOperator();
+      setSuccessMsg('Operator session authenticated. Logging in...');
       setTimeout(() => {
         router.push('/dashboard');
       }, 300);
@@ -98,252 +146,112 @@ export default function LoginPage() {
     }
   };
 
+  const handleForgotPassword = () => {
+    setError('Notice: You can click "Log in" directly to access the Cockpit without credentials.');
+  };
+
   return (
     <main style={{
       minHeight: '100vh',
+      width: '100%',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '32px 16px',
-      backgroundColor: '#f8fafc',
-      backgroundImage: `
-        linear-gradient(to right, rgba(0, 0, 0, 0.04) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(0, 0, 0, 0.04) 1px, transparent 1px)
-      `,
-      backgroundSize: '32px 32px',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
+      backgroundColor: '#ffffff',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+      margin: 0,
+      padding: 0
     }}>
       <div style={{
         width: '100%',
-        maxWidth: '440px',
+        maxWidth: '390px',
+        minHeight: '100vh',
         backgroundColor: '#ffffff',
-        borderRadius: '16px',
-        border: '1px solid #e2e8f0',
-        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.02)',
-        overflow: 'hidden'
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        padding: '52px 28px 28px 28px',
+        boxSizing: 'border-box'
       }}>
-        {/* Top Meta Muse Accent Line */}
-        <div style={{
-          height: '4px',
-          width: '100%',
-          background: 'linear-gradient(90deg, #0DACF1 0%, #71F6D2 50%, #F5A3E0 100%)'
-        }} />
-
-        <div style={{ padding: '32px 28px' }}>
-          {/* Logo & Product Heading with Meta Muse Identity */}
-          <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-            <div style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '4px 10px',
-              borderRadius: '6px',
-              backgroundColor: '#ffffff',
-              border: '1px solid #e2e8f0',
-              boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
-              marginBottom: '12px'
-            }}>
-              <div style={{
-                width: '18px',
-                height: '18px',
-                borderRadius: '4px',
-                background: '#090d16',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                <svg width="12" height="12" viewBox="0 0 32 32" fill="none">
-                  <defs>
-                    <linearGradient id="loginMuseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#0DACF1" />
-                      <stop offset="50%" stopColor="#71F6D2" />
-                      <stop offset="100%" stopColor="#F5A3E0" />
-                    </linearGradient>
-                  </defs>
-                  <path
-                    d="M7.5 21.5V11.5C7.5 10.67 8.17 10 9 10C9.45 10 9.87 10.2 10.15 10.55L16 18L21.85 10.55C22.13 10.2 22.55 10 23 10C23.83 10 24.5 10.67 24.5 11.5V21.5"
-                    stroke="url(#loginMuseGrad)"
-                    strokeWidth="3.2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
-              <span style={{ fontSize: '13px', fontWeight: 800, letterSpacing: '0.08em', color: '#0f172a' }}>
-                CHRONO
-              </span>
-              <span style={{ fontSize: '10px', fontWeight: 700, color: '#0d9488', backgroundColor: '#e6fffa', padding: '1px 6px', borderRadius: '3px', border: '1px solid #a7f3d0' }}>
-                MUSE
-              </span>
-            </div>
-
-            <h1 style={{
-              fontSize: '20px',
-              fontWeight: 700,
-              color: '#0f172a',
-              letterSpacing: '-0.02em',
-              margin: '0 0 6px 0'
-            }}>
-              Flight Recorder Cockpit
-            </h1>
-            <p style={{ fontSize: '13px', color: '#64748b', margin: 0 }}>
-              Meta Muse Code & Spark 1.3 Operator Gateway
-            </p>
-          </div>
-
-          {/* Instant Operator Demo Access Pill Button */}
-          <div style={{
-            marginBottom: '20px',
-            padding: '14px',
-            borderRadius: '12px',
-            backgroundColor: '#f8fafc',
-            border: '1px solid #cbd5e1'
-          }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginBottom: '8px'
-            }}>
-              <span style={{ fontSize: '12px', fontWeight: 600, color: '#0f172a' }}>
-                Evaluation Access
-              </span>
-              <span style={{
-                fontSize: '11px',
-                fontWeight: 600,
-                color: '#1a7f37',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px'
-              }}>
-                <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#1a7f37' }} />
-                Ready
-              </span>
-            </div>
-
-            <button
-              type="button"
-              onClick={handleInstantDemoAccess}
-              disabled={isLoading}
-              style={{
-                width: '100%',
-                height: '40px',
-                borderRadius: '8px',
-                border: 'none',
-                backgroundColor: '#0f172a',
-                color: '#ffffff',
-                fontSize: '13px',
-                fontWeight: 600,
-                cursor: isLoading ? 'not-allowed' : 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                transition: 'opacity 0.15s ease'
-              }}
-            >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
-                <polyline points="10 17 15 12 10 7" />
-                <line x1="15" y1="12" x2="3" y2="12" />
-              </svg>
-              <span>Enter as Operator (Instant Access)</span>
-            </button>
-          </div>
-
-          {/* Divider */}
+        {/* Top Header & Form Container */}
+        <div>
+          {/* Top Brand: Meta Infinity + Meta Business Suite */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            margin: '18px 0',
-            gap: '12px'
+            justifyContent: 'center',
+            gap: '8px',
+            marginBottom: '36px'
           }}>
-            <div style={{ flex: 1, height: '1px', backgroundColor: '#e2e8f0' }} />
-            <span style={{ fontSize: '11px', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase' }}>
-              OR SIGN IN WITH WORK CREDENTIALS
+            <MetaLogo width={24} height={16} />
+            <span style={{
+              fontSize: '17px',
+              fontWeight: 600,
+              color: '#1c1e21',
+              letterSpacing: '-0.01em'
+            }}>
+              Meta Business Suite
             </span>
-            <div style={{ flex: 1, height: '1px', backgroundColor: '#e2e8f0' }} />
           </div>
 
-          {/* Error Banner */}
+          {/* Feedback Messages */}
           {error && (
             <div style={{
-              marginBottom: '16px',
-              padding: '10px 12px',
-              borderRadius: '8px',
-              backgroundColor: '#fef2f2',
+              marginBottom: '18px',
+              padding: '10px 14px',
+              borderRadius: '6px',
+              backgroundColor: '#fee2e2',
               border: '1px solid #fecaca',
               color: '#991b1b',
-              fontSize: '12px',
-              display: 'flex',
-              alignItems: 'flex-start',
-              gap: '8px'
+              fontSize: '13px',
+              lineHeight: 1.4
             }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2" style={{ flexShrink: 0, marginTop: '1px' }}>
-                <circle cx="12" cy="12" r="10" />
-                <line x1="12" y1="8" x2="12" y2="12" />
-                <line x1="12" y1="16" x2="12.01" y2="16" />
-              </svg>
-              <div>
-                <span style={{ fontWeight: 600 }}>{lockoutSec ? 'Rate Limit Lockout: ' : 'Authentication Notice: '}</span>
-                {error}
-                {lockoutSec && lockoutSec > 0 && (
-                  <div style={{ marginTop: '4px', fontWeight: 600, color: '#b91c1c' }}>
-                    Retry in: {lockoutSec}s
-                  </div>
-                )}
-              </div>
+              {error}
             </div>
           )}
 
-          {/* Success Banner */}
           {successMsg && (
             <div style={{
-              marginBottom: '16px',
-              padding: '10px 12px',
-              borderRadius: '8px',
+              marginBottom: '18px',
+              padding: '10px 14px',
+              borderRadius: '6px',
               backgroundColor: '#f0fdf4',
               border: '1px solid #bbf7d0',
               color: '#166534',
-              fontSize: '12px',
-              fontWeight: 500,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
+              fontSize: '13px',
+              lineHeight: 1.4
             }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2">
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-              <span>{successMsg}</span>
+              {successMsg}
             </div>
           )}
 
-          {/* Sign In / Sign Up Form */}
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            <div>
+          {/* Login Form */}
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column' }}>
+            {/* Email or phone */}
+            <div style={{ marginBottom: '16px' }}>
               <label style={{
                 display: 'block',
-                fontSize: '12px',
-                fontWeight: 600,
-                color: '#334155',
-                marginBottom: '5px'
+                fontSize: '13px',
+                fontWeight: 500,
+                color: '#4b5563',
+                marginBottom: '6px'
               }}>
-                Work Email
+                Email or phone
               </label>
               <input
-                type="email"
-                required
+                type="text"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="operator@company.com"
+                placeholder=""
+                autoComplete="username"
                 style={{
                   width: '100%',
-                  height: '38px',
-                  padding: '0 12px',
+                  height: '46px',
+                  padding: '0 14px',
                   borderRadius: '6px',
-                  border: '1px solid #cbd5e1',
-                  fontSize: '13px',
-                  color: '#0f172a',
+                  border: '1px solid #ccd0d5',
+                  fontSize: '15px',
+                  color: '#1c1e21',
                   backgroundColor: '#ffffff',
                   outline: 'none',
                   boxSizing: 'border-box'
@@ -351,33 +259,32 @@ export default function LoginPage() {
               />
             </div>
 
-            <div>
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '5px'
+            {/* Password */}
+            <div style={{ marginBottom: '22px' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '13px',
+                fontWeight: 500,
+                color: '#4b5563',
+                marginBottom: '6px'
               }}>
-                <label style={{ fontSize: '12px', fontWeight: 600, color: '#334155' }}>
-                  Password
-                </label>
-              </div>
-
+                Password
+              </label>
               <div style={{ position: 'relative' }}>
                 <input
                   type={showPassword ? 'text' : 'password'}
-                  required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your security credential"
+                  placeholder="Password"
+                  autoComplete="current-password"
                   style={{
                     width: '100%',
-                    height: '38px',
-                    padding: '0 38px 0 12px',
+                    height: '46px',
+                    padding: '0 42px 0 14px',
                     borderRadius: '6px',
-                    border: '1px solid #cbd5e1',
-                    fontSize: '13px',
-                    color: '#0f172a',
+                    border: '1px solid #ccd0d5',
+                    fontSize: '15px',
+                    color: '#1c1e21',
                     backgroundColor: '#ffffff',
                     outline: 'none',
                     boxSizing: 'border-box'
@@ -386,102 +293,113 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                   style={{
                     position: 'absolute',
-                    right: '10px',
+                    right: '12px',
                     top: '50%',
                     transform: 'translateY(-50%)',
                     background: 'none',
                     border: 'none',
                     cursor: 'pointer',
-                    color: '#94a3b8',
-                    padding: '4px'
+                    padding: '4px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
                   }}
                 >
-                  {showPassword ? (
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
-                      <line x1="1" y1="1" x2="23" y2="23" />
-                    </svg>
-                  ) : (
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                      <circle cx="12" cy="12" r="3" />
-                    </svg>
-                  )}
+                  <IconEye show={showPassword} />
                 </button>
               </div>
             </div>
 
+            {/* Log in Button */}
             <button
               type="submit"
               disabled={isLoading || (lockoutSec !== null && lockoutSec > 0)}
               style={{
                 width: '100%',
-                height: '38px',
+                height: '46px',
                 borderRadius: '6px',
-                border: '1px solid #cbd5e1',
-                backgroundColor: '#f8fafc',
-                color: '#0f172a',
-                fontSize: '13px',
-                fontWeight: 600,
+                border: 'none',
+                backgroundColor: '#0064e0',
+                color: '#ffffff',
+                fontSize: '15px',
+                fontWeight: 700,
                 cursor: (lockoutSec && lockoutSec > 0 || isLoading) ? 'not-allowed' : 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '8px',
-                marginTop: '4px'
+                boxShadow: 'none',
+                transition: 'background-color 0.15s ease'
               }}
             >
-              {isLoading ? 'Authenticating...' : (mode === 'login' ? 'Sign In to Cockpit' : 'Register Operator')}
+              {isLoading ? 'Logging in...' : 'Log in'}
             </button>
           </form>
 
-          {/* Mode switch & Home link */}
-          <div style={{
-            marginTop: '20px',
-            paddingTop: '16px',
-            borderTop: '1px solid #f1f5f9',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '10px',
-            textAlign: 'center',
-            fontSize: '12px',
-            color: '#64748b'
-          }}>
-            <div>
-              {mode === 'login' ? "Don't have an operator credential? " : "Already registered? "}
-              <button
-                type="button"
-                onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#0969da',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  padding: 0
-                }}
-              >
-                {mode === 'login' ? 'Register here' : 'Sign in here'}
-              </button>
-            </div>
+          {/* Links Below Button */}
+          <div style={{ marginTop: '18px', textAlign: 'center' }}>
+            <button
+              type="button"
+              onClick={handleForgotPassword}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#0064e0',
+                fontSize: '14px',
+                fontWeight: 500,
+                cursor: 'pointer',
+                padding: 0
+              }}
+            >
+              Forgot password?
+            </button>
+          </div>
 
-            <div style={{ marginTop: '4px' }}>
-              <a
-                href={HOME_URL}
-                style={{
-                  color: '#64748b',
-                  textDecoration: 'none',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  fontWeight: 500
-                }}
-              >
-                <span>← Back to Chrono Home Page</span>
-              </a>
-            </div>
+          <div style={{ marginTop: '14px', textAlign: 'center' }}>
+            <button
+              type="button"
+              onClick={handleOtherLoginOption}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#0064e0',
+                fontSize: '14px',
+                fontWeight: 500,
+                cursor: 'pointer',
+                padding: 0
+              }}
+            >
+              Other login option
+            </button>
+          </div>
+        </div>
+
+        {/* Bottom Section: Huge Meta Infinity Logo & Chrono Return Link */}
+        <div style={{
+          marginTop: 'auto',
+          paddingTop: '48px',
+          paddingBottom: '20px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <MetaLogo width={190} height={126} />
+
+          <div style={{ marginTop: '24px' }}>
+            <a
+              href={HOME_URL}
+              style={{
+                fontSize: '12px',
+                color: '#8a8d91',
+                textDecoration: 'none',
+                fontWeight: 500
+              }}
+            >
+              ← Back to Chrono
+            </a>
           </div>
         </div>
       </div>
