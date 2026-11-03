@@ -13,6 +13,8 @@ import { NarrationPanel } from '../../src/panels/NarrationPanel';
 import { sessionClient } from '../../src/ws/sessionClient';
 import { authClient, AuthUser } from '../../src/auth/authClient';
 import { theme } from '../../src/app/theme';
+
+const HOME_URL = process.env.NEXT_PUBLIC_HOME_URL || 'http://localhost:3000';
 import {
   ClockIcon,
   GitBranchIcon,
@@ -392,8 +394,8 @@ export default function CockpitDashboard() {
 
           <div style={{ height: '14px', width: '1px', background: theme.border.default }} />
 
-          <Link
-            href="/home"
+          <a
+            href={HOME_URL}
             title="View Product Overview & Specs"
             style={{
               display: 'flex',
@@ -410,7 +412,7 @@ export default function CockpitDashboard() {
             }}
           >
             <span>overview</span>
-          </Link>
+          </a>
         </div>
       </header>
 

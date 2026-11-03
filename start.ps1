@@ -5,13 +5,16 @@ Write-Host "==========================================================" -Foregro
 Write-Host "Starting FastAPI Bridge Backend on http://127.0.0.1:8000..." -ForegroundColor Yellow
 Start-Process powershell -ArgumentList "-NoExit", "-Command", "python -m uvicorn bridge.app.main:app --host 127.0.0.1 --port 8000 --reload"
 
-Write-Host "Starting Next.js Frontend Cockpit on http://127.0.0.1:3000..." -ForegroundColor Yellow
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "pnpm --dir web dev"
+Write-Host "Starting Home Page Frontend (home/) on http://127.0.0.1:3000..." -ForegroundColor Yellow
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "pnpm --dir home dev -p 3000"
+
+Write-Host "Starting Cockpit Frontend (web/ - Login + Dashboard) on http://127.0.0.1:3001..." -ForegroundColor Yellow
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "pnpm --dir web dev -p 3001"
 
 Write-Host ""
 Write-Host "Services launched successfully!" -ForegroundColor Green
-Write-Host "  Home Page: http://localhost:3000/home" -ForegroundColor Cyan
-Write-Host "  Login:     http://localhost:3000/login" -ForegroundColor Cyan
-Write-Host "  Cockpit:   http://localhost:3000/" -ForegroundColor Cyan
-Write-Host "  Account:   admin@chrono.sec / ChronoSecure2026!" -ForegroundColor Gray
+Write-Host "  Home Page:          http://localhost:3000" -ForegroundColor Cyan
+Write-Host "  Cockpit Login:      http://localhost:3001/login" -ForegroundColor Cyan
+Write-Host "  Cockpit Dashboard:  http://localhost:3001/dashboard" -ForegroundColor Cyan
+Write-Host "  Access:             One-click instant operator login available on login screen" -ForegroundColor Gray
 Write-Host ""

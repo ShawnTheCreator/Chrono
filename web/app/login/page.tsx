@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { authClient } from '../../src/auth/authClient';
 
+const HOME_URL = process.env.NEXT_PUBLIC_HOME_URL || 'http://localhost:3000';
+
 export default function LoginPage() {
   const router = useRouter();
   const [mode, setMode] = useState<'login' | 'signup'>('login');
@@ -439,8 +441,8 @@ export default function LoginPage() {
             </div>
 
             <div style={{ marginTop: '4px' }}>
-              <Link
-                href="/home"
+              <a
+                href={HOME_URL}
                 style={{
                   color: '#64748b',
                   textDecoration: 'none',
@@ -451,7 +453,7 @@ export default function LoginPage() {
                 }}
               >
                 <span>← Back to Chrono Home Page</span>
-              </Link>
+              </a>
             </div>
           </div>
         </div>
