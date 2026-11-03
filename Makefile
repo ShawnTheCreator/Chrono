@@ -38,8 +38,8 @@ record: build
 	@bash tools/record.sh
 
 home:
-	@echo "==> Starting Chrono Home Page Frontend on http://127.0.0.1:3000..."
-	@pnpm --dir home start -p 3000 -H 127.0.0.1
+	@echo "==> Starting Chrono Home Page (Vite) on http://127.0.0.1:3000..."
+	@pnpm --dir home preview
 
 cockpit:
 	@echo "==> Starting Chrono Cockpit Frontend (Login -> Dashboard) on http://127.0.0.1:3001..."

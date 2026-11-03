@@ -5,10 +5,10 @@ Write-Host "==========================================================" -Foregro
 Write-Host "Starting FastAPI Bridge Backend on http://127.0.0.1:8000..." -ForegroundColor Yellow
 Start-Process powershell -ArgumentList "-NoExit", "-Command", "python -m uvicorn bridge.app.main:app --host 127.0.0.1 --port 8000 --reload"
 
-Write-Host "Starting Home Page Frontend (home/) on http://127.0.0.1:3000..." -ForegroundColor Yellow
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "pnpm --dir home dev -p 3000"
+Write-Host "Starting Home Page Frontend (home/ - Vite) on http://127.0.0.1:3000..." -ForegroundColor Yellow
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "pnpm --dir home dev"
 
-Write-Host "Starting Cockpit Frontend (web/ - Login + Dashboard) on http://127.0.0.1:3001..." -ForegroundColor Yellow
+Write-Host "Starting Cockpit Frontend (web/ - Next.js Login + Dashboard) on http://127.0.0.1:3001..." -ForegroundColor Yellow
 Start-Process powershell -ArgumentList "-NoExit", "-Command", "pnpm --dir web dev -p 3001"
 
 Write-Host ""

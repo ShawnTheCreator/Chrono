@@ -1,11 +1,8 @@
-'use client';
-
 import React, { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
 
-const COCKPIT_URL = process.env.NEXT_PUBLIC_COCKPIT_URL || 'http://localhost:3001';
+const COCKPIT_URL = (import.meta as any).env?.VITE_COCKPIT_URL || 'http://localhost:3001';
 
-export default function HomePage() {
+export default function App() {
   const [activeTab, setActiveTab] = useState<'architecture' | 'forensics' | 'instructor' | 'benchmarks'>('architecture');
   const [isVerifying, setIsVerifying] = useState(false);
   const [verifyResult, setVerifyResult] = useState<string | null>(null);
@@ -101,7 +98,7 @@ export default function HomePage() {
         justifyContent: 'space-between'
       }}>
         {/* Logo / Aperture Mark */}
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: '#0f172a' }}>
+        <a href="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: '#0f172a' }}>
           <div style={{
             width: '32px',
             height: '32px',
@@ -120,7 +117,7 @@ export default function HomePage() {
           <span style={{ fontWeight: 700, fontSize: '17px', letterSpacing: '-0.02em', color: '#09090b' }}>
             CHRONO
           </span>
-        </Link>
+        </a>
 
         {/* Center Nav Links */}
         <nav style={{
