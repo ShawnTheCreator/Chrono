@@ -13,7 +13,7 @@ COPY . .
 RUN cmake -B build -G Ninja \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_CXX_STANDARD=20
-RUN cmake --build build
+RUN cmake --build build --target chronod chrono_muse_adapter
 
 # Stage 2: Runtime Container
 FROM python:3.11-slim-bookworm
@@ -44,8 +44,10 @@ RUN pip install --no-cache-dir \
     uvicorn==0.28.0 \
     pydantic==2.6.4 \
     httpx==0.27.0 \
-    sse-starlette==2.0.0
+    sse-starlette==2.0.0 \
+    python-dotenv==1.0.0
 
-EXPOSE 8000 5173
+ENV PORT=8000
+EXPOSE 8000
 
-CMD ["uvicorn", "bridge.app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["sh", "-c", "uvicorn bridge.app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]

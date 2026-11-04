@@ -38,6 +38,7 @@ int main() {
         auto result = index.seek_by_timestamp(target_ts);
         assert(result.has_value());
         assert(result->timestamp_ns <= target_ts || result->seq_id == 1);
+        (void)result;
     }
 
     auto t_end = std::chrono::high_resolution_clock::now();
@@ -50,18 +51,21 @@ int main() {
               << avg_seek_ms << " ms per seek)\n";
 
     // 60fps frame budget = 16.666 ms
-    constexpr double FRAME_BUDGET_MS = 16.666;
+    [[maybe_unused]] constexpr double FRAME_BUDGET_MS = 16.666;
     assert(avg_seek_ms < FRAME_BUDGET_MS && "Seek exceeded 60fps frame budget!");
+    (void)FRAME_BUDGET_MS;
 
     // Test persistence to disk & reload
     std::string idx_file = "test_run.chronoi";
     bool saved = index.save_to_file(idx_file);
     assert(saved);
+    (void)saved;
 
     TimelineIndex loaded_index;
     bool loaded = loaded_index.load_from_file(idx_file);
     assert(loaded);
     assert(loaded_index.size() == index.size());
+    (void)loaded;
     std::remove(idx_file.c_str());
 
     std::cout << "[PASS] Timeline seek is < 1 frame budget by 5 orders of magnitude.\n";
