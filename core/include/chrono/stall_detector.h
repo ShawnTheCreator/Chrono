@@ -15,7 +15,8 @@ enum class StallPattern {
     TOOL_EXECUTION_FAILURE_LOOP = 2,
     PING_PONG_EDIT_LOOP = 3,
     READ_THRASHING_LOOP = 4,
-    TOKEN_BURST_ZERO_PROGRESS = 5
+    TOKEN_BURST_ZERO_PROGRESS = 5,
+    CIRCULAR_HANDOFF_LOOP = 6
 };
 
 inline const char* stall_pattern_to_string(StallPattern pattern) {
@@ -25,6 +26,7 @@ inline const char* stall_pattern_to_string(StallPattern pattern) {
         case StallPattern::PING_PONG_EDIT_LOOP: return "PING_PONG_EDIT_LOOP";
         case StallPattern::READ_THRASHING_LOOP: return "READ_THRASHING_LOOP";
         case StallPattern::TOKEN_BURST_ZERO_PROGRESS: return "TOKEN_BURST_ZERO_PROGRESS";
+        case StallPattern::CIRCULAR_HANDOFF_LOOP: return "CIRCULAR_HANDOFF_LOOP";
         default: return "NONE";
     }
 }
@@ -56,6 +58,7 @@ private:
     std::optional<StallAlert> check_diff_loops(const Event& event);
     std::optional<StallAlert> check_tool_failures(const Event& event);
     std::optional<StallAlert> check_thrashing(const Event& event);
+    std::optional<StallAlert> check_circular_handoffs(const Event& event);
 
     size_t window_size_;
     uint32_t threshold_cycles_;
@@ -65,6 +68,7 @@ private:
 
     // Tracking state
     std::unordered_map<std::string, uint32_t> diff_hashes_;
+    std::deque<std::string> diff_hash_window_;
     std::string last_failed_tool_;
     std::string last_error_signature_;
     uint32_t consecutive_tool_failures_ = 0;

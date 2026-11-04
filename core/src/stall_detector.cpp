@@ -1,9 +1,84 @@
 #include "chrono/stall_detector.h"
 #include "chrono/sha256.h"
-#include <sstream>
+#include <cctype>
 #include <iomanip>
+#include <queue>
+#include <sstream>
+#include <unordered_set>
 
 namespace chrono {
+
+namespace {
+
+std::string extract_json_string_field(const std::string& payload, const std::string& key) {
+    std::string search = "\"" + key + "\"";
+    size_t pos = payload.find(search);
+    if (pos == std::string::npos) return "";
+    pos += search.size();
+    pos = payload.find(':', pos);
+    if (pos == std::string::npos) return "";
+    ++pos;
+    while (pos < payload.size() &&
+           std::isspace(static_cast<unsigned char>(payload[pos])) != 0) {
+        ++pos;
+    }
+    if (pos >= payload.size()) return "";
+    if (payload[pos] == '"') {
+        ++pos;
+        size_t end = payload.find('"', pos);
+        if (end == std::string::npos) return "";
+        return payload.substr(pos, end - pos);
+    }
+    size_t start = pos;
+    size_t end = start;
+    while (end < payload.size() && payload[end] != ',' && payload[end] != '}' &&
+           std::isspace(static_cast<unsigned char>(payload[end])) == 0) {
+        ++end;
+    }
+    return payload.substr(start, end - start);
+}
+
+bool is_handoff_tool(const std::string& tool) {
+    if (tool == "handoff" || tool == "delegate" || tool == "transfer" || tool == "handover" ||
+        tool == "route_to_agent" || tool == "send_to_agent" || tool == "delegate_to_agent" ||
+        tool == "handoff_to_agent") {
+        return true;
+    }
+    if (tool.find("handoff") != std::string::npos) return true;
+    if (tool.find("delegate") != std::string::npos) return true;
+    return false;
+}
+
+struct HandoffEdge {
+    std::string from;
+    std::string to;
+};
+
+bool parse_handoff(const std::string& payload, HandoffEdge& out) {
+    std::string tool = extract_json_string_field(payload, "tool");
+    if (!is_handoff_tool(tool)) {
+        if (payload.find("handoff") == std::string::npos &&
+            payload.find("delegate") == std::string::npos) {
+            return false;
+        }
+        if (!tool.empty()) return false;
+    }
+    std::string from = extract_json_string_field(payload, "from");
+    if (from.empty()) from = extract_json_string_field(payload, "from_agent");
+    if (from.empty()) from = extract_json_string_field(payload, "source");
+    if (from.empty()) from = extract_json_string_field(payload, "source_agent");
+    std::string to = extract_json_string_field(payload, "to");
+    if (to.empty()) to = extract_json_string_field(payload, "to_agent");
+    if (to.empty()) to = extract_json_string_field(payload, "target");
+    if (to.empty()) to = extract_json_string_field(payload, "target_agent");
+    if (to.empty()) to = extract_json_string_field(payload, "delegate_to");
+    if (from.empty() || to.empty()) return false;
+    out.from = std::move(from);
+    out.to = std::move(to);
+    return true;
+}
+
+} // namespace
 
 std::string StallAlert::to_json() const {
     std::ostringstream ss;
@@ -27,6 +102,7 @@ void StallDetector::reset() {
     event_window_.clear();
     alerts_.clear();
     diff_hashes_.clear();
+    diff_hash_window_.clear();
     last_failed_tool_.clear();
     last_error_signature_.clear();
     consecutive_tool_failures_ = 0;
@@ -35,8 +111,31 @@ void StallDetector::reset() {
 
 std::optional<StallAlert> StallDetector::process_event(const Event& event) {
     event_window_.push_back(event);
+    if (event.kind == EventKind::FILE_DIFF) {
+        auto digest = crypto::SHA256::hash(event.payload);
+        diff_hash_window_.push_back(crypto::SHA256::to_hex(digest));
+    } else {
+        diff_hash_window_.emplace_back();
+    }
     if (event_window_.size() > window_size_) {
         event_window_.pop_front();
+        std::string evicted = std::move(diff_hash_window_.front());
+        diff_hash_window_.pop_front();
+        if (!evicted.empty()) {
+            auto it = diff_hashes_.find(evicted);
+            if (it != diff_hashes_.end()) {
+                if (it->second <= 1) {
+                    diff_hashes_.erase(it);
+                } else {
+                    --it->second;
+                }
+            }
+        }
+    }
+
+    if (auto alert = check_circular_handoffs(event)) {
+        alerts_.push_back(*alert);
+        return alert;
     }
 
     if (auto alert = check_diff_loops(event)) {
@@ -59,10 +158,10 @@ std::optional<StallAlert> StallDetector::process_event(const Event& event) {
 
 std::optional<StallAlert> StallDetector::check_diff_loops(const Event& event) {
     if (event.kind != EventKind::FILE_DIFF) return std::nullopt;
+    if (diff_hash_window_.empty()) return std::nullopt;
 
-    // Hash the diff payload
-    auto digest = crypto::SHA256::hash(event.payload);
-    std::string hex = crypto::SHA256::to_hex(digest);
+    const std::string& hex = diff_hash_window_.back();
+    if (hex.empty()) return std::nullopt;
 
     uint32_t count = ++diff_hashes_[hex];
     if (count >= threshold_cycles_) {
@@ -145,6 +244,92 @@ std::optional<StallAlert> StallDetector::check_thrashing(const Event& event) {
         consecutive_reads_ = 0;
     }
     return std::nullopt;
+}
+
+std::optional<StallAlert> StallDetector::check_circular_handoffs(const Event& event) {
+    if (event.kind != EventKind::TOOL_CALL) return std::nullopt;
+
+    HandoffEdge current;
+    if (!parse_handoff(event.payload, current)) return std::nullopt;
+
+    if (current.from == current.to) {
+        StallAlert alert;
+        alert.pattern = StallPattern::CIRCULAR_HANDOFF_LOOP;
+        alert.cycle_count = 1;
+        alert.culprit = current.from + "->" + current.to;
+        alert.confidence = 0.97;
+        alert.description = "Circular tool handoff detected: agent '" + current.from +
+                            "' delegated to itself within the sliding window.";
+        alert.suggested_intervention =
+            "Break the delegation cycle. Assign the task to a single owner and require "
+            "progress before further handoffs.";
+        alert.triggered_at_seq = event.seq_id;
+        alert.triggered_at_ts = event.timestamp_ns;
+        return alert;
+    }
+
+    std::unordered_map<std::string, std::vector<std::string>> adj;
+    for (const auto& ev : event_window_) {
+        if (ev.kind != EventKind::TOOL_CALL) continue;
+        HandoffEdge edge;
+        if (!parse_handoff(ev.payload, edge)) continue;
+        adj[edge.from].push_back(edge.to);
+    }
+
+    std::queue<std::string> bfs;
+    std::unordered_map<std::string, std::string> parent;
+    std::unordered_set<std::string> visited;
+    bfs.push(current.to);
+    visited.insert(current.to);
+    parent[current.to] = "";
+
+    bool found = false;
+    while (!bfs.empty() && !found) {
+        std::string node = std::move(bfs.front());
+        bfs.pop();
+        auto it = adj.find(node);
+        if (it == adj.end()) continue;
+        for (const auto& next : it->second) {
+            if (visited.count(next) != 0) continue;
+            visited.insert(next);
+            parent[next] = node;
+            if (next == current.from) {
+                found = true;
+                break;
+            }
+            bfs.push(next);
+        }
+    }
+
+    if (!found) return std::nullopt;
+
+    std::vector<std::string> path;
+    path.push_back(current.from);
+    std::string node = current.from;
+    while (node != current.to) {
+        auto it = parent.find(node);
+        if (it == parent.end()) return std::nullopt;
+        node = it->second;
+        path.push_back(node);
+    }
+    std::string culprit = current.from;
+    for (auto it = path.rbegin(); it != path.rend(); ++it) {
+        culprit += "->" + *it;
+    }
+
+    StallAlert alert;
+    alert.pattern = StallPattern::CIRCULAR_HANDOFF_LOOP;
+    alert.cycle_count = static_cast<uint32_t>(path.size());
+    alert.culprit = culprit;
+    alert.confidence = 0.97;
+    alert.description = "Circular tool handoff detected: " + culprit +
+                        " forms a closed delegation loop within the sliding window.";
+    alert.suggested_intervention =
+        "Break the delegation cycle. Assign the task to a single owner and require "
+        "progress before further handoffs.";
+    alert.triggered_at_seq = event.seq_id;
+    alert.triggered_at_ts = event.timestamp_ns;
+    return alert;
 }
 
 } // namespace chrono

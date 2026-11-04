@@ -1,13 +1,13 @@
 {
-  "timestamp_iso": "2026-11-04T08:48:16Z",
-  "checkpoint_id": "chk_04n112tt8a",
+  "timestamp_iso": "2026-11-04T21:52:20Z",
+  "checkpoint_id": "chk_02m881lp9c",
   "status": 200,
   "model": "muse-spark-1.3",
-  "latency_ms": 22258.67,
-  "prompt_tokens": 506,
-  "completion_tokens": 1751,
-  "total_tokens": 2257,
-  "estimated_cost_usd": 0.001152,
-  "headline": "Added unthrottled identical-diff alert without recovery, risking bus spam",
+  "latency_ms": 16549.5,
+  "prompt_tokens": 281,
+  "completion_tokens": 1875,
+  "total_tokens": 2156,
+  "estimated_cost_usd": 0.001181,
+  "headline": "No-op invalid token injected into stall_detector with zero diagnostics",
   "verdict": "STALL_RISK"
 }

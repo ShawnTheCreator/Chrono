@@ -51,15 +51,19 @@ def main():
                 pass
 
     prompt = (
-        "Analyze core/src/stall_detector.cpp and verify the cycle detection logic for diff loops, "
-        "tool failures, and read thrashing. Explain the algorithms, sliding window, and alert thresholds."
+        "Analyze core/src/stall_detector.cpp and test suite core/tests/test_stall.cpp. "
+        "Verify the cycle detection logic for diff loops, tool failures, and read thrashing. "
+        "Investigate whether the sliding window properly evicts stale hashes, and implement "
+        "strict circular reference detection for multi-agent tool handoffs. Validate your "
+        "changes against ctest without breaking any binary wire formats in core/include/chrono/event.h."
     )
 
     muse_cmd = [
         muse_bin,
         "exec",
         "--json",
-        "--max-model-steps", "4",
+        "--yolo",
+        "--max-model-steps", "50",
         prompt
     ]
 
