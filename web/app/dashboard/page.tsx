@@ -16,7 +16,6 @@ import { theme } from '../../src/app/theme';
 
 const HOME_URL = process.env.NEXT_PUBLIC_HOME_URL || 'http://localhost:3000';
 import {
-  ClockIcon,
   GitBranchIcon,
   ShieldCheckIcon,
   PlusIcon,
@@ -539,29 +538,11 @@ export default function CockpitDashboard() {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          padding: '8px 0',
+          padding: '10px 0',
           gap: '8px',
           flexShrink: 0,
           zIndex: 10
         }}>
-          {/* Top Logo Button */}
-          <div
-            onClick={handleResetLayout}
-            title="Reset layout & view"
-            style={{
-              width: '26px',
-              height: '26px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer'
-            }}
-          >
-            <ChronoLogo size={24} />
-          </div>
-
-          <div style={{ width: '18px', height: '1px', background: theme.border.default }} />
-
           {/* Timeline Toggle */}
           <button
             onClick={() => {
@@ -582,7 +563,11 @@ export default function CockpitDashboard() {
               justifyContent: 'center'
             }}
           >
-            <ClockIcon size={14} color={!isTimelineCollapsed ? theme.accent.green : theme.text.muted} />
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <circle cx="8" cy="12" r="2.5" fill="currentColor" />
+              <circle cx="16" cy="12" r="2.5" />
+            </svg>
           </button>
 
           {/* Files Toggle */}
