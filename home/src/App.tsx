@@ -264,6 +264,100 @@ const COCKPIT_TARGETS = [
   }
 ];
 
+// Research Constellation Cards for Section 3 (Inspired by high-stakes autonomous AI research reference)
+const FLOATING_RESEARCH_CARDS = [
+  {
+    id: 1,
+    src: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=400&q=80',
+    left: '12%',
+    top: '28%',
+    width: '135px',
+    height: '135px',
+    radius: '22px'
+  },
+  {
+    id: 2,
+    src: 'https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&w=400&q=80',
+    left: '27%',
+    top: '12%',
+    width: '125px',
+    height: '140px',
+    radius: '20px'
+  },
+  {
+    id: 3,
+    src: 'https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&w=400&q=80',
+    left: '45%',
+    top: '6%',
+    width: '105px',
+    height: '95px',
+    radius: '18px'
+  },
+  {
+    id: 4,
+    src: 'https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=400&q=80',
+    left: '91%',
+    top: '18%',
+    width: '65px',
+    height: '60px',
+    radius: '12px'
+  },
+  {
+    id: 5,
+    src: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80',
+    left: '86%',
+    top: '49%',
+    width: '85px',
+    height: '85px',
+    radius: '16px'
+  },
+  {
+    id: 6,
+    src: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=400&q=80',
+    left: '9%',
+    top: '62%',
+    width: '145px',
+    height: '150px',
+    radius: '24px'
+  },
+  {
+    id: 7,
+    src: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=400&q=80',
+    left: '22%',
+    top: '84%',
+    width: '135px',
+    height: '145px',
+    radius: '22px'
+  },
+  {
+    id: 8,
+    src: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=400&q=80',
+    left: '39%',
+    top: '86%',
+    width: '125px',
+    height: '145px',
+    radius: '20px'
+  },
+  {
+    id: 9,
+    src: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=400&q=80',
+    left: '55%',
+    top: '80%',
+    width: '115px',
+    height: '120px',
+    radius: '18px'
+  },
+  {
+    id: 10,
+    src: 'https://images.unsplash.com/photo-1517976487502-d5cb3771e72e?auto=format&fit=crop&w=400&q=80',
+    left: '72%',
+    top: '68%',
+    width: '95px',
+    height: '105px',
+    radius: '16px'
+  }
+];
+
 export default function App() {
   const [heroIndex, setHeroIndex] = useState(0);
   const [videoIndex, setVideoIndex] = useState(0);
@@ -354,21 +448,20 @@ export default function App() {
             if (scrollDistance > 0) {
               const rawProgress = Math.min(1, Math.max(0, -rect.top / scrollDistance));
 
-              // Phase 1: 0 to 0.32 (Viewing Section 2; smooth scroll down to view cards)
-              if (rawProgress <= 0.32) {
-                const p1 = rawProgress / 0.32;
-                setSection2ScrollY(-p1 * 140);
+              // Phase 1: 0.0 to 0.52 (Section 2 is 100% STAGNANT in view, plenty of time to view entire cockpit & animation)
+              if (rawProgress <= 0.52) {
+                setSection2ScrollY(0);
                 setSection3Slide(100);
               }
-              // Phase 2: 0.32 to 0.88 (Section 2 is STAGNANT; Section 3 slides in from the right)
-              else if (rawProgress <= 0.88) {
-                setSection2ScrollY(-140); // Locked stagnant!
-                const p2 = (rawProgress - 0.32) / 0.56;
+              // Phase 2: 0.52 to 0.94 (Section 2 remains STAGNANT; Section 3 smoothly slides in from right)
+              else if (rawProgress <= 0.94) {
+                setSection2ScrollY(0);
+                const p2 = (rawProgress - 0.52) / 0.42;
                 setSection3Slide((1 - p2) * 100);
               }
-              // Phase 3: 0.88 to 1.0 (Section 3 is 100% covering Section 2)
+              // Phase 3: 0.94 to 1.0 (Section 3 is 100% covering Section 2)
               else {
-                setSection2ScrollY(-140);
+                setSection2ScrollY(0);
                 setSection3Slide(0);
               }
             } else {
@@ -681,7 +774,7 @@ export default function App() {
         ref={transitionTrackRef}
         style={{
           position: 'relative',
-          minHeight: '280vh',
+          minHeight: '360vh',
           backgroundColor: '#ffffff'
         }}
       >
@@ -693,417 +786,254 @@ export default function App() {
           overflow: 'hidden',
           backgroundColor: '#ffffff'
         }}>
-          {/* SECTION 2 (STAGNANT IN THE BACKGROUND ONCE REACHED) */}
+          {/* SECTION 2 (STAGNANT IN THE BACKGROUND: ENTIRE COCKPIT VISIBLE, ZERO CUTOFF) */}
           <div style={{
             position: 'absolute',
             top: 0,
             left: 0,
             width: '100%',
             height: '100%',
-            transform: `translateY(${section2ScrollY}px)`,
-            willChange: 'transform',
             backgroundColor: '#ffffff',
-            overflowY: 'auto'
-          }}>
-            <section id="chrono-features" style={{
-        maxWidth: '1360px',
-        margin: '0 auto',
-        padding: '96px 36px 90px 36px',
-        position: 'relative'
-      }}>
-        {/* Editorial Narrative Header (Inspired by high-fashion / design journal layout) */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1.2fr 0.8fr',
-          gap: '48px',
-          alignItems: 'flex-end',
-          marginBottom: '54px'
-        }}>
-          {/* Left Column: Narrative Headline */}
-          <div>
-            <div style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              fontSize: '12px',
-              fontWeight: 700,
-              color: '#0064E0',
-              letterSpacing: '0.1em',
-              textTransform: 'uppercase',
-              marginBottom: '14px'
-            }}>
-              <span style={{
-                width: '8px',
-                height: '8px',
-                borderRadius: '50%',
-                backgroundColor: '#0082FB',
-                boxShadow: '0 0 10px #0082FB'
-              }} />
-              FLIGHT DECK TELEMETRY
-            </div>
-
-            <h2 style={{
-              fontSize: '48px',
-              fontWeight: 800,
-              letterSpacing: '-0.03em',
-              color: '#09090b',
-              lineHeight: 1.12,
-              margin: '0 0 20px 0'
-            }}>
-              Beyond raw log dumps.<br />
-              <span style={{
-                background: 'linear-gradient(90deg, #0064E0 0%, #0082FB 50%, #0DACF1 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent'
-              }}>
-                Complete visibility in 60 FPS motion.
-              </span>
-            </h2>
-
-            <p style={{
-              fontSize: '17px',
-              color: '#475569',
-              lineHeight: 1.65,
-              maxWidth: '680px',
-              margin: 0
-            }}>
-              Autonomous agents write code, invoke external APIs, and mutate infrastructure. When mistakes occur, terminal logs leave you blind. Chrono transforms the agent lifecycle into an interactive, cryptographically verified black-box flight recorder.
-            </p>
-          </div>
-
-          {/* Right Column: Editorial Details & Launch Cockpit Link */}
-          <div style={{
             display: 'flex',
             flexDirection: 'column',
-            alignItems: 'flex-start',
-            justifyContent: 'flex-end',
-            gap: '24px'
+            justifyContent: 'center',
+            padding: '24px 40px',
+            boxSizing: 'border-box'
           }}>
-            <p style={{
-              fontSize: '15px',
-              color: '#64748b',
-              lineHeight: 1.6,
-              margin: 0
-            }}>
-              Scrub back to any second, inspect surgical diffs before and after every tool invocation, and watch stall tripwires automatically intercept runaway loops.
-            </p>
-
-            <a
-              href={COCKPIT_URL}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                fontSize: '15px',
-                fontWeight: 700,
-                color: '#0064E0',
-                textDecoration: 'none',
-                borderBottom: '2px solid #0064E0',
-                paddingBottom: '3px',
-                transition: 'all 0.2s ease'
-              }}
-            >
-              Launch the live Cockpit
-              <IconArrowUpRight size={16} />
-            </a>
-          </div>
-        </div>
-
-        {/* MOTION GRAPHIC COCKPIT FRAME */}
-        <div
-          ref={cockpitFrameRef}
-          onMouseMove={handleCockpitMouseMove}
-          onMouseLeave={handleCockpitMouseLeave}
-          style={{
-            position: 'relative',
-            perspective: '1400px',
-            marginBottom: '48px'
-          }}
-        >
-          {/* Ambient Colored Back-Glow (Neon Cockpit Aura) */}
-          <div style={{
-            position: 'absolute',
-            inset: '-20px -20px -20px -20px',
-            background: 'radial-gradient(ellipse 70% 50% at 50% 30%, rgba(0, 100, 224, 0.22) 0%, rgba(113, 246, 210, 0.12) 40%, transparent 75%)',
-            filter: 'blur(40px)',
-            zIndex: 0,
-            pointerEvents: 'none',
-            animation: 'cockpitAmbientGlow 6s ease-in-out infinite'
-          }} />
-
-          {/* Cockpit Chassis Frame */}
-          <div style={{
-            position: 'relative',
-            zIndex: 2,
-            backgroundColor: '#ffffff',
-            borderRadius: '24px',
-            border: '1px solid #E5E7EB',
-            boxShadow: '0 25px 70px -15px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.04)',
-            overflow: 'hidden',
-            transform: `perspective(1400px) rotateX(${cockpitTilt.y}deg) rotateY(${cockpitTilt.x}deg)`,
-            transition: 'transform 0.18s cubic-bezier(0.2, 0, 0, 1)',
-            transformStyle: 'preserve-3d'
-          }}>
-            {/* Window Titlebar / Chrome (Clean White) */}
             <div style={{
+              maxWidth: '1320px',
+              width: '100%',
+              margin: '0 auto',
               display: 'flex',
-              alignItems: 'center',
-              padding: '14px 22px',
-              backgroundColor: '#ffffff',
-              borderBottom: '1px solid #E5E7EB'
+              flexDirection: 'column',
+              gap: '16px'
             }}>
-              {/* Traffic Light Dots */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#FF5F56', display: 'inline-block' }} />
-                <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#FFBD2E', display: 'inline-block' }} />
-                <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#27C93F', display: 'inline-block' }} />
+              {/* Header: Clean, Compact, No "FLIGHT DECK HEADER" badge */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'flex-end',
+                justifyContent: 'space-between',
+                gap: '24px'
+              }}>
+                <div>
+                  <h2 style={{
+                    fontSize: 'clamp(26px, 2.5vw, 36px)',
+                    fontWeight: 800,
+                    letterSpacing: '-0.025em',
+                    color: '#09090b',
+                    lineHeight: 1.15,
+                    margin: '0 0 6px 0'
+                  }}>
+                    Beyond raw log dumps.<br />
+                    <span style={{ color: '#0064E0' }}>Complete visibility in 60 FPS motion.</span>
+                  </h2>
+                  <p style={{
+                    fontSize: '14px',
+                    color: '#475569',
+                    lineHeight: 1.5,
+                    maxWidth: '680px',
+                    margin: 0
+                  }}>
+                    Chrono transforms autonomous agent execution into an interactive, cryptographically verified black-box flight recorder.
+                  </p>
+                </div>
+
+                <a
+                  href={COCKPIT_URL}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    fontSize: '14px',
+                    fontWeight: 700,
+                    color: '#0064E0',
+                    textDecoration: 'none',
+                    borderBottom: '2px solid #0064E0',
+                    paddingBottom: '2px',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  Launch the live Cockpit
+                  <IconArrowUpRight size={15} />
+                </a>
               </div>
-            </div>
 
-            {/* SCREENSHOT STAGE WITH MOTION GRAPHIC OVERLAYS */}
-            <div style={{ position: 'relative', overflow: 'hidden', lineHeight: 0 }}>
-              {/* Cockpit High-Res Screenshot */}
-              <img
-                src="/cockpit-screenshot.png"
-                alt="Chrono Cockpit Live Flight Recording"
-                style={{
-                  width: '100%',
-                  height: 'auto',
-                  display: 'block',
-                  filter: 'contrast(1.03) brightness(1.01)'
-                }}
-              />
-
-              {/* Animated Laser Scanning Beam */}
-              <div className="cockpit-laser-sweep">
-                <div className="cockpit-laser-bar" />
-              </div>
-
-              {/* CLICK HIGHLIGHT OVERLAYS */}
-              {COCKPIT_TARGETS.map((target) => {
-                const isSelected = activeHighlightId === target.id;
-                return (
-                  <div
-                    key={target.id}
-                    onClick={() => {
-                      setCursorStep(COCKPIT_TARGETS.findIndex((t) => t.id === target.id));
-                      setActiveHighlightId(target.id);
-                    }}
-                    style={{
-                      position: 'absolute',
-                      left: target.highlight.left,
-                      top: target.highlight.top,
-                      width: target.highlight.width,
-                      height: target.highlight.height,
-                      border: target.highlight.border,
-                      backgroundColor: target.highlight.bg,
-                      boxShadow: target.highlight.glow,
-                      borderRadius: '10px',
-                      opacity: isSelected ? 1 : 0,
-                      transform: isSelected ? 'scale(1)' : 'scale(0.98)',
-                      transition: 'opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                      zIndex: 25,
-                      cursor: 'pointer',
-                      pointerEvents: 'auto'
-                    }}
-                  >
-                    {/* Glowing High-Tech Tag */}
-                    <div style={{
-                      position: 'absolute',
-                      top: '8px',
-                      right: '10px',
-                      backgroundColor: target.highlight.tagBg,
-                      color: '#ffffff',
-                      fontSize: '10px',
-                      fontWeight: 800,
-                      letterSpacing: '0.06em',
-                      padding: '3px 8px',
-                      borderRadius: '5px',
-                      boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
-                      fontFamily: 'monospace',
-                      pointerEvents: 'none'
-                    }}>
-                      {target.highlight.tagText}
-                    </div>
-                  </div>
-                );
-              })}
-
-              {/* ANIMATED VIRTUAL CURSOR (Clicks and Highlights targets in sequence) */}
+              {/* Cockpit Frame: Sized Proportionately So It Is NEVER Cut Off */}
               <div
+                ref={cockpitFrameRef}
+                onMouseMove={handleCockpitMouseMove}
+                onMouseLeave={handleCockpitMouseLeave}
                 style={{
-                  position: 'absolute',
-                  left: `${cursorPos.x}%`,
-                  top: `${cursorPos.y}%`,
-                  transform: `translate(-4px, -2px) scale(${isClicking ? 0.82 : 1})`,
-                  transition: 'left 0.72s cubic-bezier(0.25, 1, 0.5, 1), top 0.72s cubic-bezier(0.25, 1, 0.5, 1), transform 0.14s ease',
-                  pointerEvents: 'none',
-                  zIndex: 40,
-                  filter: 'drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5))'
+                  position: 'relative',
+                  perspective: '1400px',
+                  width: '100%'
                 }}
               >
-                {/* SVG Mouse Pointer */}
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path
-                    d="M4.5 3.5L11.5 20.5L14.2 13.8L21 11L4.5 3.5Z"
-                    fill="#0F172A"
-                    stroke="#FFFFFF"
-                    strokeWidth="1.5"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+                {/* Ambient Colored Back-Glow */}
+                <div style={{
+                  position: 'absolute',
+                  inset: '-15px',
+                  background: 'radial-gradient(ellipse 70% 50% at 50% 30%, rgba(0, 100, 224, 0.18) 0%, rgba(113, 246, 210, 0.10) 40%, transparent 75%)',
+                  filter: 'blur(35px)',
+                  zIndex: 0,
+                  pointerEvents: 'none',
+                  animation: 'cockpitAmbientGlow 6s ease-in-out infinite'
+                }} />
 
-                {/* Click Ripple Wave */}
-                {isClicking && (
-                  <span
-                    style={{
-                      position: 'absolute',
-                      top: '3px',
-                      left: '4px',
-                      width: '26px',
-                      height: '26px',
-                      borderRadius: '50%',
-                      border: '2px solid #0082FB',
-                      backgroundColor: 'rgba(0, 130, 251, 0.25)',
-                      transform: 'translate(-50%, -50%)',
-                      animation: 'cursorClickRipple 0.35s ease-out forwards',
-                      pointerEvents: 'none'
-                    }}
-                  />
-                )}
+                {/* Chassis Frame */}
+                <div style={{
+                  position: 'relative',
+                  zIndex: 2,
+                  backgroundColor: '#ffffff',
+                  borderRadius: '18px',
+                  border: '1px solid #E5E7EB',
+                  boxShadow: '0 20px 60px -15px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.04)',
+                  overflow: 'hidden',
+                  transform: `perspective(1400px) rotateX(${cockpitTilt.y}deg) rotateY(${cockpitTilt.x}deg)`,
+                  transition: 'transform 0.18s cubic-bezier(0.2, 0, 0, 1)',
+                  transformStyle: 'preserve-3d'
+                }}>
+                  {/* Clean White Window Titlebar with Traffic Lights */}
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '10px 18px',
+                    backgroundColor: '#ffffff',
+                    borderBottom: '1px solid #E5E7EB'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+                      <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#EF4444', display: 'inline-block' }} />
+                      <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#F59E0B', display: 'inline-block' }} />
+                      <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#10B981', display: 'inline-block' }} />
+                    </div>
+                  </div>
+
+                  {/* Screenshot Stage: Constrained to fit within viewport height */}
+                  <div style={{
+                    position: 'relative',
+                    overflow: 'hidden',
+                    lineHeight: 0,
+                    backgroundColor: '#090D16',
+                    maxHeight: 'calc(100vh - 240px)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    <img
+                      src="/cockpit-screenshot.png"
+                      alt="Chrono Cockpit Live Flight Recording"
+                      style={{
+                        width: '100%',
+                        height: 'auto',
+                        maxHeight: 'calc(100vh - 240px)',
+                        objectFit: 'contain',
+                        display: 'block',
+                        filter: 'contrast(1.03) brightness(1.01)'
+                      }}
+                    />
+
+                    {/* Animated Laser Scanning Beam */}
+                    <div className="cockpit-laser-sweep">
+                      <div className="cockpit-laser-bar" />
+                    </div>
+
+                    {/* CLICK HIGHLIGHT OVERLAYS */}
+                    {COCKPIT_TARGETS.map((target) => {
+                      const isSelected = activeHighlightId === target.id;
+                      return (
+                        <div
+                          key={target.id}
+                          onClick={() => {
+                            setCursorStep(COCKPIT_TARGETS.findIndex((t) => t.id === target.id));
+                            setActiveHighlightId(target.id);
+                          }}
+                          style={{
+                            position: 'absolute',
+                            left: target.highlight.left,
+                            top: target.highlight.top,
+                            width: target.highlight.width,
+                            height: target.highlight.height,
+                            border: target.highlight.border,
+                            backgroundColor: target.highlight.bg,
+                            boxShadow: target.highlight.glow,
+                            borderRadius: '10px',
+                            opacity: isSelected ? 1 : 0,
+                            transform: isSelected ? 'scale(1)' : 'scale(0.98)',
+                            transition: 'opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                            zIndex: 25,
+                            cursor: 'pointer',
+                            pointerEvents: 'auto'
+                          }}
+                        >
+                          <div style={{
+                            position: 'absolute',
+                            top: '8px',
+                            right: '10px',
+                            backgroundColor: target.highlight.tagBg,
+                            color: '#ffffff',
+                            fontSize: '10px',
+                            fontWeight: 800,
+                            letterSpacing: '0.06em',
+                            padding: '3px 8px',
+                            borderRadius: '5px',
+                            boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
+                            fontFamily: 'monospace',
+                            pointerEvents: 'none'
+                          }}>
+                            {target.highlight.tagText}
+                          </div>
+                        </div>
+                      );
+                    })}
+
+                    {/* ANIMATED VIRTUAL CURSOR (Clicks and Highlights targets in sequence) */}
+                    <div
+                      style={{
+                        position: 'absolute',
+                        left: `${cursorPos.x}%`,
+                        top: `${cursorPos.y}%`,
+                        transform: `translate(-4px, -2px) scale(${isClicking ? 0.82 : 1})`,
+                        transition: 'left 0.72s cubic-bezier(0.25, 1, 0.5, 1), top 0.72s cubic-bezier(0.25, 1, 0.5, 1), transform 0.14s ease',
+                        pointerEvents: 'none',
+                        zIndex: 40,
+                        filter: 'drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5))'
+                      }}
+                    >
+                      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                          d="M4.5 3.5L11.5 20.5L14.2 13.8L21 11L4.5 3.5Z"
+                          fill="#0F172A"
+                          stroke="#FFFFFF"
+                          strokeWidth="1.5"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+
+                      {isClicking && (
+                        <span
+                          style={{
+                            position: 'absolute',
+                            top: '3px',
+                            left: '4px',
+                            width: '26px',
+                            height: '26px',
+                            borderRadius: '50%',
+                            border: '2px solid #0082FB',
+                            backgroundColor: 'rgba(0, 130, 251, 0.25)',
+                            transform: 'translate(-50%, -50%)',
+                            animation: 'cursorClickRipple 0.35s ease-out forwards',
+                            pointerEvents: 'none'
+                          }}
+                        />
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* 3 EDITORIAL CARDS BELOW SCREENSHOT (Inspired by user's reference image style) */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: '24px',
-          marginTop: '36px'
-        }}>
-          {/* Card 1 */}
-          <div style={{
-            backgroundColor: '#F9FAFB',
-            border: '1px solid #E5E7EB',
-            borderRadius: '20px',
-            padding: '28px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between'
-          }}>
-            <div>
-              <div style={{
-                fontSize: '11px',
-                fontWeight: 800,
-                color: '#6B7280',
-                letterSpacing: '0.08em',
-                textTransform: 'uppercase',
-                marginBottom: '10px'
-              }}>
-                EVERYDAY RELIABILITY
-              </div>
-              <h3 style={{
-                fontSize: '22px',
-                fontWeight: 700,
-                color: '#09090b',
-                lineHeight: 1.3,
-                marginBottom: '12px',
-                textDecoration: 'underline',
-                textDecorationColor: '#E5E7EB',
-                textUnderlineOffset: '6px'
-              }}>
-                Instant stall tripwire detection
-              </h3>
-              <p style={{ fontSize: '14px', color: '#475569', lineHeight: 1.6, margin: 0 }}>
-                Agents often get trapped executing identical failing edits in a loop. Chrono's flight recorder flags cyclic behavior and pauses execution before API tokens burn out.
-              </p>
-            </div>
-          </div>
-
-          {/* Card 2 */}
-          <div style={{
-            backgroundColor: '#F9FAFB',
-            border: '1px solid #E5E7EB',
-            borderRadius: '20px',
-            padding: '28px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between'
-          }}>
-            <div>
-              <div style={{
-                fontSize: '11px',
-                fontWeight: 800,
-                color: '#6B7280',
-                letterSpacing: '0.08em',
-                textTransform: 'uppercase',
-                marginBottom: '10px'
-              }}>
-                CONSIDERED DETAILS
-              </div>
-              <h3 style={{
-                fontSize: '22px',
-                fontWeight: 700,
-                color: '#09090b',
-                lineHeight: 1.3,
-                marginBottom: '12px',
-                textDecoration: 'underline',
-                textDecorationColor: '#E5E7EB',
-                textUnderlineOffset: '6px'
-              }}>
-                Sub-frame timeline replay
-              </h3>
-              <p style={{ fontSize: '14px', color: '#475569', lineHeight: 1.6, margin: 0 }}>
-                Scrub back and forward through the entire agent run with fluid 60 FPS precision. Inspect every file diff, shell execution, and prompt state at that exact millisecond.
-              </p>
-            </div>
-          </div>
-
-          {/* Card 3 */}
-          <div style={{
-            backgroundColor: '#F9FAFB',
-            border: '1px solid #E5E7EB',
-            borderRadius: '20px',
-            padding: '28px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between'
-          }}>
-            <div>
-              <div style={{
-                fontSize: '11px',
-                fontWeight: 800,
-                color: '#6B7280',
-                letterSpacing: '0.08em',
-                textTransform: 'uppercase',
-                marginBottom: '10px'
-              }}>
-                IMMUTABLE PROOF
-              </div>
-              <h3 style={{
-                fontSize: '22px',
-                fontWeight: 700,
-                color: '#09090b',
-                lineHeight: 1.3,
-                marginBottom: '12px',
-                textDecoration: 'underline',
-                textDecorationColor: '#E5E7EB',
-                textUnderlineOffset: '6px'
-              }}>
-                Tamper-proof cryptographic seals
-              </h3>
-              <p style={{ fontSize: '14px', color: '#475569', lineHeight: 1.6, margin: 0 }}>
-                Every action is sealed in an append-only cryptographic hash chain. No deleted steps, no retroactively edited prompts &mdash; verifiable certainty for security teams.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-          </div>
-
-          {/* SECTION 3 (SLIDES IN FROM THE RIGHT COVERING SECTION 2) */}
+          {/* SECTION 3 (SLIDES IN FROM THE RIGHT: MATCHES USER'S REFERENCE IMAGE) */}
           <div style={{
             position: 'absolute',
             top: 0,
@@ -1112,135 +1042,87 @@ export default function App() {
             height: '100%',
             transform: `translateX(${section3Slide}%)`,
             willChange: 'transform',
-            backgroundColor: '#ffffff',
+            backgroundColor: '#F3F3F5',
             borderTopLeftRadius: '40px',
             borderBottomLeftRadius: '40px',
-            boxShadow: '-30px 0 90px rgba(0, 0, 0, 0.45), -4px 0 16px rgba(0, 0, 0, 0.15)',
-            zIndex: 20,
+            boxShadow: '-30px 0 90px rgba(0, 0, 0, 0.35), -4px 0 16px rgba(0, 0, 0, 0.1)',
+            zIndex: 30,
+            overflow: 'hidden',
             display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            overflowY: 'auto'
+            alignItems: 'center',
+            justifyContent: 'center'
           }}>
-            <section style={{
-        maxWidth: '1280px',
-        margin: '0 auto',
-        padding: '0 36px 96px 36px'
-      }}>
-        <div style={{
-          fontSize: '12px',
-          fontWeight: 700,
-          color: '#0064E0',
-          letterSpacing: '0.08em',
-          textTransform: 'uppercase',
-          marginBottom: '10px'
-        }}>
-          SECURE AND IN CONTROL
-        </div>
-        <h2 style={{
-          fontSize: '36px',
-          fontWeight: 800,
-          color: '#09090b',
-          letterSpacing: '-0.02em',
-          margin: '0 0 32px 0'
-        }}>
-          Built for privacy, safety, and undeniable proof
-        </h2>
+            {/* Constellation of Floating Research Cards */}
+            {FLOATING_RESEARCH_CARDS.map((card) => (
+              <div
+                key={card.id}
+                style={{
+                  position: 'absolute',
+                  left: card.left,
+                  top: card.top,
+                  width: card.width,
+                  height: card.height,
+                  borderRadius: card.radius,
+                  overflow: 'hidden',
+                  boxShadow: '0 14px 34px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06)',
+                  backgroundColor: '#E5E7EB',
+                  transform: 'translate(-50%, -50%)',
+                  pointerEvents: 'none',
+                  zIndex: 5
+                }}
+              >
+                <img
+                  src={card.src}
+                  alt="Research Dimension"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    display: 'block'
+                  }}
+                />
+              </div>
+            ))}
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '28px' }}>
-          {/* Card 1 */}
-          <div style={{
-            backgroundColor: '#F9FAFB',
-            border: '1px solid #E5E7EB',
-            borderRadius: '24px',
-            padding: '36px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between'
-          }}>
-            <div>
-              <div style={{
-                width: '44px',
-                height: '44px',
-                borderRadius: '50%',
-                backgroundColor: '#E0F2FE',
-                color: '#0064E0',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: '20px'
+            {/* Central Headline & Get Started Pill (Exact match to reference image) */}
+            <div style={{
+              position: 'relative',
+              zIndex: 10,
+              textAlign: 'center',
+              maxWidth: '850px',
+              padding: '0 24px'
+            }}>
+              <h2 style={{
+                fontSize: 'clamp(44px, 5.8vw, 78px)',
+                fontWeight: 800,
+                letterSpacing: '-0.035em',
+                color: '#09090b',
+                lineHeight: 1.05,
+                margin: '0 0 24px 0'
               }}>
-                <IconLock size={22} color="#0064E0" />
-              </div>
-              <h3 style={{ fontSize: '22px', fontWeight: 800, color: '#111827', margin: '0 0 12px 0' }}>
-                Tamper-Proof Audit History
-              </h3>
-              <p style={{ fontSize: '15px', color: '#4B5563', lineHeight: 1.6, margin: '0 0 18px 0' }}>
-                Every recorded action is permanently sealed in an append-only log. Once committed, the history cannot be silently edited or deleted, giving security and compliance teams undeniable proof of every step.
-              </p>
-              <div style={{
-                fontSize: '12px',
-                fontWeight: 600,
-                color: '#047857',
-                backgroundColor: '#ECFDF5',
-                padding: '8px 14px',
-                borderRadius: '8px',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px'
-              }}>
-                <IconCheck size={14} color="#047857" /> Verifiable Audit Trail
-              </div>
-            </div>
-          </div>
+                Artificial Intelligence<br />
+                Real <span style={{ color: '#A89A86' }}>Research</span>
+              </h2>
 
-          {/* Card 2 */}
-          <div style={{
-            backgroundColor: '#F9FAFB',
-            border: '1px solid #E5E7EB',
-            borderRadius: '24px',
-            padding: '36px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between'
-          }}>
-            <div>
-              <div style={{
-                width: '44px',
-                height: '44px',
-                borderRadius: '50%',
-                backgroundColor: '#E0F2FE',
-                color: '#0064E0',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: '20px'
-              }}>
-                <IconShield size={22} color="#0064E0" />
-              </div>
-              <h3 style={{ fontSize: '22px', fontWeight: 800, color: '#111827', margin: '0 0 12px 0' }}>
-                Instant Surgical Rollbacks
-              </h3>
-              <p style={{ fontSize: '15px', color: '#4B5563', lineHeight: 1.6, margin: '0 0 18px 0' }}>
-                Review and pause agent actions before unintended damage happens. Rewind to any healthy historical moment, provide corrected guidance, and resume execution without losing prior work.
-              </p>
-              <div style={{
-                fontSize: '12px',
-                fontWeight: 600,
-                color: '#0284C7',
-                backgroundColor: '#F0F9FF',
-                padding: '8px 14px',
-                borderRadius: '8px',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px'
-              }}>
-                <IconZap size={14} color="#0284C7" /> Zero Data Loss Guarantee
-              </div>
+              <a
+                href={COCKPIT_URL}
+                style={{
+                  display: 'inline-block',
+                  backgroundColor: '#ffffff',
+                  color: '#09090b',
+                  textDecoration: 'none',
+                  fontSize: '15px',
+                  fontWeight: 600,
+                  padding: '13px 34px',
+                  borderRadius: '9999px',
+                  border: '1px solid rgba(0, 0, 0, 0.08)',
+                  boxShadow: '0 6px 20px rgba(0, 0, 0, 0.06)',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                Get Started
+              </a>
             </div>
-          </div>
-        </div>
-      </section>
           </div>
         </div>
       </div>
