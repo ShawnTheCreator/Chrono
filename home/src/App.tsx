@@ -2,50 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 
 const COCKPIT_URL = (import.meta as any).env?.VITE_COCKPIT_URL || (import.meta as any).env?.VITE_DASHBOARD_URL || 'https://chrono-dashboard-alpha.vercel.app';
 
-interface CheckpointBlock {
-  index: number;
-  kind: string;
-  timestamp: string;
-  actionSummary: string;
-  status: string;
-  verified: boolean;
-}
-
-const SAMPLE_BLOCKS: CheckpointBlock[] = [
-  {
-    index: 1,
-    kind: 'SESSION STARTED',
-    timestamp: '00:00',
-    actionSummary: 'Workspace initialized and recorder connected to agent process',
-    status: 'Verified Healthy',
-    verified: true
-  },
-  {
-    index: 12,
-    kind: 'TOOL EXECUTION',
-    timestamp: '02:30',
-    actionSummary: 'Executed build target and updated dependencies',
-    status: 'Verified Healthy',
-    verified: true
-  },
-  {
-    index: 29,
-    kind: 'SAFETY TRIPWIRE',
-    timestamp: '04:55',
-    actionSummary: 'Paused execution: Agent repeated identical failing edits 3 times',
-    status: 'Alert Triggered',
-    verified: true
-  },
-  {
-    index: 41,
-    kind: 'TASK COMPLETED',
-    timestamp: '05:20',
-    actionSummary: 'Verified final codebase state and generated forensic report',
-    status: 'Verified Complete',
-    verified: true
-  }
-];
-
 // Clean Modern SVG Icons
 const IconShield = ({ size = 20, color = 'currentColor' }: { size?: number; color?: string }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -251,20 +207,6 @@ export default function App() {
   const [videoIndex, setVideoIndex] = useState(0);
   const [activeFeatureTab, setActiveFeatureTab] = useState(0);
 
-  // Timeline Scrubber State
-  const [playheadPercent, setPlayheadPercent] = useState(78);
-  const [animStage, setAnimStage] = useState<'running' | 'stalled' | 'intervened'>('intervened');
-  const [formattedTimestamp, setFormattedTimestamp] = useState('05:20');
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-  const [isHovered, setIsHovered] = useState(false);
-  const [mouseTilt, setMouseTilt] = useState({ rx: 0, ry: 0 });
-  const containerRef = useRef<HTMLDivElement | null>(null);
-
-  // Audit State
-  const [isVerifying, setIsVerifying] = useState(false);
-  const [verifyResult, setVerifyResult] = useState<string | null>(null);
-  const [selectedBlock, setSelectedBlock] = useState<CheckpointBlock>(SAMPLE_BLOCKS[2]);
-
   // FAQ Accordion State (first item open by default)
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
@@ -285,78 +227,6 @@ export default function App() {
     }, 3500);
     return () => clearInterval(timer);
   }, []);
-
-  // Continuous narrative playback loop
-  useEffect(() => {
-    if (!isAutoPlaying || isHovered) return;
-
-    const cycleDuration = 7500;
-    const startTime = Date.now();
-
-    const interval = setInterval(() => {
-      const elapsed = (Date.now() - startTime) % cycleDuration;
-      const progress = elapsed / cycleDuration;
-
-      if (progress < 0.40) {
-        const pct = 15 + (progress / 0.40) * 55;
-        setPlayheadPercent(pct);
-        setAnimStage('running');
-        const secs = Math.floor(60 + (progress / 0.40) * 225);
-        const mins = Math.floor(secs / 60);
-        const remSecs = secs % 60;
-        setFormattedTimestamp(`0${mins}:${remSecs < 10 ? '0' : ''}${remSecs}`);
-      } else if (progress < 0.65) {
-        setPlayheadPercent(72);
-        setAnimStage('stalled');
-        setFormattedTimestamp('04:55');
-      } else {
-        setPlayheadPercent(78);
-        setAnimStage('intervened');
-        setFormattedTimestamp('05:20');
-      }
-    }, 40);
-
-    return () => clearInterval(interval);
-  }, [isAutoPlaying, isHovered]);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left - rect.width / 2;
-    const y = e.clientY - rect.top - rect.height / 2;
-    const rx = -(y / rect.height) * 6;
-    const ry = (x / rect.width) * 6;
-    setMouseTilt({ rx, ry });
-  };
-
-  const handleMouseLeave = () => {
-    setMouseTilt({ rx: 0, ry: 0 });
-    setIsHovered(false);
-  };
-
-  const handleRunVerify = () => {
-    setIsVerifying(true);
-    setVerifyResult(null);
-    setTimeout(() => {
-      setIsVerifying(false);
-      setVerifyResult('Audit Passed: All 41 checkpoints verified. Complete historical integrity confirmed.');
-    }, 450);
-  };
-
-  const handleManualSeek = (pct: number) => {
-    setIsAutoPlaying(false);
-    setPlayheadPercent(pct);
-    if (pct < 65) {
-      setAnimStage('running');
-      setFormattedTimestamp('02:15');
-    } else if (pct < 76) {
-      setAnimStage('stalled');
-      setFormattedTimestamp('04:55');
-    } else {
-      setAnimStage('intervened');
-      setFormattedTimestamp('05:20');
-    }
-  };
 
   const currentHero = HERO_ROTATING_LINES[heroIndex];
 
@@ -471,8 +341,6 @@ export default function App() {
             fontWeight: 500
           }}>
             <a href="#chrono-features" style={{ color: '#ffffff', textDecoration: 'none', opacity: 0.9 }}>Features</a>
-            <a href="#cockpit-section" style={{ color: '#ffffff', textDecoration: 'none', fontWeight: 600 }}>Flight Cockpit</a>
-            <a href="#audit-section" style={{ color: '#ffffff', textDecoration: 'none', opacity: 0.9 }}>Audit Trail</a>
             <a href="#capabilities" style={{ color: '#ffffff', textDecoration: 'none', opacity: 0.9 }}>Capabilities</a>
             <a href="#faq" style={{ color: '#ffffff', textDecoration: 'none', opacity: 0.9 }}>FAQ</a>
           </nav>
@@ -576,7 +444,7 @@ export default function App() {
             </a>
 
             <a
-              href="#cockpit-section"
+              href="#chrono-features"
               style={{
                 backgroundColor: 'rgba(255,255,255,0.18)',
                 color: '#ffffff',
@@ -589,7 +457,7 @@ export default function App() {
                 border: '1px solid rgba(255,255,255,0.3)'
               }}
             >
-              Explore Live Demo ↓
+              Explore Features ↓
             </a>
           </div>
         </div>
@@ -1516,323 +1384,7 @@ export default function App() {
         </div>
       </section>
 
-      {/* 9. CHRONO FLIGHT RECORDER & COCKPIT TIMELINE DEMO */}
-      <section id="cockpit-section" style={{
-        maxWidth: '1280px',
-        margin: '0 auto',
-        padding: '0 36px 96px 36px'
-      }}>
-        <div style={{ marginBottom: '28px' }}>
-          <div style={{
-            fontSize: '12px',
-            fontWeight: 700,
-            color: '#0064E0',
-            letterSpacing: '0.08em',
-            textTransform: 'uppercase',
-            marginBottom: '10px'
-          }}>
-            INTERACTIVE FLIGHT COCKPIT
-          </div>
-          <h2 style={{
-            fontSize: '36px',
-            fontWeight: 800,
-            color: '#09090b',
-            letterSpacing: '-0.02em',
-            margin: '0 0 10px 0'
-          }}>
-            Smooth, Instant Timeline Inspection
-          </h2>
-          <p style={{
-            fontSize: '16px',
-            color: '#4B5563',
-            margin: 0
-          }}>
-            Continuous recording with automatic stall tripwire detection and instant root-cause analysis.
-          </p>
-        </div>
-
-        {/* Cockpit Card Frame */}
-        <div
-          ref={containerRef}
-          onMouseMove={handleMouseMove}
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={handleMouseLeave}
-          style={{
-            borderRadius: '16px',
-            border: '1px solid #D1D5DB',
-            backgroundColor: '#ffffff',
-            boxShadow: '0 12px 35px -5px rgba(0,0,0,0.1)',
-            overflow: 'hidden',
-            transform: `perspective(1000px) rotateX(${mouseTilt.rx}deg) rotateY(${mouseTilt.ry}deg)`,
-            transition: isHovered ? 'transform 0.08s ease-out' : 'transform 0.35s ease-out'
-          }}
-        >
-          {/* Header */}
-          <div style={{
-            height: '42px',
-            borderBottom: '1px solid #1E293B',
-            backgroundColor: '#0D1117',
-            padding: '0 18px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#EF4444' }} />
-              <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#F59E0B' }} />
-              <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#10B981' }} />
-              <span style={{ fontSize: '12px', fontWeight: 600, color: '#94A3B8', marginLeft: '8px' }}>
-                Session: Autonomous Code Refactoring Task
-              </span>
-            </div>
-
-            <span style={{
-              color: animStage === 'stalled' ? '#F85149' : (animStage === 'intervened' ? '#71F6D2' : '#0DACF1'),
-              fontWeight: 600,
-              fontSize: '11px'
-            }}>
-              {animStage === 'running' && 'NORMAL FLIGHT // EXECUTING TASKS'}
-              {animStage === 'stalled' && 'SAFETY ALERT // STALL LOOP DETECTED'}
-              {animStage === 'intervened' && 'COURSE-CORRECTED // SAFE EXECUTION RESUMED'}
-            </span>
-          </div>
-
-          {/* Visual Activity Waveforms */}
-          <div style={{
-            height: '200px',
-            backgroundColor: '#090D16',
-            position: 'relative',
-            overflow: 'hidden',
-            padding: '18px 24px'
-          }}>
-            <div style={{ position: 'relative', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#64748B' }}>
-                <span>START OF RUN</span>
-                <span>BUILD STEP</span>
-                <span style={{ color: animStage === 'stalled' ? '#F85149' : '#64748B' }}>STALL DETECTED</span>
-                <span style={{ color: '#71F6D2' }}>COMPLETED</span>
-              </div>
-
-              {/* Waveforms */}
-              <div style={{ height: '65px', position: 'relative', display: 'flex', alignItems: 'flex-end', gap: '3px' }}>
-                {Array.from({ length: 64 }).map((_, i) => {
-                  const h = 12 + Math.sin(i * 0.35) * 26 + (i > 40 && i < 50 ? 28 : 0);
-                  const isStallArea = i >= 42 && i <= 48;
-                  const isIntervenedArea = i > 48;
-                  let bg = 'rgba(13, 172, 241, 0.45)';
-                  if (isStallArea) bg = 'rgba(239, 68, 68, 0.8)';
-                  else if (isIntervenedArea) bg = 'rgba(113, 246, 210, 0.6)';
-
-                  return (
-                    <div
-                      key={i}
-                      style={{
-                        flex: 1,
-                        height: `${h}px`,
-                        backgroundColor: bg,
-                        borderRadius: '1px 1px 0 0'
-                      }}
-                    />
-                  );
-                })}
-              </div>
-
-              {/* Scrubber Track */}
-              <div
-                onClick={(e) => {
-                  const rect = e.currentTarget.getBoundingClientRect();
-                  const pct = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
-                  handleManualSeek(pct);
-                }}
-                style={{
-                  position: 'relative',
-                  height: '24px',
-                  backgroundColor: '#161B22',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  border: '1px solid #30363D'
-                }}
-              >
-                <div style={{
-                  position: 'absolute',
-                  left: 0,
-                  top: 0,
-                  bottom: 0,
-                  width: `${playheadPercent}%`,
-                  backgroundColor: 'rgba(13, 172, 241, 0.2)',
-                  borderRight: '2px solid #0DACF1'
-                }} />
-
-                <div style={{
-                  position: 'absolute',
-                  left: `${playheadPercent}%`,
-                  top: '-7px',
-                  transform: 'translateX(-50%)',
-                  padding: '2px 7px',
-                  backgroundColor: '#0DACF1',
-                  color: '#ffffff',
-                  fontSize: '11px',
-                  fontWeight: 700,
-                  borderRadius: '3px'
-                }}>
-                  {formattedTimestamp}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Diagnostic Bar */}
-          <div style={{
-            backgroundColor: '#0D1117',
-            borderTop: '1px solid #21262D',
-            padding: '12px 20px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            fontSize: '12px',
-            color: '#C9D1D9'
-          }}>
-            <div>
-              <span style={{ color: '#8B949E' }}>STATUS: </span>
-              {animStage === 'stalled' && (
-                <span style={{ color: '#F85149' }}>
-                  Safety Alert: Agent repeated identical changes 3 times. Execution paused to protect budget.
-                </span>
-              )}
-              {animStage === 'intervened' && (
-                <span style={{ color: '#71F6D2' }}>
-                  Intervention #30: Operator rewound execution and updated instructions. Normal flight resumed.
-                </span>
-              )}
-              {animStage === 'running' && (
-                <span style={{ color: '#0DACF1' }}>
-                  Normal Execution: Tool execution completed successfully.
-                </span>
-              )}
-            </div>
-
-            <button
-              onClick={() => setIsAutoPlaying(!isAutoPlaying)}
-              style={{
-                background: '#21262D',
-                border: '1px solid #30363D',
-                color: '#F0F6FC',
-                padding: '4px 12px',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: '11px'
-              }}
-            >
-              {isAutoPlaying ? 'Pause' : 'Play'}
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* 10. AUDIT TRAIL & HISTORY INSPECTOR */}
-      <section id="audit-section" style={{
-        maxWidth: '1280px',
-        margin: '0 auto',
-        padding: '0 36px 96px 36px'
-      }}>
-        <div style={{
-          backgroundColor: '#ffffff',
-          borderRadius: '16px',
-          border: '1px solid #E5E7EB',
-          padding: '32px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
-            <div>
-              <div style={{ fontSize: '12px', fontWeight: 700, color: '#0064E0', letterSpacing: '0.04em' }}>
-                VERIFIED AUDIT LOG
-              </div>
-              <h2 style={{ fontSize: '26px', fontWeight: 800, color: '#09090b', margin: '4px 0 0 0' }}>
-                Tamper-Proof History Inspector
-              </h2>
-            </div>
-
-            <button
-              onClick={handleRunVerify}
-              disabled={isVerifying}
-              className="btn-press"
-              style={{
-                padding: '10px 22px',
-                borderRadius: '9999px',
-                backgroundColor: isVerifying ? '#94A3B8' : '#0064E0',
-                color: '#ffffff',
-                border: 'none',
-                fontSize: '13px',
-                fontWeight: 700,
-                cursor: isVerifying ? 'not-allowed' : 'pointer'
-              }}
-            >
-              {isVerifying ? 'Verifying Log Integrity...' : 'Verify Ledger Integrity'}
-            </button>
-          </div>
-
-          {verifyResult && (
-            <div style={{
-              backgroundColor: '#F0FDF4',
-              border: '1px solid #BBF7D0',
-              borderRadius: '8px',
-              padding: '12px 16px',
-              fontSize: '13px',
-              color: '#15803D',
-              marginBottom: '20px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}>
-              <IconCheck size={16} color="#15803D" /> {verifyResult}
-            </div>
-          )}
-
-          {/* 4 Clickable Checkpoint Cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '14px', marginBottom: '20px' }}>
-            {SAMPLE_BLOCKS.map((b) => (
-              <div
-                key={b.index}
-                onClick={() => setSelectedBlock(b)}
-                style={{
-                  padding: '14px 16px',
-                  borderRadius: '8px',
-                  border: selectedBlock.index === b.index ? '2px solid #0064E0' : '1px solid #E5E7EB',
-                  backgroundColor: selectedBlock.index === b.index ? '#F0F9FF' : '#ffffff',
-                  cursor: 'pointer'
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#64748B' }}>
-                  <span>Checkpoint #{b.index}</span>
-                  <span>{b.timestamp}</span>
-                </div>
-                <div style={{ fontSize: '14px', fontWeight: 700, color: '#09090b', marginTop: '6px' }}>
-                  {b.kind}
-                </div>
-                <div style={{ fontSize: '11px', color: '#15803D', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <IconCheck size={12} color="#15803D" /> {b.status}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Checkpoint Detail Box */}
-          <div style={{
-            backgroundColor: '#0D1117',
-            borderRadius: '8px',
-            padding: '16px 20px',
-            fontSize: '13px',
-            color: '#C9D1D9',
-            lineHeight: 1.6
-          }}>
-            <div style={{ color: '#8B949E', marginBottom: '6px' }}>// Inspecting Checkpoint #{selectedBlock.index} — {selectedBlock.kind}</div>
-            <div><span style={{ color: '#0DACF1' }}>Recorded Action:</span> {selectedBlock.actionSummary}</div>
-            <div><span style={{ color: '#71F6D2' }}>Integrity Status:</span> Cryptographically verified • Unaltered</div>
-          </div>
-        </div>
-      </section>
-
-      {/* 11. CORE CAPABILITIES (REPLACED TECHNICAL SPEC JARGON WITH VALUE) */}
+      {/* 9. CORE CAPABILITIES (REPLACED TECHNICAL SPEC JARGON WITH VALUE) */}
       <section id="capabilities" style={{
         maxWidth: '1280px',
         margin: '0 auto',
@@ -2058,8 +1610,8 @@ export default function App() {
           <div>
             <div style={{ fontSize: '13px', fontWeight: 700, color: '#111827', marginBottom: '14px' }}>Product</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <a href="#cockpit-section" style={{ color: '#64748B', textDecoration: 'none' }}>Flight Cockpit</a>
-              <a href="#audit-section" style={{ color: '#64748B', textDecoration: 'none' }}>Audit Trail</a>
+              <a href={`${COCKPIT_URL}/dashboard`} style={{ color: '#64748B', textDecoration: 'none' }}>Flight Cockpit</a>
+              <a href="#capabilities" style={{ color: '#64748B', textDecoration: 'none' }}>Capabilities</a>
               <a href="#chrono-features" style={{ color: '#64748B', textDecoration: 'none' }}>Loop Protection</a>
               <a href={`${COCKPIT_URL}/login`} style={{ color: '#64748B', textDecoration: 'none' }}>Operator Portal</a>
             </div>
