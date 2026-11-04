@@ -216,7 +216,7 @@ const COCKPIT_TARGETS = [
     name: 'Runaway Loop Intercepted',
     cursorX: 49,
     cursorY: 82,
-    label: 'Runaway loop caught — paused to protect budget',
+    label: 'Runaway loop caught: paused to protect budget',
     labelPos: {
       bottom: 'calc(100% + 8px)',
       left: '50%',
@@ -237,7 +237,7 @@ const COCKPIT_TARGETS = [
     name: 'Recorded Code Changes',
     cursorX: 42,
     cursorY: 38,
-    label: 'Code diff recorded — verifies changes before applying',
+    label: 'Code diff recorded: verifies changes before applying',
     labelPos: {
       top: '10px',
       left: '12px',
@@ -258,7 +258,7 @@ const COCKPIT_TARGETS = [
     name: 'Root-Cause Reasoner',
     cursorX: 84,
     cursorY: 46,
-    label: 'Root-cause diagnosis — explains failure without raw logs',
+    label: 'Root-cause diagnosis: explains failure without raw logs',
     labelPos: {
       top: '10px',
       right: '10px',
@@ -294,7 +294,7 @@ const BLUE_STICKER_NOTES = [
     tilt: '2deg',
     title: 'Instant Project Rewind',
     note: 'Rewinds your codebase back to the exact clean checkpoint before the AI broke anything.',
-    tag: '1-Click Undo'
+    tag: 'Instant Undo'
   },
   {
     id: 3,
@@ -303,7 +303,7 @@ const BLUE_STICKER_NOTES = [
     tilt: '-1.5deg',
     title: 'Black Box Recorder',
     note: 'Records every terminal command, file change, and tool invocation in real-time at 60 FPS.',
-    tag: 'Full Flight Log'
+    tag: 'Flight Log'
   },
   {
     id: 4,
@@ -312,14 +312,14 @@ const BLUE_STICKER_NOTES = [
     tilt: '2.5deg',
     title: 'Explains Why It Broke',
     note: 'Translates complex agent crashes into plain English explanations in seconds with zero raw log dumps.',
-    tag: 'Root-Cause AI'
+    tag: 'Root Cause AI'
   },
   {
     id: 5,
     left: '25%',
     top: '6.7%',
     tilt: '-2deg',
-    title: 'Pre-Flight Code Diff',
+    title: 'Preflight Code Diff',
     note: 'Inspects every added and deleted line before code changes touch your production branch.',
     tag: 'Diff Inspector'
   },
@@ -1152,7 +1152,7 @@ export default function App() {
                     textTransform: 'uppercase',
                     letterSpacing: '0.04em'
                   }}>
-                    #{card.tag}
+                    {card.tag}
                   </div>
                 </div>
               ))}
@@ -1280,7 +1280,7 @@ export default function App() {
                 lineHeight: 1.25,
                 margin: '0 0 28px 0'
               }}>
-                “Chrono is the flight data recorder for autonomous AI agents—recording every decision, intercepting runaway mistakes, and guaranteeing complete cryptographic truth.”
+                Chrono is the flight data recorder for autonomous AI agents, recording every decision, intercepting runaway mistakes, and guaranteeing complete cryptographic truth.
               </h2>
 
               <p style={{
@@ -1533,7 +1533,7 @@ export default function App() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <ChronoLogo size={20} color="#0064E0" />
             <span style={{ fontWeight: 700, color: '#111827' }}>CHRONO FLIGHT DATA RECORDER</span>
-            <span>— The Flight Data Recorder for Autonomous AI Agents</span>
+            <span>The Flight Data Recorder for Autonomous AI Agents</span>
           </div>
 
           <div style={{ display: 'flex', gap: '20px' }}>
