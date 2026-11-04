@@ -276,21 +276,21 @@ const COCKPIT_TARGETS = [
   }
 ];
 
-// Blue Sticker Notes with White Text for Section 3 (Plain-English "What Chrono Does", Zero Emojis)
+// Blue Sticker Notes with White Text for Section 3 (Generously Spaced, Plain-English, Zero Emojis)
 const BLUE_STICKER_NOTES = [
   {
     id: 1,
     left: '100%',
     top: '50%',
-    tilt: '-2.5deg',
+    tilt: '-2deg',
     title: 'Stops Runaway Loops',
-    note: 'Pauses agents when they get stuck repeating the same failing action so you do not burn your API budget.',
-    tag: 'Budget Protection'
+    note: 'Pauses agents when they get stuck repeating failing edits so you do not burn your API budget.',
+    tag: 'Budget Protected'
   },
   {
     id: 2,
-    left: '85.4%',
-    top: '85.4%',
+    left: '75%',
+    top: '93.3%',
     tilt: '2deg',
     title: 'Instant Project Rewind',
     note: 'Rewinds your codebase back to the exact clean checkpoint before the AI broke anything.',
@@ -298,8 +298,8 @@ const BLUE_STICKER_NOTES = [
   },
   {
     id: 3,
-    left: '50%',
-    top: '100%',
+    left: '25%',
+    top: '93.3%',
     tilt: '-1.5deg',
     title: 'Black Box Recorder',
     note: 'Records every terminal command, file change, and tool invocation in real-time at 60 FPS.',
@@ -307,8 +307,8 @@ const BLUE_STICKER_NOTES = [
   },
   {
     id: 4,
-    left: '14.6%',
-    top: '85.4%',
+    left: '0%',
+    top: '50%',
     tilt: '2.5deg',
     title: 'Explains Why It Broke',
     note: 'Translates complex agent crashes into plain English explanations in seconds with zero raw log dumps.',
@@ -316,8 +316,8 @@ const BLUE_STICKER_NOTES = [
   },
   {
     id: 5,
-    left: '0%',
-    top: '50%',
+    left: '25%',
+    top: '6.7%',
     tilt: '-2deg',
     title: 'Pre-Flight Code Diff',
     note: 'Inspects every added and deleted line before code changes touch your production branch.',
@@ -325,30 +325,12 @@ const BLUE_STICKER_NOTES = [
   },
   {
     id: 6,
-    left: '14.6%',
-    top: '14.6%',
+    left: '75%',
+    top: '6.7%',
     tilt: '1.8deg',
-    title: 'Clean Sandbox',
+    title: 'Safe Sandbox',
     note: 'Isolates risky package installs and commands so broken agent experiments never damage your computer.',
     tag: 'Safe Workspace'
-  },
-  {
-    id: 7,
-    left: '50%',
-    top: '0%',
-    tilt: '-1.2deg',
-    title: 'Proof of Every Move',
-    note: 'Creates permanent, verifiable audit receipts of everything the AI built for enterprise compliance.',
-    tag: 'Audit Proofs'
-  },
-  {
-    id: 8,
-    left: '85.4%',
-    top: '14.6%',
-    tilt: '2.2deg',
-    title: 'Multi-Agent Oversight',
-    note: 'Watches planner, coder, and tester agents working in parallel and shows you who did what.',
-    tag: 'Swarm Sync'
   }
 ];
 
@@ -1067,15 +1049,15 @@ export default function App() {
             alignItems: 'center',
             justifyContent: 'center'
           }}>
-            {/* Rotating Clockwise Orbit Track for Sticker Notes */}
+            {/* Rotating Clockwise Orbit Track for Sticker Notes (Spacious 860px Diameter) */}
             <div
               className="sticker-orbit-track"
               style={{
                 position: 'absolute',
                 top: '50%',
                 left: '50%',
-                width: 'min(780px, 80vh)',
-                height: 'min(780px, 80vh)',
+                width: 'min(860px, 84vh)',
+                height: 'min(860px, 84vh)',
                 pointerEvents: 'none',
                 zIndex: 15
               }}
@@ -1239,7 +1221,7 @@ export default function App() {
             </div>
           </div>
 
-          {/* SECTION 4 (SLIDES IN FROM LEFT TO RIGHT: COVERING THE STAGE WITH EDITORIAL JOURNAL DESIGN) */}
+          {/* SECTION 4 (SLIDES IN FROM LEFT TO RIGHT: SINGLE IMPACTFUL SENTENCE ABOUT CHRONO) */}
           <div style={{
             position: 'absolute',
             top: 0,
@@ -1255,175 +1237,129 @@ export default function App() {
             zIndex: 40,
             overflow: 'hidden',
             display: 'flex',
+            flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '0 clamp(24px, 4vw, 64px)',
+            padding: '0 clamp(24px, 6vw, 96px)',
             boxSizing: 'border-box'
           }}>
             <div style={{
-              maxWidth: '1240px',
+              maxWidth: '960px',
               width: '100%',
-              display: 'grid',
-              gridTemplateColumns: 'minmax(320px, 420px) 1fr',
-              gap: 'clamp(28px, 4vw, 64px)',
+              textAlign: 'center',
+              display: 'flex',
+              flexDirection: 'column',
               alignItems: 'center'
             }}>
-              {/* Left Column: Editorial Journal Story */}
-              <div>
-                <h2 style={{
-                  fontFamily: '"Georgia", "Times New Roman", serif',
-                  fontSize: 'clamp(32px, 3.4vw, 48px)',
-                  fontWeight: 400,
-                  letterSpacing: '-0.02em',
-                  color: '#111827',
-                  lineHeight: 1.15,
-                  margin: '0 0 24px 0'
-                }}>
-                  Beyond raw logs.
-                </h2>
+              {/* Category kicker */}
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                fontSize: '11px',
+                fontWeight: 800,
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+                color: '#0064E0',
+                backgroundColor: 'rgba(0, 100, 224, 0.08)',
+                padding: '6px 14px',
+                borderRadius: '9999px',
+                marginBottom: '28px',
+                fontFamily: 'monospace'
+              }}>
+                CHRONO FLIGHT RECORDER
+              </div>
 
-                <p style={{
-                  fontSize: 'clamp(13px, 1vw, 15px)',
-                  color: '#4B5563',
-                  lineHeight: 1.6,
-                  margin: '0 0 18px 0'
-                }}>
-                  Stories of autonomous agents, deterministic replays, and the guardrails that shape production code. From the first task prompt to the final pull request, we look at how execution leaves its mark on every repository.
-                </p>
+              {/* The Single Impactful Sentence about Chrono */}
+              <h2 style={{
+                fontFamily: '"Georgia", "Times New Roman", serif',
+                fontSize: 'clamp(32px, 4.2vw, 56px)',
+                fontWeight: 400,
+                letterSpacing: '-0.025em',
+                color: '#0F172A',
+                lineHeight: 1.25,
+                margin: '0 0 28px 0'
+              }}>
+                “Chrono is the flight data recorder for autonomous AI agents—recording every decision, intercepting runaway mistakes, and guaranteeing complete cryptographic truth.”
+              </h2>
 
-                <p style={{
-                  fontSize: 'clamp(13px, 1vw, 15px)',
-                  color: '#4B5563',
-                  lineHeight: 1.6,
-                  margin: '0 0 28px 0'
-                }}>
-                  A space for runaway loops, microsecond rollbacks, and the critical moments in between. For noticing a code drift, a stalled tool call, or a safer path through complex refactors. The Chrono Flight Deck traces these shifts with an engine built for zero hallucinations.
-                </p>
+              <p style={{
+                fontSize: 'clamp(14px, 1.1vw, 16px)',
+                color: '#64748B',
+                maxWidth: '620px',
+                margin: '0 0 36px 0',
+                lineHeight: 1.55
+              }}>
+                From background terminal commands to multi-file refactors, Chrono gives engineering teams the determinism, safety, and instant rollback needed to run autonomous coding agents in production.
+              </p>
 
+              {/* Call to Action Buttons */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '16px',
+                flexWrap: 'wrap',
+                justifyContent: 'center'
+              }}>
                 <a
                   href={COCKPIT_URL}
                   style={{
-                    fontFamily: '"Georgia", "Times New Roman", serif',
-                    fontSize: '16px',
-                    color: '#111827',
-                    textDecoration: 'underline',
-                    textUnderlineOffset: '6px',
-                    fontWeight: 500,
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '6px'
+                    gap: '8px',
+                    backgroundColor: '#0064E0',
+                    color: '#ffffff',
+                    textDecoration: 'none',
+                    fontSize: '15px',
+                    fontWeight: 600,
+                    padding: '13px 32px',
+                    borderRadius: '9999px',
+                    boxShadow: '0 8px 24px rgba(0, 100, 224, 0.28), 0 2px 6px rgba(0, 0, 0, 0.08)',
+                    transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 12px 30px rgba(0, 100, 224, 0.38)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 8px 24px rgba(0, 100, 224, 0.28), 0 2px 6px rgba(0, 0, 0, 0.08)';
                   }}
                 >
-                  Read the flight journal
+                  Launch Cockpit
                   <IconArrowUpRight size={15} />
                 </a>
-              </div>
 
-              {/* Right Column: Two Tall Editorial Cards */}
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
-                gap: 'clamp(16px, 2vw, 24px)'
-              }}>
-                {/* Card 1: Runaway Safeguard */}
-                <div style={{
-                  height: 'clamp(360px, 62vh, 500px)',
-                  borderRadius: '16px',
-                  overflow: 'hidden',
-                  position: 'relative',
-                  backgroundImage: `linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.4) 45%, rgba(0,0,0,0.15) 100%), url('https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=800&q=80')`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'flex-end',
-                  padding: '24px',
-                  boxSizing: 'border-box',
-                  boxShadow: '0 16px 36px rgba(0,0,0,0.12)'
-                }}>
-                  <div style={{
-                    fontSize: '11px',
-                    fontWeight: 800,
-                    letterSpacing: '0.08em',
-                    textTransform: 'uppercase',
-                    color: '#71F6D2',
-                    fontFamily: 'monospace',
-                    marginBottom: '6px'
-                  }}>
-                    EVERYDAY RUNAWAYS
-                  </div>
-                  <div style={{
-                    fontFamily: '"Georgia", "Times New Roman", serif',
-                    fontSize: 'clamp(18px, 1.6vw, 22px)',
-                    fontWeight: 400,
-                    lineHeight: 1.25,
-                    color: '#ffffff',
-                    textDecoration: 'underline',
-                    textUnderlineOffset: '5px'
-                  }}>
-                    Catching runaway loops in 60 FPS
-                  </div>
-                </div>
-
-                {/* Card 2: Considered Details */}
-                <div style={{
-                  height: 'clamp(360px, 62vh, 500px)',
-                  borderRadius: '16px',
-                  overflow: 'hidden',
-                  position: 'relative',
-                  backgroundImage: `linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.4) 45%, rgba(0,0,0,0.15) 100%), url('https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=800&q=80')`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'flex-end',
-                  padding: '24px',
-                  boxSizing: 'border-box',
-                  boxShadow: '0 16px 36px rgba(0,0,0,0.12)'
-                }}>
-                  {/* Asterisk Badge (Exact match to reference image!) */}
-                  <div style={{
-                    position: 'absolute',
-                    top: '16px',
-                    right: '16px',
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '50%',
-                    backgroundColor: '#0F172A',
-                    border: '1px solid rgba(255, 255, 255, 0.25)',
-                    display: 'flex',
+                <a
+                  href="https://github.com/ShawnTheCreator/Chrono"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'inline-flex',
                     alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#D4E815',
-                    fontSize: '18px',
-                    fontWeight: 900
-                  }}>
-                    ✱
-                  </div>
-
-                  <div style={{
-                    fontSize: '11px',
-                    fontWeight: 800,
-                    letterSpacing: '0.08em',
-                    textTransform: 'uppercase',
-                    color: '#71F6D2',
-                    fontFamily: 'monospace',
-                    marginBottom: '6px'
-                  }}>
-                    CONSIDERED DETAILS
-                  </div>
-                  <div style={{
-                    fontFamily: '"Georgia", "Times New Roman", serif',
-                    fontSize: 'clamp(18px, 1.6vw, 22px)',
-                    fontWeight: 400,
-                    lineHeight: 1.25,
-                    color: '#ffffff',
-                    textDecoration: 'underline',
-                    textUnderlineOffset: '5px'
-                  }}>
-                    The details that go the distance
-                  </div>
-                </div>
+                    gap: '8px',
+                    color: '#334155',
+                    textDecoration: 'none',
+                    fontSize: '15px',
+                    fontWeight: 600,
+                    padding: '13px 26px',
+                    borderRadius: '9999px',
+                    border: '1px solid #CBD5E1',
+                    backgroundColor: '#ffffff',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#F8FAFC';
+                    e.currentTarget.style.borderColor = '#94A3B8';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#ffffff';
+                    e.currentTarget.style.borderColor = '#CBD5E1';
+                  }}
+                >
+                  View on GitHub
+                  <IconArrowUpRight size={15} />
+                </a>
               </div>
             </div>
           </div>
