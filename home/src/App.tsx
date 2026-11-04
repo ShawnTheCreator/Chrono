@@ -213,36 +213,57 @@ const FAQ_ITEMS = [
 const COCKPIT_TARGETS = [
   {
     id: 1,
-    name: 'Timeline Checkpoint #29',
+    name: 'Runaway Loop Intercepted',
     cursorX: 49,
     cursorY: 82,
+    badgeText: '⚠️ RUNAWAY LOOP CAUGHT',
+    badgeColor: '#EF4444',
+    title: 'Autonomous Agent Paused',
+    explanation: 'Agent repeated identical failing edits 3 times. Execution automatically paused to protect API budget and prevent file damage.',
+    keyMetric: 'Budget Protected: $14.20 saved',
+    popoverPos: {
+      bottom: 'calc(100% + 14px)',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      width: '320px'
+    },
     highlight: {
       left: '37%',
-      top: '75%',
+      top: '73%',
       width: '26%',
-      height: '16%',
+      height: '19%',
       border: '2px solid #EF4444',
-      glow: '0 0 28px rgba(239, 68, 68, 0.45), inset 0 0 16px rgba(239, 68, 68, 0.15)',
-      bg: 'rgba(239, 68, 68, 0.08)',
+      glow: '0 0 30px rgba(239, 68, 68, 0.55), inset 0 0 16px rgba(239, 68, 68, 0.2)',
+      bg: 'rgba(239, 68, 68, 0.1)',
       tagBg: '#EF4444',
-      tagText: 'CHECKPOINT #29 // STALL DETECTED'
+      tagText: '⚠️ RUNAWAY LOOP INTERCEPTED'
     }
   },
   {
     id: 2,
-    name: 'Code Diff Inspector',
+    name: 'Recorded Code Changes',
     cursorX: 42,
     cursorY: 38,
+    badgeText: '● CODE DIFF RECORDED',
+    badgeColor: '#0082FB',
+    title: 'Cryptographic Verification',
+    explanation: 'Inspects every added and deleted line before code touches production. Zero unverified agent edits.',
+    keyMetric: '+48 additions, -12 deletions • SHA-256',
+    popoverPos: {
+      top: '12px',
+      left: '14px',
+      width: '320px'
+    },
     highlight: {
       left: '21%',
       top: '13%',
       width: '50%',
       height: '60%',
       border: '2px solid #0082FB',
-      glow: '0 0 32px rgba(0, 130, 251, 0.45), inset 0 0 20px rgba(0, 130, 251, 0.12)',
-      bg: 'rgba(0, 130, 251, 0.06)',
+      glow: '0 0 32px rgba(0, 130, 251, 0.55), inset 0 0 20px rgba(0, 130, 251, 0.15)',
+      bg: 'rgba(0, 130, 251, 0.08)',
       tagBg: '#0082FB',
-      tagText: 'DIFF INSPECTOR // src/auth/provider.ts'
+      tagText: '● CODE CHANGES RECORDED'
     }
   },
   {
@@ -250,16 +271,26 @@ const COCKPIT_TARGETS = [
     name: 'Root-Cause Reasoner',
     cursorX: 84,
     cursorY: 46,
+    badgeText: '✦ PLAIN-ENGLISH DIAGNOSIS',
+    badgeColor: '#8B5CF6',
+    title: 'Instant Root-Cause Analysis',
+    explanation: 'Explains exactly why the agent failed in plain human language in seconds—without digging through thousands of raw terminal lines.',
+    keyMetric: 'Root Cause: Missing oauth token refresh',
+    popoverPos: {
+      top: '12px',
+      right: '10px',
+      width: '260px'
+    },
     highlight: {
       left: '73%',
       top: '13%',
       width: '25%',
       height: '78%',
-      border: '2px solid #6366F1',
-      glow: '0 0 32px rgba(99, 102, 241, 0.45), inset 0 0 20px rgba(99, 102, 241, 0.12)',
-      bg: 'rgba(99, 102, 241, 0.07)',
-      tagBg: '#6366F1',
-      tagText: 'REASONING // AUTOMATED POST-MORTEM'
+      border: '2px solid #8B5CF6',
+      glow: '0 0 32px rgba(139, 92, 246, 0.55), inset 0 0 20px rgba(139, 92, 246, 0.15)',
+      bg: 'rgba(139, 92, 246, 0.08)',
+      tagBg: '#8B5CF6',
+      tagText: '✦ ROOT-CAUSE EXPLANATION'
     }
   }
 ];
@@ -440,15 +471,30 @@ export default function App() {
         window.requestAnimationFrame(() => {
           setScrollY(window.scrollY);
 
-          const vh = window.innerHeight || 800;
-          // When scrollY reaches vh, Section 2 is at top of screen.
-          // As scrollY goes from vh to 2 * vh, Section 3 smoothly slides from right (100%) to left (0%), directly covering Section 2!
-          const offset = window.scrollY - vh;
-          if (offset <= 0) {
-            setSection3Slide(100);
-          } else {
-            const progress = Math.min(1, Math.max(0, offset / vh));
-            setSection3Slide((1 - progress) * 100);
+          if (transitionTrackRef.current) {
+            const rect = transitionTrackRef.current.getBoundingClientRect();
+            const vh = window.innerHeight || 800;
+
+            // When rect.top > 0, track is below top of viewport -> Section 3 stays hidden at 100%
+            if (rect.top > 0) {
+              setSection3Slide(100);
+            } else {
+              // Distance scrolled into the pinned track
+              const scrolled = -rect.top;
+              // Section 2 stays completely stagnant for dwellStart pixels (~35% of viewport)
+              const dwellStart = vh * 0.35;
+              // Section 3 slides across for slideDuration pixels (~1.0x viewport)
+              const slideDuration = vh * 1.0;
+
+              if (scrolled <= dwellStart) {
+                setSection3Slide(100);
+              } else if (scrolled >= dwellStart + slideDuration) {
+                setSection3Slide(0);
+              } else {
+                const progress = (scrolled - dwellStart) / slideDuration;
+                setSection3Slide((1 - progress) * 100);
+              }
+            }
           }
 
           ticking = false;
@@ -456,9 +502,14 @@ export default function App() {
         ticking = true;
       }
     };
+
     window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleScroll);
     handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
   }, []);
 
   const vh = typeof window !== 'undefined' ? window.innerHeight : 900;
@@ -471,8 +522,7 @@ export default function App() {
       minHeight: '100vh',
       backgroundColor: '#090D16',
       color: '#111827',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-      overflowX: 'clip'
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
     }}>
       {/* 1. HERO SECTION WITH BACKGROUND VIDEO PLAYER (VID1 TO VID4) - FIXED 100VH STATIC */}
       <section style={{
@@ -755,7 +805,8 @@ export default function App() {
         ref={transitionTrackRef}
         style={{
           position: 'relative',
-          minHeight: '200vh',
+          height: '280vh',
+          width: '100%',
           backgroundColor: '#ffffff'
         }}
       >
@@ -840,7 +891,7 @@ export default function App() {
                 </a>
               </div>
 
-              {/* Cockpit Frame (Properly Sized at 980px Max Width with ZERO Black Sides) */}
+              {/* Cockpit Frame (Zero Black Sides, Perfectly Fits Screen Without Cutoff) */}
               <div
                 ref={cockpitFrameRef}
                 onMouseMove={handleCockpitMouseMove}
@@ -849,7 +900,7 @@ export default function App() {
                   position: 'relative',
                   perspective: '1400px',
                   width: '100%',
-                  maxWidth: '980px'
+                  maxWidth: 'min(960px, 92vw, calc((100vh - 170px) * 16 / 9))'
                 }}
               >
                 {/* Ambient Glow */}
@@ -914,7 +965,7 @@ export default function App() {
                       <div className="cockpit-laser-bar" />
                     </div>
 
-                    {/* Click Highlights */}
+                    {/* Click Highlights with Crystal-Clear Plain-English Callouts */}
                     {COCKPIT_TARGETS.map((target) => {
                       const isSelected = activeHighlightId === target.id;
                       return (
@@ -942,23 +993,84 @@ export default function App() {
                             pointerEvents: 'auto'
                           }}
                         >
+                          {/* Top Tag Badge */}
                           <div style={{
                             position: 'absolute',
                             top: '6px',
                             right: '8px',
                             backgroundColor: target.highlight.tagBg,
                             color: '#ffffff',
-                            fontSize: '9px',
+                            fontSize: '10px',
                             fontWeight: 800,
-                            letterSpacing: '0.05em',
-                            padding: '2px 6px',
+                            letterSpacing: '0.04em',
+                            padding: '3px 8px',
                             borderRadius: '4px',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                            boxShadow: '0 2px 10px rgba(0,0,0,0.35)',
                             fontFamily: 'monospace',
-                            pointerEvents: 'none'
+                            pointerEvents: 'none',
+                            whiteSpace: 'nowrap'
                           }}>
                             {target.highlight.tagText}
                           </div>
+
+                          {/* Clear Plain-English Callout Card */}
+                          {isSelected && (
+                            <div style={{
+                              position: 'absolute',
+                              ...target.popoverPos,
+                              backgroundColor: 'rgba(15, 23, 42, 0.96)',
+                              backdropFilter: 'blur(12px)',
+                              border: `1px solid ${target.badgeColor}66`,
+                              borderRadius: '10px',
+                              padding: '10px 14px',
+                              boxShadow: `0 14px 34px rgba(0,0,0,0.5), 0 0 20px ${target.badgeColor}22`,
+                              zIndex: 40,
+                              color: '#ffffff',
+                              pointerEvents: 'none',
+                              textAlign: 'left'
+                            }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                                <span style={{
+                                  fontSize: '9px',
+                                  fontWeight: 800,
+                                  letterSpacing: '0.04em',
+                                  color: target.badgeColor,
+                                  backgroundColor: `${target.badgeColor}20`,
+                                  padding: '2px 6px',
+                                  borderRadius: '4px',
+                                  fontFamily: 'monospace'
+                                }}>
+                                  {target.badgeText}
+                                </span>
+                              </div>
+                              <div style={{
+                                fontSize: '12px',
+                                fontWeight: 700,
+                                color: '#F8FAFC',
+                                marginBottom: '3px',
+                                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+                              }}>
+                                {target.title}
+                              </div>
+                              <div style={{
+                                fontSize: '11px',
+                                color: '#CBD5E1',
+                                lineHeight: 1.35,
+                                marginBottom: '6px',
+                                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+                              }}>
+                                {target.explanation}
+                              </div>
+                              <div style={{
+                                fontSize: '10px',
+                                fontWeight: 600,
+                                color: target.badgeColor,
+                                fontFamily: 'monospace'
+                              }}>
+                                ✓ {target.keyMetric}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       );
                     })}
