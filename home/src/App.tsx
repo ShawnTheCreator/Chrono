@@ -571,6 +571,7 @@ export default function App() {
   const [scrollY, setScrollY] = useState(0);
   const transitionTrackRef = useRef<HTMLDivElement | null>(null);
   const [section3Slide, setSection3Slide] = useState(100);
+  const [section4Slide, setSection4Slide] = useState(-100);
 
   useEffect(() => {
     let ticking = false;
@@ -583,24 +584,42 @@ export default function App() {
             const rect = transitionTrackRef.current.getBoundingClientRect();
             const vh = window.innerHeight || 800;
 
-            // When rect.top > 0, track is below top of viewport -> Section 3 stays hidden at 100%
+            // When rect.top > 0, track is below top of viewport -> sections parked off-screen
             if (rect.top > 0) {
               setSection3Slide(100);
+              setSection4Slide(-100);
             } else {
               // Distance scrolled into the pinned track
               const scrolled = -rect.top;
-              // Section 2 stays completely stagnant for dwellStart pixels (~35% of viewport)
-              const dwellStart = vh * 0.35;
-              // Section 3 slides across for slideDuration pixels (~1.0x viewport)
-              const slideDuration = vh * 1.0;
 
-              if (scrolled <= dwellStart) {
+              // Phase 1: Section 2 Dwell (~35% of viewport)
+              const dwell2 = vh * 0.35;
+              // Phase 2: Section 3 Slide in from Right (~90% of viewport)
+              const slide3 = vh * 0.90;
+              // Phase 3: Section 3 Dwell (~35% of viewport)
+              const dwell3 = vh * 0.35;
+              // Phase 4: Section 4 Slide in from Left (~90% of viewport)
+              const slide4 = vh * 0.90;
+
+              // 1. Section 3 calculation (slides from right: 100% -> 0%)
+              if (scrolled <= dwell2) {
                 setSection3Slide(100);
-              } else if (scrolled >= dwellStart + slideDuration) {
+              } else if (scrolled >= dwell2 + slide3) {
                 setSection3Slide(0);
               } else {
-                const progress = (scrolled - dwellStart) / slideDuration;
-                setSection3Slide((1 - progress) * 100);
+                const p3 = (scrolled - dwell2) / slide3;
+                setSection3Slide((1 - p3) * 100);
+              }
+
+              // 2. Section 4 calculation (slides from left: -100% -> 0%)
+              const startSec4 = dwell2 + slide3 + dwell3;
+              if (scrolled <= startSec4) {
+                setSection4Slide(-100);
+              } else if (scrolled >= startSec4 + slide4) {
+                setSection4Slide(0);
+              } else {
+                const p4 = (scrolled - startSec4) / slide4;
+                setSection4Slide((p4 - 1) * 100);
               }
             }
           }
@@ -908,12 +927,12 @@ export default function App() {
         boxShadow: '0 -30px 90px rgba(0, 0, 0, 0.45), 0 -4px 16px rgba(0, 0, 0, 0.15)',
         minHeight: '100vh'
       }}>
-        {/* 2 & 3: PINNED STAGE (SECTION 2 PINS STAGNANT, SECTION 3 SLIDES IN FROM RIGHT) */}
+        {/* 2, 3 & 4: PINNED MULTI-LAYER STAGE (SEC 2 STATIC, SEC 3 SLIDES FROM RIGHT, SEC 4 SLIDES FROM LEFT) */}
       <div
         ref={transitionTrackRef}
         style={{
           position: 'relative',
-          height: '280vh',
+          height: '420vh',
           width: '100%',
           backgroundColor: '#ffffff'
         }}
@@ -1406,118 +1425,197 @@ export default function App() {
               </a>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* 4. CHRONO IN ACTION: SHOWCASE BANNER */}
-      <section style={{
-        maxWidth: '1280px',
-        margin: '0 auto',
-        padding: '0 36px 96px 36px'
-      }}>
-        <div style={{
-          fontSize: '12px',
-          fontWeight: 700,
-          color: '#0064E0',
-          letterSpacing: '0.08em',
-          textTransform: 'uppercase',
-          marginBottom: '10px'
-        }}>
-          CHRONO IN ACTION
-        </div>
-        <h2 style={{
-          fontSize: '36px',
-          fontWeight: 800,
-          color: '#09090b',
-          letterSpacing: '-0.02em',
-          margin: '0 0 12px 0'
-        }}>
-          See how Chrono protects your agent workflows
-        </h2>
-        <p style={{
-          fontSize: '16px',
-          color: '#4B5563',
-          maxWidth: '720px',
-          margin: '0 0 36px 0'
-        }}>
-          From automated code refactoring and tool invocations to catching runaway loops and generating forensic receipts. Chrono handles it all.
-        </p>
-
-        {/* Large Clean Light-Blue Banner */}
-        <div style={{
-          backgroundColor: '#F0F9FF',
-          border: '1px solid #BAE6FD',
-          borderRadius: '24px',
-          padding: '80px 48px',
-          textAlign: 'center',
-          position: 'relative'
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginBottom: '16px' }}>
-            <span style={{ padding: '6px 14px', borderRadius: '9999px', backgroundColor: '#E0F2FE', color: '#0064E0', fontSize: '12px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-              <IconClock size={15} color="#0064E0" /> COMPLETE VISIBILITY
-            </span>
-            <span style={{ padding: '6px 14px', borderRadius: '9999px', backgroundColor: '#E0F2FE', color: '#0064E0', fontSize: '12px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-              <IconShield size={15} color="#0064E0" /> TAMPER-PROOF AUDIT
-            </span>
-            <span style={{ padding: '6px 14px', borderRadius: '9999px', backgroundColor: '#E0F2FE', color: '#0064E0', fontSize: '12px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-              <IconActivity size={15} color="#0064E0" /> AUTOMATIC SAFEGUARDS
-            </span>
-          </div>
-
-          <h3 style={{
-            fontSize: '48px',
-            fontWeight: 800,
-            letterSpacing: '-0.03em',
-            color: '#0F172A',
-            lineHeight: 1.25,
-            margin: '0 0 12px 0'
-          }}>
-            Chrono is the flight data recorder<br />
-            for autonomous AI agents
-          </h3>
-
-          <p style={{ fontSize: '16px', color: '#475569', maxWidth: '640px', margin: '0 auto' }}>
-            Every decision recorded. Every mistake caught. Complete peace of mind.
-          </p>
-
+          {/* SECTION 4 (SLIDES IN FROM LEFT TO RIGHT: COVERING THE STAGE WITH EDITORIAL JOURNAL DESIGN) */}
           <div style={{
             position: 'absolute',
-            bottom: '24px',
-            right: '28px',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            transform: `translateX(${section4Slide}%)`,
+            willChange: 'transform',
+            backgroundColor: '#FFFFFF',
+            borderTopRightRadius: '40px',
+            borderBottomRightRadius: '40px',
+            boxShadow: '40px 0 100px rgba(0, 0, 0, 0.45), 6px 0 24px rgba(0, 0, 0, 0.15)',
+            zIndex: 40,
+            overflow: 'hidden',
             display: 'flex',
-            gap: '8px'
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '0 clamp(24px, 4vw, 64px)',
+            boxSizing: 'border-box'
           }}>
-            <button style={{
-              width: '36px',
-              height: '36px',
-              borderRadius: '50%',
-              backgroundColor: '#ffffff',
-              border: '1px solid #E2E8F0',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#0064E0'
+            <div style={{
+              maxWidth: '1240px',
+              width: '100%',
+              display: 'grid',
+              gridTemplateColumns: 'minmax(320px, 420px) 1fr',
+              gap: 'clamp(28px, 4vw, 64px)',
+              alignItems: 'center'
             }}>
-              <IconThumbsUp size={16} />
-            </button>
-            <button style={{
-              width: '36px',
-              height: '36px',
-              borderRadius: '50%',
-              backgroundColor: '#ffffff',
-              border: '1px solid #E2E8F0',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#64748B'
-            }}>
-              <IconThumbsDown size={16} />
-            </button>
+              {/* Left Column: Editorial Journal Story */}
+              <div>
+                <h2 style={{
+                  fontFamily: '"Georgia", "Times New Roman", serif',
+                  fontSize: 'clamp(32px, 3.4vw, 48px)',
+                  fontWeight: 400,
+                  letterSpacing: '-0.02em',
+                  color: '#111827',
+                  lineHeight: 1.15,
+                  margin: '0 0 24px 0'
+                }}>
+                  Beyond raw logs.
+                </h2>
+
+                <p style={{
+                  fontSize: 'clamp(13px, 1vw, 15px)',
+                  color: '#4B5563',
+                  lineHeight: 1.6,
+                  margin: '0 0 18px 0'
+                }}>
+                  Stories of autonomous agents, deterministic replays, and the guardrails that shape production code. From the first task prompt to the final pull request, we look at how execution leaves its mark on every repository.
+                </p>
+
+                <p style={{
+                  fontSize: 'clamp(13px, 1vw, 15px)',
+                  color: '#4B5563',
+                  lineHeight: 1.6,
+                  margin: '0 0 28px 0'
+                }}>
+                  A space for runaway loops, microsecond rollbacks, and the critical moments in between. For noticing a code drift, a stalled tool call, or a safer path through complex refactors. The Chrono Flight Deck traces these shifts with an engine built for zero hallucinations.
+                </p>
+
+                <a
+                  href={COCKPIT_URL}
+                  style={{
+                    fontFamily: '"Georgia", "Times New Roman", serif',
+                    fontSize: '16px',
+                    color: '#111827',
+                    textDecoration: 'underline',
+                    textUnderlineOffset: '6px',
+                    fontWeight: 500,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  Read the flight journal
+                  <IconArrowUpRight size={15} />
+                </a>
+              </div>
+
+              {/* Right Column: Two Tall Editorial Cards */}
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gap: 'clamp(16px, 2vw, 24px)'
+              }}>
+                {/* Card 1: Runaway Safeguard */}
+                <div style={{
+                  height: 'clamp(360px, 62vh, 500px)',
+                  borderRadius: '16px',
+                  overflow: 'hidden',
+                  position: 'relative',
+                  backgroundImage: `linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.4) 45%, rgba(0,0,0,0.15) 100%), url('https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=800&q=80')`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'flex-end',
+                  padding: '24px',
+                  boxSizing: 'border-box',
+                  boxShadow: '0 16px 36px rgba(0,0,0,0.12)'
+                }}>
+                  <div style={{
+                    fontSize: '11px',
+                    fontWeight: 800,
+                    letterSpacing: '0.08em',
+                    textTransform: 'uppercase',
+                    color: '#71F6D2',
+                    fontFamily: 'monospace',
+                    marginBottom: '6px'
+                  }}>
+                    EVERYDAY RUNAWAYS
+                  </div>
+                  <div style={{
+                    fontFamily: '"Georgia", "Times New Roman", serif',
+                    fontSize: 'clamp(18px, 1.6vw, 22px)',
+                    fontWeight: 400,
+                    lineHeight: 1.25,
+                    color: '#ffffff',
+                    textDecoration: 'underline',
+                    textUnderlineOffset: '5px'
+                  }}>
+                    Catching runaway loops in 60 FPS
+                  </div>
+                </div>
+
+                {/* Card 2: Considered Details */}
+                <div style={{
+                  height: 'clamp(360px, 62vh, 500px)',
+                  borderRadius: '16px',
+                  overflow: 'hidden',
+                  position: 'relative',
+                  backgroundImage: `linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.4) 45%, rgba(0,0,0,0.15) 100%), url('https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=800&q=80')`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'flex-end',
+                  padding: '24px',
+                  boxSizing: 'border-box',
+                  boxShadow: '0 16px 36px rgba(0,0,0,0.12)'
+                }}>
+                  {/* Asterisk Badge (Exact match to reference image!) */}
+                  <div style={{
+                    position: 'absolute',
+                    top: '16px',
+                    right: '16px',
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    backgroundColor: '#0F172A',
+                    border: '1px solid rgba(255, 255, 255, 0.25)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#D4E815',
+                    fontSize: '18px',
+                    fontWeight: 900
+                  }}>
+                    ✱
+                  </div>
+
+                  <div style={{
+                    fontSize: '11px',
+                    fontWeight: 800,
+                    letterSpacing: '0.08em',
+                    textTransform: 'uppercase',
+                    color: '#71F6D2',
+                    fontFamily: 'monospace',
+                    marginBottom: '6px'
+                  }}>
+                    CONSIDERED DETAILS
+                  </div>
+                  <div style={{
+                    fontFamily: '"Georgia", "Times New Roman", serif',
+                    fontSize: 'clamp(18px, 1.6vw, 22px)',
+                    fontWeight: 400,
+                    lineHeight: 1.25,
+                    color: '#ffffff',
+                    textDecoration: 'underline',
+                    textUnderlineOffset: '5px'
+                  }}>
+                    The details that go the distance
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </section>
+      </div>
 
       {/* 5. USER STORIES: OPERATOR EXPERIENCES */}
       <section style={{
