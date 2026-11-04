@@ -94,6 +94,13 @@ const IconMinus = ({ size = 18, color = 'currentColor' }: { size?: number; color
   </svg>
 );
 
+const IconArrowUpRight = ({ size = 16, color = 'currentColor' }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="7" y1="17" x2="17" y2="7" />
+    <polyline points="7 7 17 7 17 17" />
+  </svg>
+);
+
 // Chrono Signature Logo: Stylized "C" with Clock Hands in Meta Metallic Blue
 const ChronoLogo = ({ size = 28 }: { size?: number; color?: string }) => (
   <svg
@@ -205,7 +212,21 @@ const FAQ_ITEMS = [
 export default function App() {
   const [heroIndex, setHeroIndex] = useState(0);
   const [videoIndex, setVideoIndex] = useState(0);
-  const [activeFeatureTab, setActiveFeatureTab] = useState(0);
+  const [activeHotspot, setActiveHotspot] = useState<number | null>(null);
+  const [cockpitTilt, setCockpitTilt] = useState({ x: 0, y: 0 });
+  const cockpitFrameRef = useRef<HTMLDivElement | null>(null);
+
+  const handleCockpitMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cockpitFrameRef.current) return;
+    const rect = cockpitFrameRef.current.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    setCockpitTilt({ x: x * 5, y: -y * 5 });
+  };
+
+  const handleCockpitMouseLeave = () => {
+    setCockpitTilt({ x: 0, y: 0 });
+  };
 
   // FAQ Accordion State (first item open by default)
   const [openFaq, setOpenFaq] = useState<number | null>(0);
@@ -498,262 +519,674 @@ export default function App() {
         </div>
       </section>
 
-      {/* 2. CHRONO FEATURES: TAKE THE GUESSWORK OUT OF AGENT EXECUTION (2-COL ACCORDION + DEVICE MOCKUP) */}
+      {/* 2. CHRONO COCKPIT MOTION GRAPHIC SHOWCASE */}
       <section id="chrono-features" style={{
-        maxWidth: '1280px',
+        maxWidth: '1360px',
         margin: '0 auto',
-        padding: '96px 36px 80px 36px'
+        padding: '96px 36px 90px 36px',
+        position: 'relative'
       }}>
-        {/* Section Header */}
-        <div style={{ maxWidth: '840px', marginBottom: '56px' }}>
-          <div style={{
-            fontSize: '12px',
-            fontWeight: 700,
-            color: '#0064E0',
-            letterSpacing: '0.08em',
-            textTransform: 'uppercase',
-            marginBottom: '10px'
-          }}>
-            CHRONO FEATURES
+        {/* Editorial Narrative Header (Inspired by high-fashion / design journal layout) */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '1.2fr 0.8fr',
+          gap: '48px',
+          alignItems: 'flex-end',
+          marginBottom: '54px'
+        }}>
+          {/* Left Column: Narrative Headline */}
+          <div>
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              fontSize: '12px',
+              fontWeight: 700,
+              color: '#0064E0',
+              letterSpacing: '0.1em',
+              textTransform: 'uppercase',
+              marginBottom: '14px'
+            }}>
+              <span style={{
+                width: '8px',
+                height: '8px',
+                borderRadius: '50%',
+                backgroundColor: '#0082FB',
+                boxShadow: '0 0 10px #0082FB'
+              }} />
+              FLIGHT DECK TELEMETRY
+            </div>
+
+            <h2 style={{
+              fontSize: '48px',
+              fontWeight: 800,
+              letterSpacing: '-0.03em',
+              color: '#09090b',
+              lineHeight: 1.12,
+              margin: '0 0 20px 0'
+            }}>
+              Beyond raw log dumps.<br />
+              <span style={{
+                background: 'linear-gradient(90deg, #0064E0 0%, #0082FB 50%, #0DACF1 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent'
+              }}>
+                Complete visibility in 60 FPS motion.
+              </span>
+            </h2>
+
+            <p style={{
+              fontSize: '17px',
+              color: '#475569',
+              lineHeight: 1.65,
+              maxWidth: '680px',
+              margin: 0
+            }}>
+              Autonomous agents write code, invoke external APIs, and mutate infrastructure. When mistakes occur, terminal logs leave you blind. Chrono transforms the agent lifecycle into an interactive, cryptographically verified black-box flight recorder.
+            </p>
           </div>
-          <h2 style={{
-            fontSize: '44px',
-            fontWeight: 800,
-            letterSpacing: '-0.025em',
-            color: '#09090b',
-            lineHeight: 1.15,
-            margin: '0 0 16px 0'
+
+          {/* Right Column: Editorial Details & Launch Cockpit Link */}
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'flex-start',
+            justifyContent: 'flex-end',
+            gap: '24px'
           }}>
-            Take the guesswork out of agent execution
-          </h2>
-          <p style={{
-            fontSize: '18px',
-            color: '#475569',
-            lineHeight: 1.6,
-            margin: 0
-          }}>
-            Chrono continuously records what your agents are doing, why they make decisions, and what files changed. Get complete visibility, automatic loop protection, and instant rollback controls.
-          </p>
+            <p style={{
+              fontSize: '15px',
+              color: '#64748b',
+              lineHeight: 1.6,
+              margin: 0
+            }}>
+              Scrub back to any second, inspect surgical diffs before and after every tool invocation, and watch stall tripwires automatically intercept runaway loops.
+            </p>
+
+            <a
+              href={COCKPIT_URL}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                fontSize: '15px',
+                fontWeight: 700,
+                color: '#0064E0',
+                textDecoration: 'none',
+                borderBottom: '2px solid #0064E0',
+                paddingBottom: '3px',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              Launch the live Cockpit
+              <IconArrowUpRight size={16} />
+            </a>
+          </div>
         </div>
 
-        {/* 2-Column Showcase */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: '64px', alignItems: 'center' }}>
-          {/* Left Column: Feature Accordion */}
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            {/* Item 1 */}
-            <div
-              onClick={() => setActiveFeatureTab(0)}
-              style={{
-                padding: '24px 0',
-                borderBottom: '1px solid #E5E7EB',
-                cursor: 'pointer'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#09090b', margin: 0 }}>
-                  Instant Timeline Replay
-                </h3>
-                <span style={{ color: '#0064E0' }}>
-                  {activeFeatureTab === 0 ? <IconChevronDown size={20} /> : <IconChevronRight size={20} />}
+        {/* MOTION GRAPHIC COCKPIT FRAME */}
+        <div
+          ref={cockpitFrameRef}
+          onMouseMove={handleCockpitMouseMove}
+          onMouseLeave={handleCockpitMouseLeave}
+          style={{
+            position: 'relative',
+            perspective: '1400px',
+            marginBottom: '48px'
+          }}
+        >
+          {/* Ambient Colored Back-Glow (Neon Cockpit Aura) */}
+          <div style={{
+            position: 'absolute',
+            inset: '-20px -20px -20px -20px',
+            background: 'radial-gradient(ellipse 70% 50% at 50% 30%, rgba(0, 100, 224, 0.22) 0%, rgba(113, 246, 210, 0.12) 40%, transparent 75%)',
+            filter: 'blur(40px)',
+            zIndex: 0,
+            pointerEvents: 'none',
+            animation: 'cockpitAmbientGlow 6s ease-in-out infinite'
+          }} />
+
+          {/* Cockpit Chassis Frame */}
+          <div style={{
+            position: 'relative',
+            zIndex: 2,
+            backgroundColor: '#090D16',
+            borderRadius: '24px',
+            border: '1px solid rgba(255, 255, 255, 0.14)',
+            boxShadow: '0 30px 80px -20px rgba(0, 15, 40, 0.5), 0 0 0 1px rgba(0, 130, 251, 0.25)',
+            overflow: 'hidden',
+            transform: `perspective(1400px) rotateX(${cockpitTilt.y}deg) rotateY(${cockpitTilt.x}deg)`,
+            transition: 'transform 0.18s cubic-bezier(0.2, 0, 0, 1)',
+            transformStyle: 'preserve-3d'
+          }}>
+            {/* Window Titlebar / Chrome */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '14px 22px',
+              backgroundColor: '#0E1424',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.08)'
+            }}>
+              {/* Traffic Light Dots */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#FF5F56', display: 'inline-block' }} />
+                <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#FFBD2E', display: 'inline-block' }} />
+                <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#27C93F', display: 'inline-block' }} />
+                <span style={{
+                  marginLeft: '14px',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  fontFamily: 'monospace',
+                  color: 'rgba(255, 255, 255, 0.65)',
+                  letterSpacing: '0.04em'
+                }}>
+                  chronod // session-04n112tt8a &mdash; flight_recording.bin
                 </span>
               </div>
-              {activeFeatureTab === 0 && (
-                <p style={{ fontSize: '15px', color: '#475569', lineHeight: 1.6, margin: '14px 0 0 0' }}>
-                  Rewind and scrub through your agent's entire run. See every tool call, file change, and decision clearly laid out on an interactive visual timeline.
-                </p>
-              )}
+
+              {/* Live Flight Telemetry Badges */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                {/* 60 FPS Recording Status */}
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  backgroundColor: 'rgba(16, 185, 129, 0.14)',
+                  border: '1px solid rgba(16, 185, 129, 0.35)',
+                  borderRadius: '9999px',
+                  padding: '3px 10px',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  color: '#34D399',
+                  fontFamily: 'monospace'
+                }}>
+                  <span style={{
+                    width: '6px',
+                    height: '6px',
+                    borderRadius: '50%',
+                    backgroundColor: '#10B981',
+                    animation: 'timecodeBlink 1.4s ease-in-out infinite'
+                  }} />
+                  LIVE REC 60FPS
+                </div>
+
+                {/* SHA-256 Ledger Badge */}
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  backgroundColor: 'rgba(0, 130, 251, 0.14)',
+                  border: '1px solid rgba(0, 130, 251, 0.3)',
+                  borderRadius: '9999px',
+                  padding: '3px 10px',
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  color: '#71F6D2',
+                  fontFamily: 'monospace'
+                }}>
+                  <IconLock size={12} color="#71F6D2" />
+                  LEDGER: SEALED (0x8F2A)
+                </div>
+
+                {/* Timecode */}
+                <div style={{
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  color: '#ffffff',
+                  fontFamily: 'monospace',
+                  letterSpacing: '0.06em'
+                }}>
+                  04:55.284 <span style={{ color: 'rgba(255,255,255,0.4)' }}>/ 05:20.000</span>
+                </div>
+              </div>
             </div>
 
-            {/* Item 2 */}
-            <div
-              onClick={() => setActiveFeatureTab(1)}
-              style={{
-                padding: '24px 0',
-                borderBottom: '1px solid #E5E7EB',
-                cursor: 'pointer'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#09090b', margin: 0 }}>
-                  Automatic Loop Protection
-                </h3>
-                <span style={{ color: '#0064E0' }}>
-                  {activeFeatureTab === 1 ? <IconChevronDown size={20} /> : <IconChevronRight size={20} />}
-                </span>
+            {/* SCREENSHOT STAGE WITH MOTION GRAPHIC OVERLAYS */}
+            <div style={{ position: 'relative', overflow: 'hidden', lineHeight: 0 }}>
+              {/* Cockpit High-Res Screenshot */}
+              <img
+                src="/cockpit-screenshot.png"
+                alt="Chrono Cockpit Live Flight Recording"
+                style={{
+                  width: '100%',
+                  height: 'auto',
+                  display: 'block',
+                  filter: 'contrast(1.03) brightness(1.01)'
+                }}
+              />
+
+              {/* Animated Laser Scanning Beam */}
+              <div className="cockpit-laser-sweep">
+                <div className="cockpit-laser-bar" />
               </div>
-              {activeFeatureTab === 1 && (
-                <p style={{ fontSize: '15px', color: '#475569', lineHeight: 1.6, margin: '14px 0 0 0' }}>
-                  Stop runaway costs before they escalate. Chrono detects when an agent gets stuck repeating the same mistakes and automatically pauses execution.
-                </p>
-              )}
+
+              {/* MOTION HOTSPOT 1: STALL TRIPWIRE INTERCEPT (Timeline Loop Catch) */}
+              <div
+                onMouseEnter={() => setActiveHotspot(1)}
+                onMouseLeave={() => setActiveHotspot(null)}
+                style={{
+                  position: 'absolute',
+                  left: '49%',
+                  top: '76%',
+                  transform: 'translate(-50%, -50%)',
+                  zIndex: 25,
+                  cursor: 'pointer'
+                }}
+              >
+                {/* Radar Ring */}
+                <div style={{
+                  width: '28px',
+                  height: '28px',
+                  borderRadius: '50%',
+                  backgroundColor: 'rgba(239, 68, 68, 0.3)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  animation: 'radarPingRed 2s infinite'
+                }}>
+                  <div style={{
+                    width: '12px',
+                    height: '12px',
+                    borderRadius: '50%',
+                    backgroundColor: '#EF4444',
+                    boxShadow: '0 0 12px #EF4444'
+                  }} />
+                </div>
+
+                {/* Floating Motion Badge */}
+                <div style={{
+                  position: 'absolute',
+                  bottom: '36px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  backgroundColor: 'rgba(15, 23, 42, 0.94)',
+                  backdropFilter: 'blur(12px)',
+                  border: '1px solid rgba(239, 68, 68, 0.6)',
+                  borderRadius: '12px',
+                  padding: '10px 14px',
+                  whiteSpace: 'nowrap',
+                  boxShadow: '0 12px 30px rgba(0,0,0,0.5)',
+                  pointerEvents: 'none',
+                  animation: 'floatBadge1 3s ease-in-out infinite',
+                  transition: 'all 0.2s ease',
+                  opacity: activeHotspot === 1 || activeHotspot === null ? 1 : 0.4
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '3px' }}>
+                    <span style={{
+                      backgroundColor: '#EF4444',
+                      color: '#ffffff',
+                      fontSize: '10px',
+                      fontWeight: 800,
+                      padding: '2px 6px',
+                      borderRadius: '4px',
+                      letterSpacing: '0.04em'
+                    }}>
+                      TRIPWIRE INTERCEPT
+                    </span>
+                    <span style={{ fontSize: '11px', fontWeight: 700, color: '#FCA5A5', fontFamily: 'monospace' }}>
+                      Checkpoint #29 (04:55)
+                    </span>
+                  </div>
+                  <div style={{ fontSize: '12px', fontWeight: 600, color: '#ffffff' }}>
+                    Agent repeated failing edits 3x &bull; Paused to save budget
+                  </div>
+                </div>
+              </div>
+
+              {/* MOTION HOTSPOT 2: LIVE CODE DIFF VIEWER */}
+              <div
+                onMouseEnter={() => setActiveHotspot(2)}
+                onMouseLeave={() => setActiveHotspot(null)}
+                style={{
+                  position: 'absolute',
+                  left: '32%',
+                  top: '38%',
+                  transform: 'translate(-50%, -50%)',
+                  zIndex: 25,
+                  cursor: 'pointer'
+                }}
+              >
+                {/* Radar Ring */}
+                <div style={{
+                  width: '28px',
+                  height: '28px',
+                  borderRadius: '50%',
+                  backgroundColor: 'rgba(113, 246, 210, 0.25)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  animation: 'radarPingCyan 2.2s infinite'
+                }}>
+                  <div style={{
+                    width: '12px',
+                    height: '12px',
+                    borderRadius: '50%',
+                    backgroundColor: '#71F6D2',
+                    boxShadow: '0 0 12px #71F6D2'
+                  }} />
+                </div>
+
+                {/* Floating Motion Badge */}
+                <div style={{
+                  position: 'absolute',
+                  bottom: '36px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  backgroundColor: 'rgba(15, 23, 42, 0.94)',
+                  backdropFilter: 'blur(12px)',
+                  border: '1px solid rgba(113, 246, 210, 0.5)',
+                  borderRadius: '12px',
+                  padding: '10px 14px',
+                  whiteSpace: 'nowrap',
+                  boxShadow: '0 12px 30px rgba(0,0,0,0.5)',
+                  pointerEvents: 'none',
+                  animation: 'floatBadge2 3.4s ease-in-out infinite',
+                  transition: 'all 0.2s ease',
+                  opacity: activeHotspot === 2 || activeHotspot === null ? 1 : 0.4
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '3px' }}>
+                    <span style={{
+                      backgroundColor: '#0082FB',
+                      color: '#ffffff',
+                      fontSize: '10px',
+                      fontWeight: 800,
+                      padding: '2px 6px',
+                      borderRadius: '4px'
+                    }}>
+                      DIFF ENGINE
+                    </span>
+                    <span style={{ fontSize: '11px', fontWeight: 700, color: '#71F6D2', fontFamily: 'monospace' }}>
+                      src/auth/provider.ts
+                    </span>
+                  </div>
+                  <div style={{ fontSize: '12px', fontWeight: 600, color: '#ffffff' }}>
+                    +48 additions &bull; -12 deletions cryptographically verified
+                  </div>
+                </div>
+              </div>
+
+              {/* MOTION HOTSPOT 3: ROOT-CAUSE REASONER (Meta Muse Spark Diagnostics) */}
+              <div
+                onMouseEnter={() => setActiveHotspot(3)}
+                onMouseLeave={() => setActiveHotspot(null)}
+                style={{
+                  position: 'absolute',
+                  left: '78%',
+                  top: '32%',
+                  transform: 'translate(-50%, -50%)',
+                  zIndex: 25,
+                  cursor: 'pointer'
+                }}
+              >
+                {/* Radar Ring */}
+                <div style={{
+                  width: '28px',
+                  height: '28px',
+                  borderRadius: '50%',
+                  backgroundColor: 'rgba(0, 100, 224, 0.3)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  animation: 'radarPingBlue 2.4s infinite'
+                }}>
+                  <div style={{
+                    width: '12px',
+                    height: '12px',
+                    borderRadius: '50%',
+                    backgroundColor: '#0082FB',
+                    boxShadow: '0 0 12px #0082FB'
+                  }} />
+                </div>
+
+                {/* Floating Motion Badge */}
+                <div style={{
+                  position: 'absolute',
+                  bottom: '36px',
+                  right: '0',
+                  backgroundColor: 'rgba(15, 23, 42, 0.94)',
+                  backdropFilter: 'blur(12px)',
+                  border: '1px solid rgba(0, 130, 251, 0.5)',
+                  borderRadius: '12px',
+                  padding: '10px 14px',
+                  whiteSpace: 'nowrap',
+                  boxShadow: '0 12px 30px rgba(0,0,0,0.5)',
+                  pointerEvents: 'none',
+                  animation: 'floatBadge1 3.2s ease-in-out infinite',
+                  transition: 'all 0.2s ease',
+                  opacity: activeHotspot === 3 || activeHotspot === null ? 1 : 0.4
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '3px' }}>
+                    <span style={{
+                      backgroundColor: '#6366F1',
+                      color: '#ffffff',
+                      fontSize: '10px',
+                      fontWeight: 800,
+                      padding: '2px 6px',
+                      borderRadius: '4px'
+                    }}>
+                      ROOT-CAUSE DIAGNOSTIC
+                    </span>
+                    <span style={{ fontSize: '11px', fontWeight: 700, color: '#A5B4FC', fontFamily: 'monospace' }}>
+                      Reasoning Synth (18ms)
+                    </span>
+                  </div>
+                  <div style={{ fontSize: '12px', fontWeight: 600, color: '#ffffff' }}>
+                    Cyclic loop detected &bull; Recommended rollback to Checkpoint #28
+                  </div>
+                </div>
+              </div>
             </div>
 
-            {/* Item 3 */}
-            <div
-              onClick={() => setActiveFeatureTab(2)}
-              style={{
-                padding: '24px 0',
-                borderBottom: '1px solid #E5E7EB',
-                cursor: 'pointer'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#09090b', margin: 0 }}>
-                  Tamper-Proof Audit History
-                </h3>
-                <span style={{ color: '#0064E0' }}>
-                  {activeFeatureTab === 2 ? <IconChevronDown size={20} /> : <IconChevronRight size={20} />}
+            {/* Bottom Interactive HUD Bar */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '14px 24px',
+              backgroundColor: '#0B101D',
+              borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+              flexWrap: 'wrap',
+              gap: '12px'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                <span style={{ fontSize: '12px', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  Interactive Hotspots:
                 </span>
+                <button
+                  onClick={() => setActiveHotspot(1)}
+                  style={{
+                    backgroundColor: activeHotspot === 1 ? 'rgba(239, 68, 68, 0.25)' : 'rgba(255, 255, 255, 0.06)',
+                    color: activeHotspot === 1 ? '#FCA5A5' : '#CBD5E1',
+                    border: activeHotspot === 1 ? '1px solid #EF4444' : '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: '8px',
+                    padding: '5px 12px',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  [1] Stall Tripwire
+                </button>
+                <button
+                  onClick={() => setActiveHotspot(2)}
+                  style={{
+                    backgroundColor: activeHotspot === 2 ? 'rgba(113, 246, 210, 0.2)' : 'rgba(255, 255, 255, 0.06)',
+                    color: activeHotspot === 2 ? '#71F6D2' : '#CBD5E1',
+                    border: activeHotspot === 2 ? '1px solid #71F6D2' : '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: '8px',
+                    padding: '5px 12px',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  [2] Code Diff Viewer
+                </button>
+                <button
+                  onClick={() => setActiveHotspot(3)}
+                  style={{
+                    backgroundColor: activeHotspot === 3 ? 'rgba(0, 130, 251, 0.25)' : 'rgba(255, 255, 255, 0.06)',
+                    color: activeHotspot === 3 ? '#93C5FD' : '#CBD5E1',
+                    border: activeHotspot === 3 ? '1px solid #0082FB' : '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: '8px',
+                    padding: '5px 12px',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  [3] Root-Cause Reasoner
+                </button>
               </div>
-              {activeFeatureTab === 2 && (
-                <p style={{ fontSize: '15px', color: '#475569', lineHeight: 1.6, margin: '14px 0 0 0' }}>
-                  Every action is permanently recorded in a secure, verifiable log so you always have reliable proof of what happened and when.
-                </p>
-              )}
-            </div>
 
-            {/* Item 4 */}
-            <div
-              onClick={() => setActiveFeatureTab(3)}
-              style={{
-                padding: '24px 0',
-                borderBottom: '1px solid #E5E7EB',
-                cursor: 'pointer'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#09090b', margin: 0 }}>
-                  Instant Root-Cause Explanations
-                </h3>
-                <span style={{ color: '#0064E0' }}>
-                  {activeFeatureTab === 3 ? <IconChevronDown size={20} /> : <IconChevronRight size={20} />}
-                </span>
+              <a
+                href={COCKPIT_URL}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  backgroundColor: '#0064E0',
+                  color: '#ffffff',
+                  textDecoration: 'none',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  padding: '7px 16px',
+                  borderRadius: '9999px',
+                  boxShadow: '0 4px 12px rgba(0, 100, 224, 0.4)'
+                }}
+              >
+                Open Fullscreen Flight Deck
+                <IconArrowUpRight size={14} color="#ffffff" />
+              </a>
+            </div>
+          </div>
+        </div>
+
+        {/* 3 EDITORIAL CARDS BELOW SCREENSHOT (Inspired by user's reference image style) */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: '24px',
+          marginTop: '36px'
+        }}>
+          {/* Card 1 */}
+          <div style={{
+            backgroundColor: '#F9FAFB',
+            border: '1px solid #E5E7EB',
+            borderRadius: '20px',
+            padding: '28px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between'
+          }}>
+            <div>
+              <div style={{
+                fontSize: '11px',
+                fontWeight: 800,
+                color: '#6B7280',
+                letterSpacing: '0.08em',
+                textTransform: 'uppercase',
+                marginBottom: '10px'
+              }}>
+                EVERYDAY RELIABILITY
               </div>
-              {activeFeatureTab === 3 && (
-                <p style={{ fontSize: '15px', color: '#475569', lineHeight: 1.6, margin: '14px 0 0 0' }}>
-                  When an agent encounters an error or stalls, Chrono analyzes the failure and explains what went wrong in plain English with recommended fixes.
-                </p>
-              )}
+              <h3 style={{
+                fontSize: '22px',
+                fontWeight: 700,
+                color: '#09090b',
+                lineHeight: 1.3,
+                marginBottom: '12px',
+                textDecoration: 'underline',
+                textDecorationColor: '#E5E7EB',
+                textUnderlineOffset: '6px'
+              }}>
+                Instant stall tripwire detection
+              </h3>
+              <p style={{ fontSize: '14px', color: '#475569', lineHeight: 1.6, margin: 0 }}>
+                Agents often get trapped executing identical failing edits in a loop. Chrono's flight recorder flags cyclic behavior and pauses execution before API tokens burn out.
+              </p>
             </div>
           </div>
 
-          {/* Right Column: Realistic Cockpit Mobile / Alert View Mockup */}
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <div style={{
-              width: '340px',
-              backgroundColor: '#ffffff',
-              borderRadius: '40px',
-              border: '10px solid #1F2937',
-              boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.25)',
-              overflow: 'hidden',
-              display: 'flex',
-              flexDirection: 'column'
-            }}>
-              {/* Header */}
+          {/* Card 2 */}
+          <div style={{
+            backgroundColor: '#F9FAFB',
+            border: '1px solid #E5E7EB',
+            borderRadius: '20px',
+            padding: '28px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between'
+          }}>
+            <div>
               <div style={{
-                backgroundColor: '#090D16',
-                color: '#ffffff',
-                padding: '14px 18px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px'
+                fontSize: '11px',
+                fontWeight: 800,
+                color: '#6B7280',
+                letterSpacing: '0.08em',
+                textTransform: 'uppercase',
+                marginBottom: '10px'
               }}>
-                <div style={{
-                  width: '34px',
-                  height: '34px',
-                  borderRadius: '50%',
-                  backgroundColor: '#EF4444',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <IconAlertTriangle size={18} color="#FFFFFF" />
-                </div>
-                <div>
-                  <div style={{ fontSize: '13px', fontWeight: 700 }}>Chrono Guardian</div>
-                  <div style={{ fontSize: '11px', color: '#71F6D2' }}>Active Protection</div>
-                </div>
+                CONSIDERED DETAILS
               </div>
+              <h3 style={{
+                fontSize: '22px',
+                fontWeight: 700,
+                color: '#09090b',
+                lineHeight: 1.3,
+                marginBottom: '12px',
+                textDecoration: 'underline',
+                textDecorationColor: '#E5E7EB',
+                textUnderlineOffset: '6px'
+              }}>
+                Sub-frame timeline replay
+              </h3>
+              <p style={{ fontSize: '14px', color: '#475569', lineHeight: 1.6, margin: 0 }}>
+                Scrub back and forward through the entire agent run with fluid 60 FPS precision. Inspect every file diff, shell execution, and prompt state at that exact millisecond.
+              </p>
+            </div>
+          </div>
 
-              {/* Body */}
+          {/* Card 3 */}
+          <div style={{
+            backgroundColor: '#F9FAFB',
+            border: '1px solid #E5E7EB',
+            borderRadius: '20px',
+            padding: '28px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between'
+          }}>
+            <div>
               <div style={{
-                backgroundColor: '#F3F4F6',
-                padding: '20px 14px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '14px',
-                minHeight: '380px'
+                fontSize: '11px',
+                fontWeight: 800,
+                color: '#6B7280',
+                letterSpacing: '0.08em',
+                textTransform: 'uppercase',
+                marginBottom: '10px'
               }}>
-                {/* Event Record Card */}
-                <div style={{
-                  backgroundColor: '#ffffff',
-                  padding: '12px 14px',
-                  borderRadius: '12px',
-                  fontSize: '12px',
-                  color: '#111827',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.08)'
-                }}>
-                  <div style={{ color: '#6B7280', marginBottom: '4px' }}>Checkpoint #29 (04:55)</div>
-                  <div style={{ fontWeight: 700, color: '#DC2626' }}>Safety Alert: Stall Loop Detected</div>
-                  <div style={{ color: '#4B5563', marginTop: '4px' }}>Target: Authentication Module</div>
-                  <div style={{ color: '#4B5563' }}>Repeated failing edits: 3 attempts</div>
-                </div>
-
-                {/* Analysis Bubble */}
-                <div style={{
-                  backgroundColor: '#ffffff',
-                  padding: '12px 14px',
-                  borderRadius: '12px',
-                  fontSize: '12px',
-                  color: '#111827',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.08)'
-                }}>
-                  <div style={{ fontWeight: 700, color: '#0064E0', marginBottom: '4px' }}>Root-Cause Explanation</div>
-                  <p style={{ margin: 0, color: '#4B5563', lineHeight: 1.4 }}>
-                    "The agent is cycling identical edits without fixing the underlying configuration error. Execution paused to protect your budget."
-                  </p>
-                </div>
-
-                {/* Operator Intervention Action */}
-                <div style={{
-                  backgroundColor: '#ffffff',
-                  borderRadius: '12px',
-                  border: '1px solid #D1D5DB',
-                  padding: '14px',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.06)'
-                }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                    <span style={{ fontSize: '11px', fontWeight: 700, color: '#0064E0', textTransform: 'uppercase' }}>
-                      Recommended Action
-                    </span>
-                    <span style={{ fontSize: '11px', color: '#059669', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
-                      <IconCheck size={12} color="#059669" /> Safe Rollback
-                    </span>
-                  </div>
-                  <div style={{ fontSize: '18px', fontWeight: 800, color: '#111827', margin: '4px 0' }}>
-                    Rewind to Checkpoint #28
-                  </div>
-                  <div style={{ fontSize: '11px', color: '#6B7280', marginBottom: '12px' }}>
-                    Reverts failing edit and allows new instructions
-                  </div>
-                  <button
-                    onClick={() => alert('Surgical Rollback Executed! Safe execution resumed at checkpoint #28.')}
-                    style={{
-                      width: '100%',
-                      backgroundColor: '#0064E0',
-                      color: '#ffffff',
-                      border: 'none',
-                      borderRadius: '9999px',
-                      padding: '10px 0',
-                      fontSize: '13px',
-                      fontWeight: 700,
-                      cursor: 'pointer'
-                    }}
-                  >
-                    Execute Rollback
-                  </button>
-                </div>
+                IMMUTABLE PROOF
               </div>
+              <h3 style={{
+                fontSize: '22px',
+                fontWeight: 700,
+                color: '#09090b',
+                lineHeight: 1.3,
+                marginBottom: '12px',
+                textDecoration: 'underline',
+                textDecorationColor: '#E5E7EB',
+                textUnderlineOffset: '6px'
+              }}>
+                Tamper-proof cryptographic seals
+              </h3>
+              <p style={{ fontSize: '14px', color: '#475569', lineHeight: 1.6, margin: 0 }}>
+                Every action is sealed in an append-only cryptographic hash chain. No deleted steps, no retroactively edited prompts &mdash; verifiable certainty for security teams.
+              </p>
             </div>
           </div>
         </div>
