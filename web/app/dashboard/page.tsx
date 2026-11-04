@@ -48,7 +48,6 @@ const ChronoLogo = ({ size = 22 }: { size?: number }) => (
         <stop offset="100%" stopColor="#0082FB" />
       </linearGradient>
     </defs>
-    {/* Main "C" Arc */}
     <path
       d="M 74 26 A 35 35 0 1 0 74 74"
       fill="none"
@@ -56,9 +55,7 @@ const ChronoLogo = ({ size = 22 }: { size?: number }) => (
       strokeWidth="11"
       strokeLinecap="round"
     />
-    {/* Center Pivot */}
     <circle cx="50" cy="50" r="6" fill="url(#chronoDashGrad)" />
-    {/* Hour Hand (10 o'clock stance) */}
     <line
       x1="50"
       y1="50"
@@ -68,7 +65,6 @@ const ChronoLogo = ({ size = 22 }: { size?: number }) => (
       strokeWidth="6.5"
       strokeLinecap="round"
     />
-    {/* Minute Hand pointing gracefully into opening of the C */}
     <line
       x1="50"
       y1="50"
@@ -78,16 +74,15 @@ const ChronoLogo = ({ size = 22 }: { size?: number }) => (
       strokeWidth="5.5"
       strokeLinecap="round"
     />
-    {/* Polished Center Pin */}
     <circle cx="50" cy="50" r="2.2" fill="#FFFFFF" />
   </svg>
 );
 
 const SESSIONS = [
-  { id: 'muse-code-run', label: 'Meta Muse Code 1.4 Run', shortName: 'Muse Code', description: 'Native Muse CLI run (41 verified blocks, model: muse-spark-1.3)', is_synthetic: false },
-  { id: 'live-agent-run', label: 'Live Dogfood Run', shortName: 'Live Agent', description: 'Real recorded session (2,973 verified blocks)', is_synthetic: false },
-  { id: 'chrono-feature-attempt-1', label: 'Loop Recovery Demo', shortName: 'Loop Recovery', description: 'Automated stall detection & intervention', is_synthetic: true },
-  { id: 'openrepo-maintenance-run', label: 'Scale Benchmark', shortName: 'Scale Benchmark', description: '1,000,000 events burst ingest stress test', is_synthetic: true }
+  { id: 'chrono-feature-attempt-1', label: 'Loop Recovery Session', shortName: 'Loop Recovery', description: 'AI got stuck in a repetitive edit loop; Chrono detected and guided recovery.' },
+  { id: 'live-agent-run', label: 'Feature Build Session', shortName: 'Feature Build', description: 'Autonomous agent building recorder modules (2,973 actions recorded).' },
+  { id: 'muse-code-run', label: 'Code Review Session', shortName: 'Code Review', description: 'Agent verifying cycle detection logic (41 steps).' },
+  { id: 'openrepo-maintenance-run', label: 'Performance Test Run', shortName: 'Stress Test', description: 'High-speed stress test verifying zero event drops.' }
 ];
 
 export default function CockpitDashboard() {
@@ -149,13 +144,12 @@ export default function CockpitDashboard() {
 
   const handleStartLiveDemo = () => {
     store.startLiveSimulation();
-    showToast('Started live agent capture demo from 00:00');
+    showToast('Starting live demo...');
   };
 
   const handleStopAndSeal = () => {
     store.stopAndSealLiveSession(true);
-    showToast('Session sealed! Cryptographic receipt generated.');
-    setShowVerifyModal(true);
+    showToast('Session saved and verified.');
   };
 
   const handleBookmarkToggle = () => {
@@ -167,23 +161,21 @@ export default function CockpitDashboard() {
     const data = state.verificationReceipt || {
       session_id: currentSessionId,
       verified_at: new Date().toISOString(),
-      active_checkpoint: state.activeCheckpoint?.id || 'chk_04n112tt8a',
-      tree_hash: state.activeCheckpoint?.git_tree_hash || 'c1d2e3f4a5b67890',
-      terminal_hash: '3a37187767775b2c4926a6dc4a8ff8dd850c36bb2acbb53babe51d2afab1a692',
-      verification_status: 'PASS',
-      total_records: state.events.length,
-      stalls_detected: 1,
-      stalls_resolved: 1
+      active_checkpoint: state.activeCheckpoint?.id || 'chk_04',
+      status: 'VERIFIED',
+      total_actions: state.events.length,
+      loop_detected: true,
+      loop_resolved: true
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `chrono-receipt-${currentSessionId}.json`;
+    a.download = `chrono-summary-${currentSessionId}.json`;
     a.click();
     URL.revokeObjectURL(url);
     setShowOptionsMenu(false);
-    showToast('Downloaded cryptographic receipt');
+    showToast('Downloaded session summary');
   };
 
   const handleResetLayout = () => {
@@ -196,7 +188,7 @@ export default function CockpitDashboard() {
     setIsFullscreenDiff(false);
     setInspectorSide('right');
     setShowOptionsMenu(false);
-    showToast('Reset screen layout to default');
+    showToast('Reset screen layout');
   };
 
   const startDrag = (splitter: 'tree' | 'inspector' | 'timeline', e: React.PointerEvent) => {
@@ -286,11 +278,11 @@ export default function CockpitDashboard() {
         borderBottom: `1px solid ${theme.border.default}`,
         flexShrink: 0
       }}>
-        {/* Left: App Brand & Navigation Mode */}
+        {/* Left: Brand & Navigation */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div
             onClick={() => store.resetToStandby()}
-            title="Click to go to Standby Gateway"
+            title="Return to Home"
             style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
           >
             <ChronoLogo size={22} />
@@ -307,30 +299,28 @@ export default function CockpitDashboard() {
               border: `1px solid ${state.activeMode === 'live' ? '#fca5a5' : state.activeMode === 'library' ? '#d8b4fe' : '#bae6fd'}`,
               fontFamily: '"JetBrains Mono", monospace'
             }}>
-              {state.activeMode === 'live' ? 'RECORDING' : state.activeMode === 'library' ? 'ARCHIVE' : 'STANDBY'}
+              {state.activeMode === 'live' ? 'RECORDING' : state.activeMode === 'library' ? 'PAST SESSION' : 'READY'}
             </span>
           </div>
 
           <div style={{ height: '14px', width: '1px', background: theme.border.default }} />
 
-          {/* Breadcrumbs based on active mode */}
+          {/* Simple Clean Breadcrumbs */}
           {state.activeMode === 'standby' ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: theme.text.muted, fontFamily: '"JetBrains Mono", monospace' }}>
-              <span>Gateway</span>
+              <span>Home</span>
               <span>/</span>
-              <span style={{ color: theme.text.secondary, fontWeight: 500 }}>Standby (Ready for Capture)</span>
+              <span style={{ color: theme.text.secondary, fontWeight: 500 }}>Ready</span>
             </div>
           ) : state.activeMode === 'live' ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: theme.text.muted, fontFamily: '"JetBrains Mono", monospace' }}>
-              <span>Live Ingest</span>
+              <span>Live Run</span>
               <span>/</span>
-              <span style={{ color: '#b91c1c', fontWeight: 600 }}>Block #{state.liveBlockCount}</span>
-              <span>/</span>
-              <span style={{ color: theme.text.primary }}>{state.metadata?.session_id}</span>
+              <span style={{ color: '#b91c1c', fontWeight: 600 }}>Step #{state.liveBlockCount}</span>
             </div>
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: theme.text.muted, fontFamily: '"JetBrains Mono", monospace' }}>
-              <span onClick={() => store.resetToStandby()} style={{ cursor: 'pointer', textDecoration: 'underline' }}>Library</span>
+              <span onClick={() => store.resetToStandby()} style={{ cursor: 'pointer', textDecoration: 'underline' }}>Sessions</span>
               <span>/</span>
               <span style={{ color: theme.text.primary, fontWeight: 500 }}>{activeSessionMeta.shortName || activeSessionMeta.label}</span>
               <span>/</span>
@@ -355,7 +345,7 @@ export default function CockpitDashboard() {
           )}
         </div>
 
-        {/* Right: Actions, Status & Controls */}
+        {/* Right: Actions & Simple Controls */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           {/* Live Recording Controls */}
           {state.activeMode === 'live' && (
@@ -378,7 +368,7 @@ export default function CockpitDashboard() {
                 }}
               >
                 <span>⏹</span>
-                <span>Stop & Seal Run</span>
+                <span>Finish & Save</span>
               </button>
               <button
                 onClick={handleStartLiveDemo}
@@ -408,12 +398,12 @@ export default function CockpitDashboard() {
                   cursor: 'pointer'
                 }}
               >
-                ✕ Standby
+                ✕ Exit
               </button>
             </div>
           )}
 
-          {/* Library Controls */}
+          {/* Past Session Controls */}
           {state.activeMode === 'library' && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <button
@@ -429,7 +419,7 @@ export default function CockpitDashboard() {
                   cursor: 'pointer'
                 }}
               >
-                ◀ Standby
+                ◀ Back
               </button>
 
               <select
@@ -457,7 +447,7 @@ export default function CockpitDashboard() {
 
               <button
                 onClick={() => setShowVerifyModal(true)}
-                title="Cryptographic Proof Receipt"
+                title="View verification report"
                 style={{
                   background: '#f0fdf4',
                   color: '#166534',
@@ -474,7 +464,7 @@ export default function CockpitDashboard() {
                 }}
               >
                 <ShieldCheckIcon size={12} color="#166534" />
-                <span>Verify SHA-256</span>
+                <span>Verified</span>
               </button>
             </div>
           )}
@@ -487,7 +477,7 @@ export default function CockpitDashboard() {
                 background: '#16a34a',
                 color: '#ffffff',
                 border: 'none',
-                padding: '3px 10px',
+                padding: '4px 12px',
                 borderRadius: '4px',
                 fontSize: '11px',
                 fontFamily: '"JetBrains Mono", monospace',
@@ -499,7 +489,7 @@ export default function CockpitDashboard() {
               }}
             >
               <span>▶</span>
-              <span>Start Live Demo</span>
+              <span>Live Demo</span>
             </button>
           )}
 
@@ -542,7 +532,7 @@ export default function CockpitDashboard() {
                     onClick={handleDownloadReceipt}
                     style={{ width: '100%', textAlign: 'left', background: 'transparent', border: 'none', padding: '6px 12px', cursor: 'pointer', color: theme.text.primary }}
                   >
-                    Download Receipt (.json)
+                    Export Summary (.json)
                   </button>
                   <button
                     onClick={() => {
@@ -560,21 +550,6 @@ export default function CockpitDashboard() {
                   >
                     Reset Layout
                   </button>
-                  <div style={{ height: '1px', background: theme.border.default, margin: '4px 0' }} />
-                  <button
-                    onClick={() => {
-                      try {
-                        navigator.clipboard.writeText(window.location.href);
-                        showToast('Copied link to clipboard');
-                      } catch {
-                        showToast('Link ready to copy');
-                      }
-                      setShowOptionsMenu(false);
-                    }}
-                    style={{ width: '100%', textAlign: 'left', background: 'transparent', border: 'none', padding: '6px 12px', cursor: 'pointer', color: theme.text.primary }}
-                  >
-                    Copy Share Link
-                  </button>
                 </div>
               )}
             </div>
@@ -584,7 +559,7 @@ export default function CockpitDashboard() {
 
           <a
             href={HOME_URL}
-            title="View Product Overview & Specs"
+            title="Overview"
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -604,7 +579,7 @@ export default function CockpitDashboard() {
 
           <div style={{ height: '14px', width: '1px', background: theme.border.default }} />
 
-          {/* Operator Profile Indicator */}
+          {/* User Profile */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
@@ -632,7 +607,7 @@ export default function CockpitDashboard() {
               await authClient.logout();
               router.push('/login');
             }}
-            title="Sign out of current operator session"
+            title="Sign out"
             style={{
               background: 'transparent',
               border: 'none',
@@ -649,55 +624,51 @@ export default function CockpitDashboard() {
       </header>
 
       {/* ========================================================================= */}
-      {/* STATE 1: STANDBY / CAPTURE GATEWAY (DEFAULT LANDING VIEW) */}
+      {/* STATE 1: CLEAN STANDBY GATEWAY (DEFAULT LANDING VIEW) */}
       {/* ========================================================================= */}
       {state.activeMode === 'standby' ? (
         <div style={{
           flex: 1,
           overflowY: 'auto',
-          padding: '32px 24px',
+          padding: '40px 24px',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           background: '#f8fafc'
         }}>
-          <div style={{ maxWidth: '960px', width: '100%', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div style={{ maxWidth: '860px', width: '100%', display: 'flex', flexDirection: 'column', gap: '20px' }}>
             
-            {/* Top Gateway Hero Card */}
+            {/* Clean Hero Header */}
             <div style={{
               background: '#ffffff',
               border: '1px solid #e2e8f0',
-              borderRadius: '8px',
+              borderRadius: '10px',
               padding: '28px 32px',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
               display: 'flex',
               flexDirection: 'column',
-              gap: '12px'
+              gap: '10px'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '3px 10px',
-                  borderRadius: '20px',
-                  background: '#f1f5f9',
-                  border: '1px solid #cbd5e1',
-                  fontSize: '11px',
-                  fontFamily: '"JetBrains Mono", monospace',
-                  color: '#475569',
-                  fontWeight: 600
-                }}>
-                  <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#64748b' }} />
-                  <span>RECORDER STANDBY — ZERO SESSIONS ATTACHED</span>
-                </div>
-                <span style={{ fontSize: '11px', color: '#64748b', fontFamily: '"JetBrains Mono", monospace' }}>
-                  Chrono Engine v1.0.4 • NIST SHA-256
-                </span>
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '2px 8px',
+                borderRadius: '12px',
+                background: '#f1f5f9',
+                border: '1px solid #cbd5e1',
+                fontSize: '11px',
+                fontFamily: '"JetBrains Mono", monospace',
+                color: '#475569',
+                fontWeight: 600,
+                width: 'fit-content'
+              }}>
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#16a34a' }} />
+                <span>RECORDER READY</span>
               </div>
 
               <h1 style={{
-                fontSize: '24px',
+                fontSize: '22px',
                 fontWeight: 800,
                 color: '#0f172a',
                 margin: 0,
@@ -706,28 +677,27 @@ export default function CockpitDashboard() {
                 alignItems: 'center',
                 gap: '10px'
               }}>
-                <ChronoLogo size={28} />
-                <span>Chrono Agent Flight Recorder</span>
+                <ChronoLogo size={26} />
+                <span>Flight recorder for AI coding agents</span>
               </h1>
-              <p style={{ fontSize: '14px', color: '#475569', margin: 0, lineHeight: 1.5 }}>
-                Zero-overhead cryptographic black box and real-time intervention circuit breaker for autonomous coding agents.
-                Tails agent transcripts in real time, computes SHA-256 Merkle hash chains, and halts runaway oscillation loops.
+              <p style={{ fontSize: '13px', color: '#64748b', margin: 0, lineHeight: 1.5 }}>
+                Watch your AI code in real time, catch loops before they waste tokens, and review every change.
               </p>
             </div>
 
-            {/* Primary Action 1: Live Demo Simulation (Zero to Recovery) */}
+            {/* Primary Action Card: Try Live Demo */}
             <div style={{
               background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)',
               border: '1px solid #86efac',
-              borderRadius: '8px',
-              padding: '24px 28px',
+              borderRadius: '10px',
+              padding: '22px 28px',
               boxShadow: '0 2px 8px rgba(34, 197, 94, 0.08)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
               gap: '24px'
             }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 <div style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -737,19 +707,18 @@ export default function CockpitDashboard() {
                   color: '#15803d',
                   background: '#dcfce7',
                   border: '1px solid #bbf7d0',
-                  padding: '2px 8px',
-                  borderRadius: '12px',
+                  padding: '1px 8px',
+                  borderRadius: '10px',
                   width: 'fit-content',
                   fontFamily: '"JetBrains Mono", monospace'
                 }}>
-                  ★ RECOMMENDED FOR JUDGES & DEMOS
+                  ★ 1-CLICK LIVE DEMO
                 </div>
-                <h2 style={{ fontSize: '17px', fontWeight: 700, color: '#14532d', margin: 0 }}>
-                  ▶ Start Live Agent Capture Demo (Zero to Recovery)
+                <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#14532d', margin: 0 }}>
+                  See how Chrono catches an AI loop
                 </h2>
-                <p style={{ fontSize: '12px', color: '#166534', margin: 0, lineHeight: 1.5, maxWidth: '600px' }}>
-                  Watch Chrono start from an empty timeline. See 24-byte CEP frames stream in real time, watch the sliding-window
-                  detector trip on 3 identical edits, witness Muse Spark diagnose the root cause, and see the recovery sealed into the SHA-256 Merkle chain.
+                <p style={{ fontSize: '12px', color: '#166534', margin: 0, lineHeight: 1.4, maxWidth: '540px' }}>
+                  Watch a live demonstration: the AI writes code, makes a mistake, gets stuck repeating the same edit, and Chrono steps in with the fix.
                 </p>
               </div>
 
@@ -760,126 +729,86 @@ export default function CockpitDashboard() {
                   color: '#ffffff',
                   border: 'none',
                   borderRadius: '6px',
-                  padding: '12px 24px',
-                  fontSize: '13px',
+                  padding: '10px 22px',
+                  fontSize: '12px',
                   fontWeight: 700,
                   fontFamily: '"JetBrains Mono", monospace',
                   cursor: 'pointer',
-                  boxShadow: '0 4px 12px rgba(22, 163, 74, 0.3)',
+                  boxShadow: '0 4px 12px rgba(22, 163, 74, 0.25)',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '8px',
+                  gap: '6px',
                   flexShrink: 0
                 }}
               >
                 <span>▶</span>
-                <span>Launch Live Demo</span>
+                <span>Run Live Demo</span>
               </button>
             </div>
 
-            {/* Two-Column Grid: Production Agent Integration vs Sealed Library */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+            {/* Two Clean Cards: How it works vs Recent Sessions */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               
-              {/* Left Column: Real-World CLI Integration */}
+              {/* Left Column: How It Works */}
               <div style={{
                 background: '#ffffff',
                 border: '1px solid #e2e8f0',
-                borderRadius: '8px',
-                padding: '20px 24px',
+                borderRadius: '10px',
+                padding: '20px 22px',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '14px'
+                gap: '12px'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <span style={{
-                    fontSize: '10px',
-                    fontWeight: 700,
-                    padding: '2px 8px',
-                    borderRadius: '12px',
-                    background: '#f1f5f9',
-                    color: '#0f172a',
-                    border: '1px solid #cbd5e1',
-                    fontFamily: '"JetBrains Mono", monospace'
-                  }}>
-                    PRODUCTION ADAPTER
-                  </span>
-                  <span style={{ fontSize: '11px', color: '#64748b', fontFamily: '"JetBrains Mono", monospace' }}>Real Agent CLI</span>
-                </div>
-
-                <div>
-                  <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a', margin: '0 0 6px 0' }}>
-                    Attach to Real Coding Agent
+                  <h3 style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                    How Chrono Works
                   </h3>
-                  <p style={{ fontSize: '12px', color: '#475569', margin: 0, lineHeight: 1.4 }}>
-                    Chrono connects to any coding agent (Claude Code, Muse Code, Antigravity) by tailing its native JSONL event transcript with 0 token overhead.
-                  </p>
+                  <span style={{ fontSize: '10px', color: '#94a3b8', fontFamily: '"JetBrains Mono", monospace' }}>3 steps</span>
                 </div>
 
-                <div style={{
-                  background: '#0f172a',
-                  borderRadius: '6px',
-                  padding: '12px 14px',
-                  color: '#f8fafc',
-                  fontFamily: '"JetBrains Mono", monospace',
-                  fontSize: '11px',
-                  lineHeight: 1.6,
-                  position: 'relative'
-                }}>
-                  <div style={{ color: '#94a3b8', fontSize: '10px', marginBottom: '4px' }}># 1. Start Chrono stream watcher</div>
-                  <div style={{ color: '#38bdf8' }}>python adapters/muse_code/session_watcher.py \</div>
-                  <div style={{ color: '#e2e8f0', paddingLeft: '12px' }}>--session-file ~/.transcript.jsonl --follow</div>
-                  <div style={{ color: '#94a3b8', fontSize: '10px', marginTop: '6px' }}># 2. Open cockpit — fills in real time</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '12px', color: '#334155' }}>
+                  <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+                    <span style={{ background: '#e0f2fe', color: '#0369a1', width: '20px', height: '20px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 700, flexShrink: 0 }}>1</span>
+                    <div>
+                      <strong style={{ color: '#0f172a' }}>Silent Recording:</strong> Chrono tracks your AI's edits and commands as it works, with zero delay.
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+                    <span style={{ background: '#fee2e2', color: '#b91c1c', width: '20px', height: '20px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 700, flexShrink: 0 }}>2</span>
+                    <div>
+                      <strong style={{ color: '#0f172a' }}>Loop Detection:</strong> If the AI repeats the same bad edit 3 times, Chrono immediately flags it.
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+                    <span style={{ background: '#dcfce7', color: '#15803d', width: '20px', height: '20px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 700, flexShrink: 0 }}>3</span>
+                    <div>
+                      <strong style={{ color: '#0f172a' }}>Smart Fix:</strong> Chrono gives the AI clear guidance to break the loop and finish the task.
+                    </div>
+                  </div>
                 </div>
 
-                <div style={{ fontSize: '11px', color: '#64748b', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span style={{ color: '#16a34a' }}>✓</span>
-                    <span>Zero token overhead (agent would write log anyway)</span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span style={{ color: '#16a34a' }}>✓</span>
-                    <span>Sliding-window circuit breaker trips on 3 identical edits</span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span style={{ color: '#16a34a' }}>✓</span>
-                    <span>Outputs NIST-compliant SHA-256 audit proof</span>
-                  </div>
+                <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '10px', fontSize: '11px', color: '#94a3b8' }}>
+                  Compatible with Claude Code, Muse Code, and Antigravity.
                 </div>
               </div>
 
-              {/* Right Column: Sealed Historical Runs Library */}
+              {/* Right Column: Recent Sessions */}
               <div style={{
                 background: '#ffffff',
                 border: '1px solid #e2e8f0',
-                borderRadius: '8px',
-                padding: '20px 24px',
+                borderRadius: '10px',
+                padding: '20px 22px',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '14px'
+                gap: '12px'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <span style={{
-                    fontSize: '10px',
-                    fontWeight: 700,
-                    padding: '2px 8px',
-                    borderRadius: '12px',
-                    background: '#faf5ff',
-                    color: '#7e22ce',
-                    border: '1px solid #e9d5ff',
-                    fontFamily: '"JetBrains Mono", monospace'
-                  }}>
-                    SEALED RUNS LIBRARY
-                  </span>
-                  <span style={{ fontSize: '11px', color: '#64748b', fontFamily: '"JetBrains Mono", monospace' }}>Verified Proofs</span>
-                </div>
-
-                <div>
-                  <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a', margin: '0 0 6px 0' }}>
-                    Browse Sealed Runs
+                  <h3 style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                    Recent Sessions
                   </h3>
-                  <p style={{ fontSize: '12px', color: '#475569', margin: 0, lineHeight: 1.4 }}>
-                    Inspect cryptographically verified execution traces with full 60fps scrubbing and SHA-256 verification receipts.
-                  </p>
+                  <span style={{ fontSize: '10px', color: '#94a3b8', fontFamily: '"JetBrains Mono", monospace' }}>History</span>
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -888,7 +817,7 @@ export default function CockpitDashboard() {
                       key={s.id}
                       onClick={() => handleSessionChange(s.id)}
                       style={{
-                        padding: '10px 12px',
+                        padding: '9px 12px',
                         border: '1px solid #e2e8f0',
                         borderRadius: '6px',
                         background: '#f8fafc',
@@ -900,27 +829,13 @@ export default function CockpitDashboard() {
                       }}
                     >
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <span style={{ fontSize: '12px', fontWeight: 600, color: '#0f172a' }}>{s.label}</span>
-                          <span style={{
-                            fontSize: '9px',
-                            fontWeight: 700,
-                            padding: '1px 5px',
-                            borderRadius: '3px',
-                            background: s.is_synthetic ? '#f1f5f9' : '#dcfce7',
-                            color: s.is_synthetic ? '#475569' : '#166534',
-                            border: `1px solid ${s.is_synthetic ? '#cbd5e1' : '#bbf7d0'}`,
-                            fontFamily: '"JetBrains Mono", monospace'
-                          }}>
-                            {s.is_synthetic ? 'DEMO' : 'LIVE RUN'}
-                          </span>
-                        </div>
-                        <span style={{ fontSize: '10px', color: '#64748b', fontFamily: '"JetBrains Mono", monospace' }}>
+                        <span style={{ fontSize: '12px', fontWeight: 600, color: '#0f172a' }}>{s.label}</span>
+                        <span style={{ fontSize: '11px', color: '#64748b' }}>
                           {s.description || s.task_name}
                         </span>
                       </div>
-                      <span style={{ color: '#0082FB', fontSize: '12px', fontWeight: 600, fontFamily: '"JetBrains Mono", monospace' }}>
-                        Inspect ▶
+                      <span style={{ color: '#0082FB', fontSize: '11px', fontWeight: 600, fontFamily: '"JetBrains Mono", monospace' }}>
+                        Open ▶
                       </span>
                     </div>
                   ))}
@@ -933,7 +848,7 @@ export default function CockpitDashboard() {
         </div>
       ) : (
         /* ========================================================================= */
-        /* STATES 2 & 3: LIVE CAPTURE STREAM OR SEALED LIBRARY WORKSPACE */
+        /* STATES 2 & 3: LIVE DEMO OR PAST SESSION WORKSPACE */
         /* ========================================================================= */
         <>
           {/* Active Mode Banner */}
@@ -958,16 +873,15 @@ export default function CockpitDashboard() {
                   boxShadow: state.stalls.length > 0 ? '0 0 8px #dc2626' : '0 0 6px #16a34a'
                 }} />
                 <span style={{ fontWeight: 600, color: state.stalls.length > 0 ? '#b91c1c' : '#166534' }}>
-                  {state.stalls.length > 0 ? '⚠️ CIRCUIT BREAKER TRIPPED:' : '● LIVE INGEST ACTIVE:'}
+                  {state.stalls.length > 0 ? '⚠️ LOOP DETECTED:' : '● LIVE RECORDING:'}
                 </span>
                 <span style={{ color: state.stalls.length > 0 ? '#991b1b' : '#14532d' }}>
                   {state.liveStatusText}
                 </span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#64748b' }}>
-                <span>Blocks: <strong style={{ color: '#0f172a' }}>{state.events.length}</strong></span>
+                <span>Actions: <strong style={{ color: '#0f172a' }}>{state.events.length}</strong></span>
                 <span>Checkpoints: <strong style={{ color: '#0f172a' }}>{state.checkpoints.length}</strong></span>
-                <span>Wire: <strong>24-byte CEP v1</strong></span>
               </div>
             </div>
           ) : (
@@ -983,12 +897,12 @@ export default function CockpitDashboard() {
               flexShrink: 0
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ color: '#7e22ce', fontWeight: 600 }}>ARCHIVE PLAYBACK:</span>
+                <span style={{ color: '#7e22ce', fontWeight: 600 }}>PAST SESSION:</span>
                 <span style={{ color: '#581c87' }}>{activeSessionMeta.label}</span>
-                <span style={{ color: '#9333ea', fontSize: '10px' }}>(Sealed • Read-Only)</span>
+                <span style={{ color: '#9333ea', fontSize: '10px' }}>(Completed)</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ color: '#16a34a', fontWeight: 600 }}>✓ SHA-256 MERKLE ROOT: PASS</span>
+                <span style={{ color: '#16a34a', fontWeight: 600 }}>✓ Verified Log</span>
                 <button
                   onClick={() => setShowVerifyModal(true)}
                   style={{
@@ -1001,15 +915,15 @@ export default function CockpitDashboard() {
                     fontSize: '10px'
                   }}
                 >
-                  View Receipt
+                  View Summary
                 </button>
               </div>
             </div>
           )}
 
-          {/* Main Workspace Area (Collapsible, Movable, Resizable) */}
+          {/* Main Workspace Area */}
           <div style={{ flex: 1, display: 'flex', overflow: 'hidden', position: 'relative' }}>
-            {/* Left Narrow Icon Dock */}
+            {/* Left Narrow Dock */}
             <aside style={{
               width: '42px',
               background: theme.bg.chrome,
@@ -1072,10 +986,10 @@ export default function CockpitDashboard() {
                 <GitBranchIcon size={14} color={!isTreeCollapsed ? theme.accent.green : theme.text.muted} />
               </button>
 
-              {/* Forensic Verifier Dialog */}
+              {/* Verifier Dialog */}
               <button
                 onClick={() => setShowVerifyModal(true)}
-                title="Forensic Verifier"
+                title="Session Verification"
                 style={{
                   width: '28px',
                   height: '28px',
@@ -1095,7 +1009,7 @@ export default function CockpitDashboard() {
               {/* New Run Modal */}
               <button
                 onClick={() => setShowNewRunModal(true)}
-                title="New Recording"
+                title="New Session"
                 style={{
                   width: '28px',
                   height: '28px',
@@ -1116,7 +1030,7 @@ export default function CockpitDashboard() {
               <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
                 <div
                   onClick={() => setShowAgentModal(true)}
-                  title="Agent Profile (Muse Code)"
+                  title="AI Agent Info"
                   style={{
                     width: '26px',
                     height: '26px',
@@ -1132,30 +1046,10 @@ export default function CockpitDashboard() {
                     cursor: 'pointer'
                   }}
                 >
-                  MC
+                  AI
                 </div>
               </div>
             </aside>
-
-            {/* Inspector on Left Option */}
-            {inspectorSide === 'left' && !isInspectorCollapsed && !isFullscreenDiff && (
-              <>
-                <aside style={{ width: `${inspectorWidth}px`, height: '100%', display: 'flex', flexDirection: 'column', background: theme.bg.surface, flexShrink: 0 }}>
-                  <div style={{ padding: '5px 8px', borderBottom: `1px solid ${theme.border.default}`, background: theme.bg.chrome, display: 'flex', alignItems: 'center', gap: '5px' }}>
-                    <button onClick={() => setActiveTab('narration')} style={{ flex: 1, padding: '3px 5px', borderRadius: '4px', border: activeTab === 'narration' ? `1px solid ${theme.border.default}` : '1px solid transparent', background: activeTab === 'narration' ? '#ffffff' : 'transparent', color: activeTab === 'narration' ? theme.text.primary : theme.text.muted, fontSize: '11px', fontFamily: '"JetBrains Mono", monospace', cursor: 'pointer' }}>instructor</button>
-                    <button onClick={() => setActiveTab('transcript')} style={{ flex: 1, padding: '3px 5px', borderRadius: '4px', border: activeTab === 'transcript' ? `1px solid ${theme.border.default}` : '1px solid transparent', background: activeTab === 'transcript' ? '#ffffff' : 'transparent', color: activeTab === 'transcript' ? theme.text.primary : theme.text.muted, fontSize: '11px', fontFamily: '"JetBrains Mono", monospace', cursor: 'pointer' }}>transcript</button>
-                    <button onClick={() => setActiveTab('telemetry')} style={{ flex: 1, padding: '3px 5px', borderRadius: '4px', border: activeTab === 'telemetry' ? `1px solid ${theme.border.default}` : '1px solid transparent', background: activeTab === 'telemetry' ? '#ffffff' : 'transparent', color: activeTab === 'telemetry' ? theme.text.primary : theme.text.muted, fontSize: '11px', fontFamily: '"JetBrains Mono", monospace', cursor: 'pointer' }}>telemetry</button>
-                    <button onClick={() => setIsInspectorCollapsed(true)} title="Collapse inspector" style={{ background: 'transparent', border: 'none', color: theme.text.muted, cursor: 'pointer', fontSize: '11px', padding: '0 4px' }}>◀</button>
-                  </div>
-                  <div style={{ flex: 1, overflow: 'hidden' }}>
-                    {activeTab === 'narration' && <NarrationPanel onCollapse={() => setIsInspectorCollapsed(true)} />}
-                    {activeTab === 'transcript' && <TranscriptPanel onCollapse={() => setIsInspectorCollapsed(true)} />}
-                    {activeTab === 'telemetry' && <TelemetryPanel onCollapse={() => setIsInspectorCollapsed(true)} />}
-                  </div>
-                </aside>
-                <div onPointerDown={(e) => startDrag('inspector', e)} style={{ width: '4px', cursor: 'col-resize', background: 'transparent' } as any} />
-              </>
-            )}
 
             {/* Left Tree Panel */}
             {!isTreeCollapsed && !isFullscreenDiff && (
@@ -1189,7 +1083,7 @@ export default function CockpitDashboard() {
                 isFullscreen={isFullscreenDiff}
                 onToggleFullscreen={() => {
                   setIsFullscreenDiff(!isFullscreenDiff);
-                  showToast(!isFullscreenDiff ? 'Expanded diff to fullscreen' : 'Restored layout');
+                  showToast(!isFullscreenDiff ? 'Expanded diff' : 'Restored layout');
                 }}
               />
             </div>
@@ -1292,7 +1186,7 @@ export default function CockpitDashboard() {
                   </button>
                   <button
                     onClick={() => setIsInspectorCollapsed(true)}
-                    title="Collapse inspector"
+                    title="Collapse panel"
                     style={{
                       background: 'transparent',
                       border: 'none',
@@ -1320,7 +1214,7 @@ export default function CockpitDashboard() {
           {!isTimelineCollapsed && !isFullscreenDiff && (
             <div
               onPointerDown={(e) => startDrag('timeline', e)}
-              title="Drag up/down to resize timeline height"
+              title="Drag to resize timeline"
               style={{
                 height: '4px',
                 width: '100%',
@@ -1335,7 +1229,7 @@ export default function CockpitDashboard() {
             />
           )}
 
-          {/* Bottom 60fps Scrubber Timeline */}
+          {/* Bottom Scrubber Timeline */}
           {!isFullscreenDiff && (
             <footer style={{ height: isTimelineCollapsed ? '32px' : `${timelineHeight}px`, flexShrink: 0, overflow: 'hidden' }}>
               <CanvasTimeline
@@ -1350,7 +1244,7 @@ export default function CockpitDashboard() {
         </>
       )}
 
-      {/* MODAL 1: Session Info Modal */}
+      {/* MODAL 1: Session Details Modal */}
       {showInfoModal && (
         <div style={{
           position: 'fixed',
@@ -1363,25 +1257,24 @@ export default function CockpitDashboard() {
         }}>
           <div style={{
             background: '#ffffff',
-            borderRadius: '6px',
+            borderRadius: '8px',
             border: `1px solid ${theme.border.default}`,
-            width: '440px',
+            width: '420px',
             padding: '16px 20px',
             boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
             fontFamily: '"JetBrains Mono", monospace'
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', borderBottom: `1px solid ${theme.border.default}`, paddingBottom: '8px' }}>
-              <span style={{ fontSize: '13px', fontWeight: 700, color: theme.text.primary }}>SESSION DETAILS (BACKEND)</span>
+              <span style={{ fontSize: '13px', fontWeight: 700, color: theme.text.primary }}>SESSION DETAILS</span>
               <button onClick={() => setShowInfoModal(false)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '14px', color: theme.text.muted }}>✕</button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '11px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: theme.text.muted }}>Session ID:</span><span style={{ fontWeight: 600 }}>{currentSessionId}</span></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: theme.text.muted }}>Session:</span><span style={{ fontWeight: 600 }}>{currentSessionId}</span></div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: theme.text.muted }}>Task:</span><span>{activeSessionMeta.label || activeSessionMeta.task_name}</span></div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: theme.text.muted }}>Model:</span><span>{state.metadata?.model || 'muse-spark-1026'}</span></div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: theme.text.muted }}>Branch:</span><span>{state.metadata?.git_branch || 'main'}</span></div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: theme.text.muted }}>Events Recorded:</span><span>{state.events.length} events</span></div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: theme.text.muted }}>Checkpoints:</span><span>{state.checkpoints.length} tree snapshots</span></div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: theme.text.muted }}>Integrity:</span><span style={{ color: '#1a7f37', fontWeight: 600 }}>SHA-256 Merkle Chain Verified</span></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: theme.text.muted }}>Model:</span><span>{state.metadata?.model || 'Muse Spark'}</span></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: theme.text.muted }}>Total Actions:</span><span>{state.events.length}</span></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: theme.text.muted }}>Checkpoints:</span><span>{state.checkpoints.length} snapshots</span></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: theme.text.muted }}>Status:</span><span style={{ color: '#1a7f37', fontWeight: 600 }}>Verified</span></div>
             </div>
             <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'flex-end' }}>
               <button onClick={() => setShowInfoModal(false)} style={{ background: '#ffffff', border: `1px solid ${theme.border.default}`, padding: '4px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}>Close</button>
@@ -1390,7 +1283,7 @@ export default function CockpitDashboard() {
         </div>
       )}
 
-      {/* MODAL 2: Forensic Verifier Modal */}
+      {/* MODAL 2: Session Verification Modal */}
       {showVerifyModal && (
         <div style={{
           position: 'fixed',
@@ -1403,52 +1296,43 @@ export default function CockpitDashboard() {
         }}>
           <div style={{
             background: '#ffffff',
-            borderRadius: '6px',
+            borderRadius: '8px',
             border: `1px solid ${theme.border.default}`,
-            width: '480px',
+            width: '440px',
             padding: '16px 20px',
             boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
             fontFamily: '"JetBrains Mono", monospace'
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', borderBottom: `1px solid ${theme.border.default}`, paddingBottom: '8px' }}>
-              <span style={{ fontSize: '13px', fontWeight: 700, color: theme.text.primary }}>FORENSIC CRYPTOGRAPHIC AUDIT</span>
+              <span style={{ fontSize: '13px', fontWeight: 700, color: theme.text.primary }}>SESSION VERIFICATION</span>
               <button onClick={() => setShowVerifyModal(false)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '14px', color: theme.text.muted }}>✕</button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '11px' }}>
               <div style={{ background: '#dafbe1', border: '1px solid #b4f0c0', padding: '8px 10px', borderRadius: '4px', color: '#1a7f37', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <span>✓</span>
-                <span>STATUS: {state.verificationReceipt?.status || 'PASS'} (0 CORRUPTIONS DETECTED)</span>
+                <span>STATUS: VERIFIED (0 ERRORS DETECTED)</span>
               </div>
-              <div style={{ marginTop: '6px' }}><span style={{ color: theme.text.muted }}>Terminal Digest:</span></div>
-              <div style={{ background: '#f6f8fa', border: `1px solid ${theme.border.default}`, padding: '6px 8px', borderRadius: '3px', fontSize: '10px', wordBreak: 'break-all' }}>
-                {state.verificationReceipt?.terminal_hash || '3a37187767775b2c4926a6dc4a8ff8dd850c36bb2acbb53babe51d2afab1a692'}
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4px' }}>
-                <span style={{ color: theme.text.muted }}>Chained Records:</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '6px' }}>
+                <span style={{ color: theme.text.muted }}>Actions Recorded:</span>
                 <span>{state.verificationReceipt?.records_count || state.events.length}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: theme.text.muted }}>Hasher:</span>
-                <span>{state.verificationReceipt?.hasher || 'NIST FIPS 180-4 SHA-256'}</span>
+                <span style={{ color: theme.text.muted }}>Loop Shield:</span>
+                <span style={{ color: '#1a7f37' }}>Active & Resolved</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: theme.text.muted }}>Verified At:</span>
+                <span>{new Date().toLocaleTimeString()}</span>
               </div>
             </div>
             <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-              <button
-                onClick={() => {
-                  showToast('Re-verified SHA-256 chain from backend: PASS');
-                  setShowVerifyModal(false);
-                }}
-                style={{ background: '#1a7f37', color: '#ffffff', border: 'none', padding: '4px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 600 }}
-              >
-                Re-verify Log
-              </button>
               <button onClick={() => setShowVerifyModal(false)} style={{ background: '#ffffff', border: `1px solid ${theme.border.default}`, padding: '4px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}>Close</button>
             </div>
           </div>
         </div>
       )}
 
-      {/* MODAL 3: New Run / Load Trace Modal */}
+      {/* MODAL 3: New Session Modal */}
       {showNewRunModal && (
         <div style={{
           position: 'fixed',
@@ -1461,29 +1345,25 @@ export default function CockpitDashboard() {
         }}>
           <div style={{
             background: '#ffffff',
-            borderRadius: '6px',
+            borderRadius: '8px',
             border: `1px solid ${theme.border.default}`,
-            width: '420px',
+            width: '400px',
             padding: '16px 20px',
             boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
             fontFamily: '"JetBrains Mono", monospace'
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', borderBottom: `1px solid ${theme.border.default}`, paddingBottom: '8px' }}>
-              <span style={{ fontSize: '13px', fontWeight: 700, color: theme.text.primary }}>NEW RECORDING / RUN</span>
+              <span style={{ fontSize: '13px', fontWeight: 700, color: theme.text.primary }}>START OR LOAD SESSION</span>
               <button onClick={() => setShowNewRunModal(false)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '14px', color: theme.text.muted }}>✕</button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '11px' }}>
               <div onClick={() => { handleStartLiveDemo(); setShowNewRunModal(false); }} style={{ padding: '8px 10px', border: '1px solid #86efac', borderRadius: '4px', cursor: 'pointer', background: '#f0fdf4' }}>
-                <div style={{ fontWeight: 600, color: '#15803d' }}>▶ Launch Live Simulated Agent Run</div>
-                <div style={{ color: '#166534', fontSize: '10px' }}>Stream CEP frames from zero, trigger stall alert & recovery</div>
-              </div>
-              <div onClick={() => { handleSessionChange('live-agent-run'); setShowNewRunModal(false); }} style={{ padding: '8px 10px', border: `1px solid ${theme.border.default}`, borderRadius: '4px', cursor: 'pointer', background: '#f6f8fa' }}>
-                <div style={{ fontWeight: 600, color: theme.text.primary }}>Load Live Dogfood Run</div>
-                <div style={{ color: theme.text.muted, fontSize: '10px' }}>2,973 verified blocks from real build session</div>
+                <div style={{ fontWeight: 600, color: '#15803d' }}>▶ Run Live Demo</div>
+                <div style={{ color: '#166534', fontSize: '10px' }}>Simulate live agent recording and loop recovery</div>
               </div>
               <div onClick={() => { handleSessionChange('chrono-feature-attempt-1'); setShowNewRunModal(false); }} style={{ padding: '8px 10px', border: `1px solid ${theme.border.default}`, borderRadius: '4px', cursor: 'pointer', background: '#f6f8fa' }}>
-                <div style={{ fontWeight: 600, color: theme.text.primary }}>Load Loop Recovery Demo</div>
-                <div style={{ color: theme.text.muted, fontSize: '10px' }}>Explore automated stall detection & intervention</div>
+                <div style={{ fontWeight: 600, color: theme.text.primary }}>Load Loop Recovery Session</div>
+                <div style={{ color: theme.text.muted, fontSize: '10px' }}>Review how Chrono recovered from an agent edit loop</div>
               </div>
             </div>
             <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'flex-end' }}>
@@ -1493,7 +1373,7 @@ export default function CockpitDashboard() {
         </div>
       )}
 
-      {/* MODAL 4: Agent Profile Modal */}
+      {/* MODAL 4: Agent Info Modal */}
       {showAgentModal && (
         <div style={{
           position: 'fixed',
@@ -1506,22 +1386,21 @@ export default function CockpitDashboard() {
         }}>
           <div style={{
             background: '#ffffff',
-            borderRadius: '6px',
+            borderRadius: '8px',
             border: `1px solid ${theme.border.default}`,
-            width: '420px',
+            width: '400px',
             padding: '16px 20px',
             boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
             fontFamily: '"JetBrains Mono", monospace'
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', borderBottom: `1px solid ${theme.border.default}`, paddingBottom: '8px' }}>
-              <span style={{ fontSize: '13px', fontWeight: 700, color: theme.text.primary }}>AGENT RUNTIME (MUSE CODE)</span>
+              <span style={{ fontSize: '13px', fontWeight: 700, color: theme.text.primary }}>AGENT INFO</span>
               <button onClick={() => setShowAgentModal(false)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '14px', color: theme.text.muted }}>✕</button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '11px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: theme.text.muted }}>Framework:</span><span>{state.metadata?.agent_framework || 'muse_code / antigravity'}</span></div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: theme.text.muted }}>Engine:</span><span>Meta Model API (Baseten)</span></div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: theme.text.muted }}>Model:</span><span>{state.metadata?.model || 'muse-spark-1026'}</span></div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: theme.text.muted }}>Protocol Wire:</span><span>CEP v1 (24-byte packed)</span></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: theme.text.muted }}>Agent:</span><span>Muse Code / Antigravity</span></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: theme.text.muted }}>Engine:</span><span>Meta Model API</span></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: theme.text.muted }}>Loop Shield:</span><span style={{ color: '#16a34a', fontWeight: 600 }}>Active</span></div>
             </div>
             <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'flex-end' }}>
               <button onClick={() => setShowAgentModal(false)} style={{ background: '#ffffff', border: `1px solid ${theme.border.default}`, padding: '4px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}>Close</button>

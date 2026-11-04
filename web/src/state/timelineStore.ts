@@ -34,10 +34,10 @@ export interface TimelineSnapshot {
 
 const DEFAULT_METADATA: SessionMetadata = {
   session_id: 'chrono-feature-attempt-1',
-  task_name: 'Implement Chrono append-only hash chain and LMAX ingest in C++20',
+  task_name: 'Implement Chrono recorder and loop detection in C++',
   model: 'muse-spark-1026',
   agent_framework: 'muse_code',
-  git_branch: 'feat/hash-chain-ingest'
+  git_branch: 'feat/recorder'
 };
 
 const DEFAULT_CHECKPOINTS: Checkpoint[] = [
@@ -49,7 +49,7 @@ const DEFAULT_CHECKPOINTS: Checkpoint[] = [
     files_modified: ['core/include/chrono/event.h'],
     additions: 45,
     deletions: 0,
-    summary: 'feat(core): declare Event wire framing and EventKind enum',
+    summary: 'Define core Event wire framing',
     raw_patch: '--- /dev/null\n+++ b/core/include/chrono/event.h\n@@ -0,0 +1,45 @@\n+#pragma once\n+#include <cstdint>\n+namespace chrono {\n+enum class EventKind : uint16_t {\n+    SESSION_START = 1,\n+    PROMPT = 2,\n+    AGENT_THOUGHT = 3,\n+    TOOL_CALL = 4,\n+    TOOL_RESULT = 5,\n+    FILE_DIFF = 6,\n+    CHECKPOINT = 7,\n+    STALL_ALERT = 8,\n+    INTERVENTION = 9\n+};\n+}'
   },
   {
@@ -60,7 +60,7 @@ const DEFAULT_CHECKPOINTS: Checkpoint[] = [
     files_modified: ['core/include/chrono/hash_chain.h', 'core/src/hash_chain.cpp'],
     additions: 110,
     deletions: 4,
-    summary: 'feat(core): implement SHA-256 append-only log with tamper verification',
+    summary: 'Implement hash log with tamper verification',
     raw_patch: '--- a/core/src/hash_chain.cpp\n+++ b/core/src/hash_chain.cpp\n@@ -15,4 +15,22 @@\n ChainRecord HashChainWriter::append(EventKind kind, uint16_t flags, std::string_view payload) {\n+    ChainRecord record;\n+    record.header.seq_id = next_seq_++;\n+    record.header.kind = static_cast<uint16_t>(kind);\n+    record.prev_hash = tail_hash_;\n+    record.current_hash = record.compute_hash();\n+    tail_hash_ = record.current_hash;\n+    write_record(record, payload);\n+    return record;\n }'
   },
   {
@@ -71,7 +71,7 @@ const DEFAULT_CHECKPOINTS: Checkpoint[] = [
     files_modified: ['core/include/chrono/ingest.h', 'core/src/ingest.cpp'],
     additions: 88,
     deletions: 12,
-    summary: 'feat(core): build LMAX lockless SPSC ring buffer for burst ingest',
+    summary: 'Build high-speed ring buffer for live capture',
     raw_patch: '--- a/core/include/chrono/ingest.h\n+++ b/core/include/chrono/ingest.h\n@@ -25,5 +25,12 @@\n+    alignas(64) std::atomic<size_t> head_{0};\n+    alignas(64) std::atomic<size_t> tail_{0};\n+    std::vector<T> ring_;\n+    static constexpr size_t kCapacity = 65536;\n+    static constexpr size_t kMask = kCapacity - 1;'
   },
   {
@@ -82,7 +82,7 @@ const DEFAULT_CHECKPOINTS: Checkpoint[] = [
     files_modified: ['core/src/stall_detector.cpp'],
     additions: 64,
     deletions: 18,
-    summary: 'fix(core): recover from identical diff oscillation by tuning sliding window',
+    summary: 'Recover from repeating edit loop by adjusting sliding window',
     raw_patch: '--- a/core/src/stall_detector.cpp\n+++ b/core/src/stall_detector.cpp\n@@ -34,16 +34,26 @@ void StallDetector::observe_diff(const std::string& patch_content) {\n     uint64_t patch_hash = compute_diff_hash(patch_content);\n     recent_diff_hashes_.push_back(patch_hash);\n     if (recent_diff_hashes_.size() > window_size_) {\n         recent_diff_hashes_.pop_front();\n     }\n \n-    // Unbounded repetition check failed to trigger on oscillatory edits\n-    size_t count = count_occurrences(patch_hash);\n+    // Fixed: Track deterministic cycles with threshold_cycles_ sliding window\n+    size_t count = count_occurrences(patch_hash);\n+    if (count >= threshold_cycles_) {\n+        StallAlert alert;\n+        alert.pattern = StallPattern::IDENTICAL_DIFF_LOOP;\n+        alert.confidence = 0.98f;\n+        alert.culprit_file = "core/src/stall_detector.cpp";\n+        alert.cycle_count = static_cast<uint32_t>(count);\n+        alert.description = "Agent generated identical diff 3 times without resolving failure.";\n+        bus_.publish(alert);\n+    }\n }'
   },
   {
@@ -93,20 +93,20 @@ const DEFAULT_CHECKPOINTS: Checkpoint[] = [
     files_modified: ['core/src/main.cpp', 'core/tests/test_hash_chain.cpp'],
     additions: 75,
     deletions: 6,
-    summary: 'feat(core): ship chronod verification daemon and green test suite',
+    summary: 'Pass all tests and verify session integrity',
     raw_patch: '--- a/core/src/main.cpp\n+++ b/core/src/main.cpp\n@@ -1,5 +1,15 @@\n+int cmd_verify(const std::string& path) {\n+    auto res = chrono::verify_log(path);\n+    res.print_receipt();\n+    return res.valid ? 0 : 1;\n+}'
   }
 ];
 
 const DEFAULT_EVENTS: CEPEvent[] = [
   { seq_id: 1, timestamp_ns: 0, kind: 'session_start', flags: 0, payload: { task: DEFAULT_METADATA.task_name } },
-  { seq_id: 2, timestamp_ns: 5000000000, kind: 'prompt', flags: 0, payload: { text: 'Build the core flight recorder for Chrono. Packed binary framing, lock-free ring ingest, Merkle hash chain.' } },
-  { seq_id: 3, timestamp_ns: 12000000000, kind: 'agent_thought', flags: 0, payload: { thought: 'I will inspect the CMake project and design the packed wire framing.' } },
+  { seq_id: 2, timestamp_ns: 5000000000, kind: 'prompt', flags: 0, payload: { text: 'Build the flight recorder for Chrono with loop detection and verification.' } },
+  { seq_id: 3, timestamp_ns: 12000000000, kind: 'agent_thought', flags: 0, payload: { thought: 'Inspecting build setup and defining event data structures.' } },
   { seq_id: 4, timestamp_ns: 18000000000, kind: 'tool_call', flags: 0, payload: { tool: 'bash', cmd: 'cmake -B build -G Ninja' } },
   { seq_id: 5, timestamp_ns: 22000000000, kind: 'tool_result', flags: 0, payload: { exit_code: 0, output: 'Configuring done (0.4s)' } },
   { seq_id: 6, timestamp_ns: 45000000000, kind: 'file_diff', flags: 0, payload: { path: 'core/include/chrono/event.h' } },
   { seq_id: 7, timestamp_ns: 60000000000, kind: 'checkpoint', flags: 1, payload: DEFAULT_CHECKPOINTS[0] },
-  { seq_id: 8, timestamp_ns: 85000000000, kind: 'agent_thought', flags: 0, payload: { thought: 'Writing hash_chain.h and hash_chain.cpp. Computing SHA-256 over header + prev_hash + payload.' } },
+  { seq_id: 8, timestamp_ns: 85000000000, kind: 'agent_thought', flags: 0, payload: { thought: 'Writing hash log in hash_chain.cpp.' } },
   { seq_id: 9, timestamp_ns: 110000000000, kind: 'file_diff', flags: 0, payload: { path: 'core/src/hash_chain.cpp' } },
   { seq_id: 10, timestamp_ns: 130000000000, kind: 'checkpoint', flags: 1, payload: DEFAULT_CHECKPOINTS[1] },
   { seq_id: 11, timestamp_ns: 170000000000, kind: 'telemetry_sample', flags: 0, payload: { prompt_tokens: 8200, completion_tokens: 3400, total_tokens: 11600 } },
@@ -115,17 +115,17 @@ const DEFAULT_EVENTS: CEPEvent[] = [
   { seq_id: 14, timestamp_ns: 280000000000, kind: 'tool_call', flags: 0, payload: { tool: 'bash', cmd: 'ctest --output-on-failure' } },
   { seq_id: 15, timestamp_ns: 285000000000, kind: 'tool_result', flags: 0, payload: { exit_code: 1, output: '1/4 Test #4: test_stall FAILED' } },
   { seq_id: 16, timestamp_ns: 290000000000, kind: 'stall_alert', flags: 2, payload: { pattern: 'IDENTICAL_DIFF_LOOP', cycle_count: 3, culprit: 'core/src/stall_detector.cpp', description: 'Agent generated identical diff 3 times without resolving failure.' } },
-  { seq_id: 17, timestamp_ns: 300000000000, kind: 'intervention', flags: 0, payload: { directive: 'INTERVENTION: Stop repeating diff on file. Inspect constructor parameter threshold_cycles_ instead.' } },
+  { seq_id: 17, timestamp_ns: 300000000000, kind: 'intervention', flags: 0, payload: { directive: 'Suggested Fix: Stop repeating this edit. Adjust threshold_cycles_ in constructor instead.' } },
   { seq_id: 18, timestamp_ns: 320000000000, kind: 'checkpoint', flags: 1, payload: DEFAULT_CHECKPOINTS[3] },
   { seq_id: 19, timestamp_ns: 360000000000, kind: 'checkpoint', flags: 1, payload: DEFAULT_CHECKPOINTS[4] },
   { seq_id: 20, timestamp_ns: 400000000000, kind: 'session_end', flags: 0, payload: { status: 'completed', total_tokens: 48250 } }
 ];
 
 export class TimelineState {
-  // Mode state: boots into clean 'standby' (0 sessions capturing)
+  // Mode state: boots into clean 'standby'
   activeMode: CockpitMode = 'standby';
   liveBlockCount: number = 0;
-  liveStatusText: string = 'Standby. No active capture stream.';
+  liveStatusText: string = 'Ready. No session currently recording.';
   isLiveRecording: boolean = false;
   private liveInterval: any = null;
 
@@ -148,10 +148,10 @@ export class TimelineState {
 
   // Backend hydrated properties
   availableSessions: any[] = [
-    { id: 'muse-code-run', label: 'Meta Muse Code 1.4 Run', shortName: 'Muse Code', description: 'Native Muse CLI run (41 verified blocks, model: muse-spark-1.3)', is_synthetic: false },
-    { id: 'live-agent-run', label: 'Live Dogfood Run', shortName: 'Live Agent', description: 'Real recorded session (2,973 verified blocks)', is_synthetic: false },
-    { id: 'chrono-feature-attempt-1', label: 'Loop Recovery Demo', shortName: 'Loop Recovery', description: 'Automated stall detection & intervention', is_synthetic: true },
-    { id: 'openrepo-maintenance-run', label: 'Scale Benchmark', shortName: 'Scale Benchmark', description: '1,000,000 events burst ingest stress test', is_synthetic: true }
+    { id: 'chrono-feature-attempt-1', label: 'Loop Recovery Session', shortName: 'Loop Recovery', description: 'AI got stuck in a repetitive edit loop; Chrono detected and guided recovery.', is_synthetic: true },
+    { id: 'live-agent-run', label: 'Feature Build Session', shortName: 'Live Agent', description: 'Autonomous agent building recorder modules (2,973 actions recorded).', is_synthetic: false },
+    { id: 'muse-code-run', label: 'Code Review Session', shortName: 'Muse Code', description: 'Agent verifying cycle detection logic (41 steps).', is_synthetic: false },
+    { id: 'openrepo-maintenance-run', label: 'Performance Test Run', shortName: 'Stress Test', description: 'High-speed stress test verifying zero event drops.', is_synthetic: true }
   ];
   sessionTree: any[] = [];
   sessionTelemetry: any = null;
@@ -254,7 +254,7 @@ export class TimelineState {
     this.activeMode = 'standby';
     this.isLiveRecording = false;
     this.liveBlockCount = 0;
-    this.liveStatusText = 'Standby. Zero sessions recording.';
+    this.liveStatusText = 'Ready. No session currently recording.';
     this.events = [];
     this.checkpoints = [];
     this.stalls = [];
@@ -283,7 +283,7 @@ export class TimelineState {
     this.activeMode = 'live';
     this.isLiveRecording = true;
     this.liveBlockCount = 0;
-    this.liveStatusText = 'Attaching watcher to transcript.jsonl stream...';
+    this.liveStatusText = 'Connected. Listening to AI actions...';
     this.events = [];
     this.checkpoints = [];
     this.stalls = [];
@@ -298,10 +298,10 @@ export class TimelineState {
 
     this.metadata = {
       session_id: sessionId,
-      task_name: 'Implement Chrono Flight Recorder with Merkle Chain & Stall Circuit Breaker',
+      task_name: 'Implement Chrono Recorder and Loop Protection',
       model: 'muse-spark-1026',
-      agent_framework: 'muse_code / antigravity',
-      git_branch: 'feat/live-agent-capture'
+      agent_framework: 'muse_code',
+      git_branch: 'feat/live-run'
     };
 
     let stepIndex = 0;
@@ -314,7 +314,7 @@ export class TimelineState {
         clearInterval(this.liveInterval);
         this.liveInterval = null;
         this.isLiveRecording = false;
-        this.liveStatusText = `Recording complete. All ${totalSteps} blocks sealed into SHA-256 Merkle chain.`;
+        this.liveStatusText = `Session complete. All ${totalSteps} actions saved and verified.`;
         this.stopAndSealLiveSession(false);
         return;
       }
@@ -325,7 +325,6 @@ export class TimelineState {
       this.currentTimestampNs = ev.timestamp_ns;
       this.liveBlockCount = this.events.length;
 
-      // Handle specific checkpoint or alerts corresponding to the event
       if (ev.kind === 'checkpoint' && ev.payload) {
         const cp = ev.payload as Checkpoint;
         this.checkpoints = [...this.checkpoints, cp];
@@ -334,35 +333,35 @@ export class TimelineState {
           this.selectedFile = cp.files_modified[0];
         }
         this.hydrateNarrationForCheckpoint(cp);
-        this.liveStatusText = `Block #${this.liveBlockCount}: Sealed checkpoint ${cp.id} (${cp.summary})`;
+        this.liveStatusText = `Saved checkpoint: ${cp.summary}`;
       } else if (ev.kind === 'stall_alert') {
         const alert: StallAlert = {
           pattern: 'IDENTICAL_DIFF_LOOP',
           confidence: 0.98,
           culprit: 'core/src/stall_detector.cpp',
           cycle_count: 3,
-          description: 'Agent repeated identical diff 3 times without resolving failure.',
+          description: 'AI repeated the exact same code edit 3 times after a test failure.',
           triggered_at_ts: ev.timestamp_ns
         };
         this.stalls = [alert];
         this.activeNarration = {
-          headline: 'Track sliding-window diff hashes to trip circuit breaker on cycle threshold',
-          causal_chain: 'Test #4 (test_stall) failed with Exit 1 after 3 identical patch applications to stall_detector.cpp. The agent was repeatedly re-applying the same modification without inspecting threshold_cycles_. This checkpoint registers diff hashes in a bounded deque to trap cyclic edits.',
-          hypothesis: 'Bounded sliding window of 20 diff digests with threshold_cycles_ trap will trip execution circuit breaker on oscillation.',
+          headline: 'AI caught in a repetitive edit loop',
+          causal_chain: 'Test #4 failed. The AI repeatedly re-applied the same change to stall_detector.cpp without fixing the underlying issue. Chrono paused the agent and suggested inspecting threshold_cycles_.',
+          hypothesis: 'Updating threshold_cycles_ allows the test to pass.',
           verdict: 'FIXED',
           risk_score: 0.12
         };
-        this.activeIntervention = 'INTERVENTION: Inspect threshold_cycles_ parameter in StallDetector constructor instead of re-applying identical diff.';
-        this.liveStatusText = '⚠️ STALL TRIPWIRE FIRED: Agent in identical diff loop (3 cycles). Tripping circuit breaker!';
+        this.activeIntervention = 'Suggested Fix: Inspect the threshold_cycles_ parameter in stall_detector.cpp instead of repeating the same edit.';
+        this.liveStatusText = '⚠️ Loop caught: AI made the same edit 3 times. Fix suggested!';
       } else if (ev.kind === 'intervention') {
-        this.liveStatusText = 'Muse Spark causal intervention injected into agent turn context.';
+        this.liveStatusText = 'Guidance sent to AI agent';
       } else if (ev.kind === 'file_diff') {
         this.selectedFile = (ev.payload as any)?.path || 'core/src/stall_detector.cpp';
-        this.liveStatusText = `Block #${this.liveBlockCount}: Ingested patch for ${this.selectedFile}`;
+        this.liveStatusText = `AI edited ${this.selectedFile}`;
       } else if (ev.kind === 'tool_call') {
-        this.liveStatusText = `Block #${this.liveBlockCount}: Tool call ${(ev.payload as any)?.tool} - ${(ev.payload as any)?.cmd}`;
+        this.liveStatusText = `Running command: ${(ev.payload as any)?.cmd || (ev.payload as any)?.tool}`;
       } else if (ev.kind === 'agent_thought') {
-        this.liveStatusText = `Block #${this.liveBlockCount}: Agent thought: "${String((ev.payload as any)?.thought || '').slice(0, 60)}..."`;
+        this.liveStatusText = `AI thinking: "${String((ev.payload as any)?.thought || '').slice(0, 50)}..."`;
       }
 
       stepIndex++;
@@ -377,7 +376,6 @@ export class TimelineState {
     }
     this.isLiveRecording = false;
 
-    // Generate fresh SHA-256 verification receipt
     const sid = this.metadata?.session_id || 'live-session';
     const randomHex = Array.from({ length: 8 }, () => Math.floor(Math.random() * 0xffffffff).toString(16).padStart(8, '0')).join('');
     this.verificationReceipt = {
@@ -386,16 +384,15 @@ export class TimelineState {
       terminal_hash: randomHex,
       records_count: this.events.length,
       integrity_corruptions: 0,
-      hasher: 'NIST FIPS 180-4 SHA-256',
+      hasher: 'SHA-256',
       verified_at: new Date().toISOString()
     };
 
-    // Prepend to available sessions list
     const newSessionEntry = {
       id: sid,
-      label: `Live Captured Run (${sid})`,
-      shortName: 'Live Capture',
-      description: `Real-time recorded trace (${this.events.length} blocks verified)`,
+      label: `Recorded Session (${sid})`,
+      shortName: 'Recent Run',
+      description: `Live recorded session (${this.events.length} steps verified).`,
       is_synthetic: false
     };
 
@@ -405,7 +402,7 @@ export class TimelineState {
 
     if (switchMode) {
       this.activeMode = 'library';
-      this.liveStatusText = `Session sealed with terminal SHA-256 hash ${randomHex.slice(0, 16)}...`;
+      this.liveStatusText = 'Session saved and verified.';
     }
     this.notify();
   }
@@ -457,29 +454,29 @@ export class TimelineState {
           files_modified: ['core/src/stall_detector.cpp', 'core/include/chrono/stall_detector.h'],
           additions: 18,
           deletions: 0,
-          summary: 'muse(inspect): verified sliding window cycle thresholds & SHA-256 loop detection',
+          summary: 'Verified cycle detection logic in stall_detector.cpp',
           raw_patch: '--- a/core/src/stall_detector.cpp\n+++ b/core/src/stall_detector.cpp\n@@ -60,6 +60,12 @@ std::optional<StallAlert> StallDetector::check_diff_loops(const Event& event) {\n     if (event.kind != EventKind::FILE_DIFF) return std::nullopt;\n \n     // Hash the diff payload with SHA-256\n+    // Muse Code verified: alerts when diff repetition >= threshold_cycles_\n     auto digest = crypto::SHA256::hash(event.payload);\n     std::string hex = crypto::SHA256::to_hex(digest);\n     uint32_t count = ++diff_hashes_[hex];'
         }
       ];
 
       const museEvents: CEPEvent[] = [
-        { seq_id: 1, timestamp_ns: 0, kind: 'session_start', flags: 0, payload: { model: 'muse-spark-1.3-contributor', provider: 'meta' } },
-        { seq_id: 2, timestamp_ns: 10000000000, kind: 'prompt', flags: 0, payload: { text: 'Analyze core/src/stall_detector.cpp and verify the cycle detection logic for diff loops, tool failures, and read thrashing.' } },
+        { seq_id: 1, timestamp_ns: 0, kind: 'session_start', flags: 0, payload: { model: 'muse-spark-1.3', provider: 'meta' } },
+        { seq_id: 2, timestamp_ns: 10000000000, kind: 'prompt', flags: 0, payload: { text: 'Analyze stall_detector.cpp and verify the cycle detection logic.' } },
         { seq_id: 3, timestamp_ns: 40000000000, kind: 'tool_call', flags: 0, payload: { tool: 'tool:read_file', file: 'core/src/stall_detector.cpp' } },
         { seq_id: 4, timestamp_ns: 70000000000, kind: 'tool_result', flags: 0, payload: { status: 'success', output: 'Read core/src/stall_detector.cpp: 150 lines' } },
         { seq_id: 5, timestamp_ns: 12000000000, kind: 'tool_call', flags: 0, payload: { tool: 'tool:read_file', file: 'core/include/chrono/stall_detector.h' } },
-        { seq_id: 6, timestamp_ns: 150000000000, kind: 'tool_result', flags: 0, payload: { status: 'success', output: 'Read stall_detector.h: StallAlert struct & StallPattern enum' } },
-        { seq_id: 7, timestamp_ns: 210000000000, kind: 'agent_thought', flags: 0, payload: { thought: 'Identical diff loops: SHA-256 hashes each FILE_DIFF payload; alerts at count >= threshold_cycles_.' } },
+        { seq_id: 6, timestamp_ns: 150000000000, kind: 'tool_result', flags: 0, payload: { status: 'success', output: 'Read stall_detector.h' } },
+        { seq_id: 7, timestamp_ns: 210000000000, kind: 'agent_thought', flags: 0, payload: { thought: 'Loop detection checks for duplicate diff hashes.' } },
         { seq_id: 8, timestamp_ns: 250000000000, kind: 'checkpoint', flags: 1, payload: museCps[0] },
-        { seq_id: 9, timestamp_ns: 280000000000, kind: 'telemetry_sample', flags: 0, payload: { prompt_tokens: 101665, completion_tokens: 564, total_tokens: 102229, model: 'muse-spark-1.3-contributor' } },
-        { seq_id: 10, timestamp_ns: 300000000000, kind: 'session_end', flags: 0, payload: { status: 'completed', total_blocks: 41, terminal_hash: '63ce38e4f50645b14b9347c477e18632483efbe3009129bc800f7c5546d6bd39' } }
+        { seq_id: 9, timestamp_ns: 280000000000, kind: 'telemetry_sample', flags: 0, payload: { prompt_tokens: 101665, completion_tokens: 564, total_tokens: 102229 } },
+        { seq_id: 10, timestamp_ns: 300000000000, kind: 'session_end', flags: 0, payload: { status: 'completed', total_blocks: 41 } }
       ];
 
       this.metadata = {
         session_id: 'muse-code-run',
-        task_name: 'Inspect & Verify Chrono Stall Detector Logic',
-        model: 'muse-spark-1.3-contributor',
-        agent_framework: 'official_meta_muse_code_1.4',
+        task_name: 'Inspect & Verify Stall Detector Logic',
+        model: 'muse-spark-1.3',
+        agent_framework: 'muse_code',
         git_branch: 'main'
       };
       this.events = museEvents;
@@ -498,7 +495,7 @@ export class TimelineState {
           files_modified: ['core/include/chrono/hash_chain.h', 'core/src/hash_chain.cpp'],
           additions: 142,
           deletions: 0,
-          summary: 'feat(core): append-only SHA-256 Merkle chain and tamper verifier',
+          summary: 'Build tamper-evident hash log',
           raw_patch: '--- /dev/null\n+++ b/core/src/hash_chain.cpp\n@@ -0,0 +1,38 @@\n+#include "chrono/hash_chain.h"\n+namespace chrono {\n+ChainRecord HashChainWriter::append(EventKind kind, uint16_t flags, std::string_view payload) {\n+    ChainRecord record;\n+    record.header.seq_id = next_seq_++;\n+    record.header.kind = static_cast<uint16_t>(kind);\n+    record.prev_hash = tail_hash_;\n+    record.current_hash = record.compute_hash();\n+    tail_hash_ = record.current_hash;\n+    write_record(record, payload);\n+    return record;\n+}\n+}'
         },
         {
@@ -509,7 +506,7 @@ export class TimelineState {
           files_modified: ['core/include/chrono/ingest.h', 'core/src/ingest.cpp'],
           additions: 98,
           deletions: 4,
-          summary: 'feat(core): LMAX lockless SPSC ring buffer (1M events/sec, zero drops)',
+          summary: 'Build high-speed ring buffer for burst traffic',
           raw_patch: '--- a/core/include/chrono/ingest.h\n+++ b/core/include/chrono/ingest.h\n@@ -20,6 +20,14 @@\n+    alignas(64) std::atomic<size_t> head_{0};\n+    alignas(64) std::atomic<size_t> tail_{0};\n+    std::vector<T> ring_;\n+    static constexpr size_t kCapacity = 65536;\n+    static constexpr size_t kMask = kCapacity - 1;'
         },
         {
@@ -520,7 +517,7 @@ export class TimelineState {
           files_modified: ['adapters/muse_code/session_watcher.py'],
           additions: 180,
           deletions: 12,
-          summary: 'feat(adapters): real-time transcript normalizer for CEP v1 stream',
+          summary: 'Connect real-time event adapter',
           raw_patch: '--- /dev/null\n+++ b/adapters/muse_code/session_watcher.py\n@@ -0,0 +1,28 @@\n+class SessionWatcher:\n+    def __init__(self, target_stream):\n+        self.target = target_stream\n+        self.seq = 0\n+    def emit_event(self, kind, payload):\n+        wire_bytes = pack_cep_v1(self.seq, kind, payload)\n+        sys.stdout.buffer.write(wire_bytes)\n+        sys.stdout.buffer.flush()'
         },
         {
@@ -531,32 +528,32 @@ export class TimelineState {
           files_modified: ['core/src/main.cpp', 'core/include/chrono/verify.h'],
           additions: 64,
           deletions: 2,
-          summary: 'feat(core): verification daemon and binary receipt formatter',
+          summary: 'Add verification command and receipt generator',
           raw_patch: '--- a/core/src/main.cpp\n+++ b/core/src/main.cpp\n@@ -1,6 +1,14 @@\n+int cmd_verify(const std::string& path) {\n+    auto res = chrono::verify_log(path);\n+    res.print_receipt();\n+    return res.valid ? 0 : 1;\n+}'
         }
       ];
 
       const liveEvents: CEPEvent[] = [
-        { seq_id: 1, timestamp_ns: 0, kind: 'session_start', flags: 0, payload: { task: 'Autonomous Chrono Flight Recorder Implementation' } },
-        { seq_id: 2, timestamp_ns: 10000000000, kind: 'prompt', flags: 0, payload: { text: 'Implement append-only SHA-256 Merkle chain, LMAX ring buffer, and forensic receipt verifier.' } },
-        { seq_id: 3, timestamp_ns: 25000000000, kind: 'agent_thought', flags: 0, payload: { thought: 'Configuring project with CMake and Ninja for C++20 zero-dep core.' } },
+        { seq_id: 1, timestamp_ns: 0, kind: 'session_start', flags: 0, payload: { task: 'Autonomous Recorder Implementation' } },
+        { seq_id: 2, timestamp_ns: 10000000000, kind: 'prompt', flags: 0, payload: { text: 'Build recorder core, ring buffer, and verification tool.' } },
+        { seq_id: 3, timestamp_ns: 25000000000, kind: 'agent_thought', flags: 0, payload: { thought: 'Setting up C++ project files.' } },
         { seq_id: 4, timestamp_ns: 40000000000, kind: 'tool_call', flags: 0, payload: { tool: 'bash', cmd: 'cmake -B build -G Ninja' } },
-        { seq_id: 5, timestamp_ns: 45000000000, kind: 'tool_result', flags: 0, payload: { exit_code: 0, output: 'Configuring done. Build files written to build.' } },
+        { seq_id: 5, timestamp_ns: 45000000000, kind: 'tool_result', flags: 0, payload: { exit_code: 0, output: 'Configuring done.' } },
         { seq_id: 6, timestamp_ns: 80000000000, kind: 'checkpoint', flags: 1, payload: liveCps[0] },
-        { seq_id: 7, timestamp_ns: 120000000000, kind: 'agent_thought', flags: 0, payload: { thought: 'Building LMAX lock-free ring buffer with 64-byte cursor alignment.' } },
+        { seq_id: 7, timestamp_ns: 120000000000, kind: 'agent_thought', flags: 0, payload: { thought: 'Building lock-free ring buffer.' } },
         { seq_id: 8, timestamp_ns: 180000000000, kind: 'checkpoint', flags: 1, payload: liveCps[1] },
         { seq_id: 9, timestamp_ns: 240000000000, kind: 'tool_call', flags: 0, payload: { tool: 'bash', cmd: 'ctest --output-on-failure' } },
-        { seq_id: 10, timestamp_ns: 250000000000, kind: 'tool_result', flags: 0, payload: { exit_code: 0, output: '100% tests passed, 0 tests failed out of 4' } },
+        { seq_id: 10, timestamp_ns: 250000000000, kind: 'tool_result', flags: 0, payload: { exit_code: 0, output: 'All tests passed (4/4)' } },
         { seq_id: 11, timestamp_ns: 290000000000, kind: 'checkpoint', flags: 1, payload: liveCps[2] },
         { seq_id: 12, timestamp_ns: 380000000000, kind: 'checkpoint', flags: 1, payload: liveCps[3] },
-        { seq_id: 13, timestamp_ns: 420000000000, kind: 'session_end', flags: 0, payload: { status: 'completed', total_tokens: 38400, blocks_verified: 832 } }
+        { seq_id: 13, timestamp_ns: 420000000000, kind: 'session_end', flags: 0, payload: { status: 'completed', total_tokens: 38400 } }
       ];
 
       const liveMeta: SessionMetadata = {
         session_id: 'live-agent-run',
-        task_name: 'Real Agent Execution Trace (832 Verified Blocks)',
-        model: 'gemini-3.8-flash-high',
-        agent_framework: 'antigravity / muse_code_compatible',
+        task_name: 'Autonomous Recorder Implementation',
+        model: 'gemini-3.8-flash',
+        agent_framework: 'antigravity',
         git_branch: 'main'
       };
 
@@ -577,7 +574,7 @@ export class TimelineState {
           files_modified: ['core/include/chrono/ingest.h'],
           additions: 84,
           deletions: 19,
-          summary: 'refactor(db): implement lock-free connection acquisition pool',
+          summary: 'Connection pool optimization',
           raw_patch: '--- a/core/include/chrono/ingest.h\n+++ b/core/include/chrono/ingest.h\n@@ -10,6 +10,18 @@\n+class ConnectionPool {\n+    std::vector<Connection> conns_;\n+    alignas(64) std::atomic<size_t> next_{0};\n+public:\n+    Connection* acquire() { return &conns_[next_++ % conns_.size()]; }\n+};'
         },
         {
@@ -588,15 +585,15 @@ export class TimelineState {
           files_modified: ['core/src/main.cpp'],
           additions: 52,
           deletions: 3,
-          summary: 'test(bench): run 1,000,000 queries scale benchmark at zero leak',
+          summary: '1,000,000 events throughput test',
           raw_patch: '--- a/core/src/main.cpp\n+++ b/core/src/main.cpp\n@@ -30,6 +30,12 @@\n+void run_scale_bench() {\n+    auto start = std::chrono::steady_clock::now();\n+    pool.execute_batch(1000000);\n+    assert(pool.leaks() == 0);\n+}'
         }
       ];
 
       const benchEvents: CEPEvent[] = [
-        { seq_id: 1, timestamp_ns: 0, kind: 'session_start', flags: 0, payload: { task: 'Scale Benchmark Run: 1,000,000 queries test' } },
+        { seq_id: 1, timestamp_ns: 0, kind: 'session_start', flags: 0, payload: { task: 'Performance Stress Test' } },
         { seq_id: 2, timestamp_ns: 15000000000, kind: 'tool_call', flags: 0, payload: { tool: 'bash', cmd: './chronod --bench-scale' } },
-        { seq_id: 3, timestamp_ns: 20000000000, kind: 'tool_result', flags: 0, payload: { exit_code: 0, output: '1,000,000 events processed in 998ms (1,002,004 eps)' } },
+        { seq_id: 3, timestamp_ns: 20000000000, kind: 'tool_result', flags: 0, payload: { exit_code: 0, output: '1,000,000 events processed in 998ms' } },
         { seq_id: 4, timestamp_ns: 12000000000, kind: 'checkpoint', flags: 1, payload: benchCps[0] },
         { seq_id: 5, timestamp_ns: 28000000000, kind: 'checkpoint', flags: 1, payload: benchCps[1] },
         { seq_id: 6, timestamp_ns: 320000000000, kind: 'session_end', flags: 0, payload: { status: 'completed', total_tokens: 72100 } }
@@ -604,8 +601,8 @@ export class TimelineState {
 
       this.metadata = {
         session_id: 'openrepo-maintenance-run',
-        task_name: 'OpenRepo Database Pool Refactor',
-        model: 'muse-spark-open-1026',
+        task_name: 'Database Connection Pool Refactor',
+        model: 'muse-spark-1026',
         agent_framework: 'muse_code',
         git_branch: 'maintenance/connection-pool'
       };
@@ -663,74 +660,47 @@ export class TimelineState {
   }
 
   hydrateNarrationForCheckpoint(cp: Checkpoint) {
-    if (cp.id === 'chk_04n112tt8a' || cp.summary.includes('identical diff') || cp.summary.includes('sliding window')) {
+    if (cp.id === 'chk_04n112tt8a' || cp.summary.includes('loop') || cp.summary.includes('sliding window')) {
       this.activeNarration = {
-        headline: 'Track sliding-window diff hashes to trip circuit breaker on cycle threshold',
-        causal_chain: 'Test #4 (test_stall) failed with Exit 1 after 3 identical patch applications to stall_detector.cpp. The agent was repeatedly re-applying the same modification without inspecting threshold_cycles_. This checkpoint registers diff hashes in a bounded deque to trap cyclic edits.',
-        hypothesis: 'Bounded sliding window of 20 diff digests with threshold_cycles_ trap will trip execution circuit breaker on oscillation.',
+        headline: 'AI caught in a repeating edit loop',
+        causal_chain: 'Test #4 failed. The AI repeatedly applied the same patch to stall_detector.cpp without resolving the test. Chrono caught the loop and suggested adjusting threshold_cycles_.',
+        hypothesis: 'Updating threshold_cycles_ allows the test to pass.',
         verdict: 'FIXED',
         risk_score: 0.12
       };
-      this.activeIntervention = 'INTERVENTION: Inspect threshold_cycles_ parameter in StallDetector constructor instead of re-applying identical diff.';
+      this.activeIntervention = 'Suggested Fix: Inspect the threshold_cycles_ parameter in stall_detector.cpp instead of repeating the same edit.';
     } else if (cp.id === 'chk_01h982ka7b') {
       this.activeNarration = {
-        headline: 'Declared packed 24-byte wire framing to eliminate alignment discrepancy',
-        causal_chain: 'The agent defined EventWireHeader with pragma pack to prevent cross-platform compiler struct padding variance.',
-        hypothesis: 'Packed binary structs ensure deterministic hashing across Linux and Windows.',
+        headline: 'Event structure defined for recording',
+        causal_chain: 'The AI created the event data structures so every action can be tracked consistently.',
+        hypothesis: 'Standard wire structures ensure deterministic recording.',
         verdict: 'FIXED',
         risk_score: 0.05
       };
       this.activeIntervention = null;
     } else if (cp.id === 'chk_02m881lp9c') {
       this.activeNarration = {
-        headline: 'Cryptographic chaining enforced across record headers in core/src/hash_chain.cpp',
-        causal_chain: 'The agent recognized that individual event hashes were susceptible to splicing, anchoring each block with predecessor SHA-256 digest.',
-        hypothesis: 'Embedding prev_hash in EventWireHeader ensures zero-copy O(1) append while enforcing tamper-evidence.',
+        headline: 'Hash chain log implemented',
+        causal_chain: 'The AI connected each record to the previous one so the log cannot be altered after recording.',
+        hypothesis: 'Chaining ensures complete tamper evidence.',
         verdict: 'FIXED',
         risk_score: 0.08
       };
       this.activeIntervention = null;
     } else if (cp.id === 'chk_03k990qq2d') {
       this.activeNarration = {
-        headline: 'Built LMAX lockless SPSC ring buffer for burst ingest',
-        causal_chain: 'Cache-line isolated atomic cursors prevent cache-line bouncing during 1M events burst.',
-        hypothesis: 'alignas(64) on atomic head_ and tail_ eliminates false sharing.',
+        headline: 'High-speed buffer built for live capture',
+        causal_chain: 'The AI created an in-memory queue to capture fast-moving agent actions without dropping events.',
+        hypothesis: 'Lock-free queue handles sudden bursts of edits.',
         verdict: 'FIXED',
         risk_score: 0.04
       };
       this.activeIntervention = null;
-    } else if (cp.id === 'chk_day1_core') {
-      this.activeNarration = {
-        headline: 'Append-only SHA-256 Merkle chain verified across all 832 recorded blocks',
-        causal_chain: 'Zero-copy EventWireHeader verified with standalone NIST-compliant SHA-256 hash chaining.',
-        hypothesis: 'Tamper verification produces immutable forensic proof of agent actions.',
-        verdict: 'FIXED',
-        risk_score: 0.02
-      };
-      this.activeIntervention = null;
-    } else if (cp.id === 'chk_day1_ingest') {
-      this.activeNarration = {
-        headline: 'SPSC Lockless ring buffer verified under 1,000,000 event backpressure',
-        causal_chain: 'Zero drops observed across 64-byte aligned ring buffer cursors during burst simulation.',
-        hypothesis: 'Lock-free single-producer single-consumer ring meets sub-frame ingest budget.',
-        verdict: 'FIXED',
-        risk_score: 0.01
-      };
-      this.activeIntervention = null;
-    } else if (cp.id === 'chk_day1_adapter') {
-      this.activeNarration = {
-        headline: 'CEP v1 real-time normalizer hooked into live stream watcher',
-        causal_chain: 'SessionWatcher normalizes agent actions into 24-byte wire framing in real time.',
-        hypothesis: 'Generic and Muse Code adapters provide zero-latency telemetry capture.',
-        verdict: 'FIXED',
-        risk_score: 0.03
-      };
-      this.activeIntervention = null;
     } else {
       this.activeNarration = {
-        headline: `Applied targeted modifications to ${cp.files_modified[0] || 'workspace'}`,
-        causal_chain: `Triggered by test validation: verified contract compliance on ${cp.files_modified.join(', ')}.`,
-        hypothesis: 'Strict C++20 memory alignment eliminates cross-platform discrepancies.',
+        headline: `Applied changes to ${cp.files_modified[0] || 'codebase'}`,
+        causal_chain: `Code updated to resolve test requirements in ${cp.files_modified.join(', ')}.`,
+        hypothesis: 'Targeted changes resolve the test failure.',
         verdict: 'FIXED',
         risk_score: 0.06
       };
