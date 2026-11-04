@@ -279,3 +279,39 @@ code, pre, .mono {
     opacity: 0;
   }
 }
+
+
+/* Sticker Notes Clockwise Orbit Animation */
+@keyframes stickerOrbitClockwise {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes stickerCounterRotate {
+  0% {
+    transform: translate(-50%, -50%) rotate(var(--sticker-tilt, 0deg));
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(calc(var(--sticker-tilt, 0deg) - 360deg));
+  }
+}
+
+.sticker-orbit-track {
+  animation: stickerOrbitClockwise 75s linear infinite;
+  will-change: transform;
+}
+
+.sticker-orbit-note {
+  animation: stickerCounterRotate 75s linear infinite;
+  will-change: transform;
+}
+
+/* Pause the orbit seamlessly whenever user hovers over any sticker note */
+.sticker-orbit-track:hover,
+.sticker-orbit-track:hover .sticker-orbit-note {
+  animation-play-state: paused;
+}

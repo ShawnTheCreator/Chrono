@@ -209,14 +209,14 @@ const FAQ_ITEMS = [
   }
 ];
 
-// Cockpit Interactive Tour Targets for Cursor & Highlighting (Simple, written in black)
+// Cockpit Interactive Tour Targets for Cursor & Highlighting (Simple, clean black text, zero emojis)
 const COCKPIT_TARGETS = [
   {
     id: 1,
     name: 'Runaway Loop Intercepted',
     cursorX: 49,
     cursorY: 82,
-    label: '⚠️ Runaway loop caught — execution paused to protect budget',
+    label: 'Runaway loop caught — paused to protect budget',
     labelPos: {
       bottom: 'calc(100% + 8px)',
       left: '50%',
@@ -237,7 +237,7 @@ const COCKPIT_TARGETS = [
     name: 'Recorded Code Changes',
     cursorX: 42,
     cursorY: 38,
-    label: '● Code diff recorded — verifies changes before applying',
+    label: 'Code diff recorded — verifies changes before applying',
     labelPos: {
       top: '10px',
       left: '12px',
@@ -258,7 +258,7 @@ const COCKPIT_TARGETS = [
     name: 'Root-Cause Reasoner',
     cursorX: 84,
     cursorY: 46,
-    label: '✦ Root-cause diagnosis — explains failure without raw logs',
+    label: 'Root-cause diagnosis — explains failure without raw logs',
     labelPos: {
       top: '10px',
       right: '10px',
@@ -276,128 +276,79 @@ const COCKPIT_TARGETS = [
   }
 ];
 
-// Blue Sticker Notes with White Text for Section 3
+// Blue Sticker Notes with White Text for Section 3 (Plain-English "What Chrono Does", Zero Emojis)
 const BLUE_STICKER_NOTES = [
   {
     id: 1,
-    left: '12%',
-    top: '26%',
-    width: '160px',
-    height: '135px',
-    rotate: '-2.5deg',
-    title: '⚠️ Stall Tripwire',
-    note: 'Caught runaway loop repeating failing edit 3x. Saved $14.20 budget.',
-    tag: 'Budget Protected'
+    left: '100%',
+    top: '50%',
+    tilt: '-2.5deg',
+    title: 'Stops Runaway Loops',
+    note: 'Pauses agents when they get stuck repeating the same failing action so you do not burn your API budget.',
+    tag: 'Budget Protection'
   },
   {
     id: 2,
-    left: '27%',
-    top: '12%',
-    width: '155px',
-    height: '130px',
-    rotate: '1.8deg',
-    title: '🔒 Merkle Audit',
-    note: 'Block 0x8F2A cryptographically sealed. Tamper-evident.',
-    tag: 'SHA-256 Chain'
+    left: '85.4%',
+    top: '85.4%',
+    tilt: '2deg',
+    title: 'Instant Project Rewind',
+    note: 'Rewinds your codebase back to the exact clean checkpoint before the AI broke anything.',
+    tag: '1-Click Undo'
   },
   {
     id: 3,
-    left: '49%',
-    top: '7%',
-    width: '150px',
-    height: '115px',
-    rotate: '-1deg',
-    title: '● 60 FPS Telemetry',
-    note: 'Zero-drop continuous state recording under 12μs.',
-    tag: 'Live Ingest'
+    left: '50%',
+    top: '100%',
+    tilt: '-1.5deg',
+    title: 'Black Box Recorder',
+    note: 'Records every terminal command, file change, and tool invocation in real-time at 60 FPS.',
+    tag: 'Full Flight Log'
   },
   {
     id: 4,
-    left: '71%',
-    top: '10%',
-    width: '160px',
-    height: '130px',
-    rotate: '2.5deg',
-    title: '✦ Root-Cause AI',
-    note: 'Explains why the agent failed in plain English in 2 seconds.',
-    tag: 'Zero Raw Logs'
+    left: '14.6%',
+    top: '85.4%',
+    tilt: '2.5deg',
+    title: 'Explains Why It Broke',
+    note: 'Translates complex agent crashes into plain English explanations in seconds with zero raw log dumps.',
+    tag: 'Root-Cause AI'
   },
   {
     id: 5,
-    left: '88%',
-    top: '22%',
-    width: '145px',
-    height: '125px',
-    rotate: '-2deg',
-    title: '⏪ Time-Travel',
-    note: 'Revert agent to clean Checkpoint #28 in 1.8ms.',
-    tag: 'Instant Rewind'
+    left: '0%',
+    top: '50%',
+    tilt: '-2deg',
+    title: 'Pre-Flight Code Diff',
+    note: 'Inspects every added and deleted line before code changes touch your production branch.',
+    tag: 'Diff Inspector'
   },
   {
     id: 6,
-    left: '88%',
-    top: '52%',
-    width: '155px',
-    height: '130px',
-    rotate: '1.5deg',
-    title: 'Diff Inspector',
-    note: 'Inspects +48 / -12 lines before changes touch production.',
-    tag: 'Verified Edits'
+    left: '14.6%',
+    top: '14.6%',
+    tilt: '1.8deg',
+    title: 'Clean Sandbox',
+    note: 'Isolates risky package installs and commands so broken agent experiments never damage your computer.',
+    tag: 'Safe Workspace'
   },
   {
     id: 7,
-    left: '11%',
-    top: '68%',
-    width: '160px',
-    height: '135px',
-    rotate: '2.2deg',
-    title: '⚡ Swarm Sync',
-    note: 'Synchronizes Planner, Coder, and Tester at 10k events/sec.',
-    tag: 'Swarm Telemetry'
+    left: '50%',
+    top: '0%',
+    tilt: '-1.2deg',
+    title: 'Proof of Every Move',
+    note: 'Creates permanent, verifiable audit receipts of everything the AI built for enterprise compliance.',
+    tag: 'Audit Proofs'
   },
   {
     id: 8,
-    left: '26%',
-    top: '86%',
-    width: '150px',
-    height: '125px',
-    rotate: '-1.8deg',
-    title: 'C++20 Engine',
-    note: 'Lock-free ring buffer with 99.999% state durability.',
-    tag: 'Zero Drops'
-  },
-  {
-    id: 9,
-    left: '46%',
-    top: '89%',
-    width: '155px',
-    height: '125px',
-    rotate: '1.2deg',
-    title: '🛡️ Security Gate',
-    note: 'OWASP ASVS Level 2 certified. Zero leaked secrets or keys.',
-    tag: 'Compliance Ready'
-  },
-  {
-    id: 10,
-    left: '65%',
-    top: '87%',
-    width: '150px',
-    height: '125px',
-    rotate: '-2.2deg',
-    title: 'Clean Sandbox',
-    note: 'Container chroot isolation with clean state rollback.',
-    tag: 'Zero Side-Effects'
-  },
-  {
-    id: 11,
-    left: '78%',
-    top: '69%',
-    width: '155px',
-    height: '130px',
-    rotate: '2.8deg',
-    title: 'Flight Deck',
-    note: 'Visual scrub bar, state inspector, and causal timeline.',
-    tag: 'Interactive Deck'
+    left: '85.4%',
+    top: '14.6%',
+    tilt: '2.2deg',
+    title: 'Multi-Agent Oversight',
+    note: 'Watches planner, coder, and tester agents working in parallel and shows you who did what.',
+    tag: 'Swarm Sync'
   }
 ];
 
@@ -1116,95 +1067,116 @@ export default function App() {
             alignItems: 'center',
             justifyContent: 'center'
           }}>
-            {/* Constellation of Blue Sticker Notes with White Text */}
-            {BLUE_STICKER_NOTES.map((card) => (
-              <div
-                key={card.id}
-                style={{
-                  position: 'absolute',
-                  left: card.left,
-                  top: card.top,
-                  width: card.width,
-                  height: card.height,
-                  borderRadius: '12px',
-                  backgroundColor: '#0064E0',
-                  color: '#ffffff',
-                  boxShadow: '0 12px 26px rgba(0, 100, 224, 0.28), 0 3px 8px rgba(0, 0, 0, 0.1)',
-                  transform: `translate(-50%, -50%) rotate(${card.rotate})`,
-                  padding: '14px 14px 12px 14px',
-                  boxSizing: 'border-box',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  pointerEvents: 'auto',
-                  cursor: 'default',
-                  transition: 'transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s ease',
-                  zIndex: 5,
-                  overflow: 'hidden'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translate(-50%, -54%) rotate(0deg) scale(1.06)';
-                  e.currentTarget.style.zIndex = '20';
-                  e.currentTarget.style.boxShadow = '0 20px 42px rgba(0, 100, 224, 0.38), 0 6px 14px rgba(0, 0, 0, 0.15)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = `translate(-50%, -50%) rotate(${card.rotate}) scale(1)`;
-                  e.currentTarget.style.zIndex = '5';
-                  e.currentTarget.style.boxShadow = '0 12px 26px rgba(0, 100, 224, 0.28), 0 3px 8px rgba(0, 0, 0, 0.1)';
-                }}
-              >
-                {/* Sticker Top Adhesive Strip */}
-                <div style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: '5px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.28)'
-                }} />
-
-                {/* Content */}
-                <div>
+            {/* Rotating Clockwise Orbit Track for Sticker Notes */}
+            <div
+              className="sticker-orbit-track"
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                width: 'min(780px, 80vh)',
+                height: 'min(780px, 80vh)',
+                pointerEvents: 'none',
+                zIndex: 15
+              }}
+            >
+              {BLUE_STICKER_NOTES.map((card) => (
+                <div
+                  key={card.id}
+                  className="sticker-orbit-note"
+                  style={{
+                    position: 'absolute',
+                    left: card.left,
+                    top: card.top,
+                    width: '165px',
+                    height: '142px',
+                    backgroundColor: '#0064E0',
+                    borderRadius: '8px',
+                    color: '#ffffff',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.12), 0 12px 24px -4px rgba(0, 100, 224, 0.42), 0 -1px 2px rgba(255, 255, 255, 0.15) inset',
+                    padding: '16px 14px 12px 14px',
+                    boxSizing: 'border-box',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    pointerEvents: 'auto',
+                    cursor: 'default',
+                    overflow: 'hidden',
+                    ['--sticker-tilt' as any]: card.tilt,
+                    transition: 'box-shadow 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.boxShadow = '0 8px 12px -1px rgba(0, 0, 0, 0.15), 0 20px 36px -4px rgba(0, 100, 224, 0.6)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.12), 0 12px 24px -4px rgba(0, 100, 224, 0.42), 0 -1px 2px rgba(255, 255, 255, 0.15) inset';
+                  }}
+                >
+                  {/* Top Adhesive Glue Strip Accent (Authentic Sticky Note look) */}
                   <div style={{
-                    fontSize: '12.5px',
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: '7px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.22)'
+                  }} />
+
+                  {/* Subtle Peeling Dog-Ear Corner at Bottom-Right */}
+                  <div style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    right: 0,
+                    width: 0,
+                    height: 0,
+                    borderStyle: 'solid',
+                    borderWidth: '0 0 13px 13px',
+                    borderColor: 'transparent transparent #004BB3 transparent',
+                    filter: 'drop-shadow(-1px -1px 2px rgba(0,0,0,0.25))'
+                  }} />
+
+                  {/* Content: Clean text only, ZERO emojis */}
+                  <div>
+                    <div style={{
+                      fontSize: '13px',
+                      fontWeight: 700,
+                      color: '#ffffff',
+                      lineHeight: 1.25,
+                      marginBottom: '5px',
+                      letterSpacing: '-0.01em'
+                    }}>
+                      {card.title}
+                    </div>
+                    <div style={{
+                      fontSize: '11px',
+                      color: '#EFF6FF',
+                      lineHeight: 1.35
+                    }}>
+                      {card.note}
+                    </div>
+                  </div>
+
+                  {/* Bottom Tag Pill */}
+                  <div style={{
+                    fontSize: '9px',
                     fontWeight: 700,
                     color: '#ffffff',
-                    lineHeight: 1.25,
-                    marginBottom: '5px',
-                    letterSpacing: '-0.01em',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between'
+                    backgroundColor: 'rgba(255, 255, 255, 0.18)',
+                    border: '1px solid rgba(255, 255, 255, 0.25)',
+                    padding: '2px 7px',
+                    borderRadius: '4px',
+                    fontFamily: 'monospace',
+                    width: 'fit-content',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.04em'
                   }}>
-                    <span>{card.title}</span>
-                  </div>
-                  <div style={{
-                    fontSize: '11px',
-                    color: '#EFF6FF',
-                    lineHeight: 1.35
-                  }}>
-                    {card.note}
+                    #{card.tag}
                   </div>
                 </div>
+              ))}
+            </div>
 
-                {/* Footer Tag Pill in White */}
-                <div style={{
-                  fontSize: '9.5px',
-                  fontWeight: 700,
-                  color: '#ffffff',
-                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                  border: '1px solid rgba(255, 255, 255, 0.28)',
-                  padding: '2px 7px',
-                  borderRadius: '4px',
-                  fontFamily: 'monospace',
-                  width: 'fit-content'
-                }}>
-                  #{card.tag}
-                </div>
-              </div>
-            ))}
-
-            {/* Central Headline & Get Started Pill (Exact design from reference with Chrono copy) */}
+            {/* Central Headline & Get Started Pill (Updated to Chrono Autonomous Agents) */}
             <div style={{
               position: 'relative',
               zIndex: 10,
@@ -1213,22 +1185,22 @@ export default function App() {
               padding: '0 24px'
             }}>
               <h2 style={{
-                fontSize: 'clamp(42px, 5.5vw, 76px)',
+                fontSize: 'clamp(36px, 4.4vw, 64px)',
                 fontWeight: 800,
                 letterSpacing: '-0.035em',
                 color: '#09090b',
-                lineHeight: 1.05,
+                lineHeight: 1.08,
                 margin: '0 0 16px 0'
               }}>
-                Autonomous Agents<br />
-                Real <span style={{ color: '#A89A86' }}>Observability</span>
+                Chrono Autonomous Agents<br />
+                Real <span style={{ color: '#0064E0' }}>Observability</span>
               </h2>
 
               <p style={{
-                fontSize: 'clamp(14px, 1.2vw, 17px)',
-                color: '#64748B',
-                maxWidth: '560px',
-                margin: '0 auto 28px auto',
+                fontSize: 'clamp(13px, 1.05vw, 15px)',
+                color: '#4B5563',
+                maxWidth: '520px',
+                margin: '0 auto 26px auto',
                 lineHeight: 1.5,
                 fontWeight: 500
               }}>
