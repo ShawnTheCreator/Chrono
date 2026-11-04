@@ -74,3 +74,80 @@ code, pre, .mono {
   font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-variant-numeric: tabular-nums;
 }
+
+/* Hero Entrance & Text Cascade Keyframes */
+@keyframes heroLineAppear {
+  0% {
+    opacity: 0;
+    transform: translateY(26px);
+    filter: blur(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes heroFadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(22px);
+    filter: blur(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes heroFadeDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Staggered entrance classes */
+.hero-animate-header {
+  animation: heroFadeDown 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+  will-change: transform, opacity;
+}
+
+.hero-line-1 {
+  display: inline-block;
+  animation: heroLineAppear 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.12s both;
+  will-change: transform, opacity, filter;
+}
+
+.hero-line-2 {
+  display: inline-block;
+  animation: heroLineAppear 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.28s both;
+  will-change: transform, opacity, filter;
+}
+
+.hero-line-3 {
+  display: inline-block;
+  animation: heroLineAppear 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.44s both;
+  will-change: transform, opacity, filter;
+}
+
+.hero-animate-text {
+  animation: heroFadeUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.62s both;
+  will-change: transform, opacity, filter;
+}
+
+.hero-animate-cta {
+  animation: heroFadeUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.82s both;
+  will-change: transform, opacity, filter;
+}
+
+.hero-animate-dots {
+  animation: heroFadeUp 0.85s cubic-bezier(0.16, 1, 0.3, 1) 1.02s both;
+  will-change: transform, opacity;
+}

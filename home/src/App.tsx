@@ -282,7 +282,7 @@ export default function App() {
   useEffect(() => {
     const timer = setInterval(() => {
       setHeroIndex((prev) => (prev + 1) % HERO_ROTATING_LINES.length);
-    }, 2800);
+    }, 3500);
     return () => clearInterval(timer);
   }, []);
 
@@ -428,17 +428,20 @@ export default function App() {
         }} />
 
         {/* Transparent Top Navigation Bar */}
-        <header style={{
-          position: 'relative',
-          zIndex: 2,
-          width: '100%',
-          maxWidth: '1440px',
-          margin: '0 auto',
-          padding: '24px 40px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between'
-        }}>
+        <header
+          className="hero-animate-header"
+          style={{
+            position: 'relative',
+            zIndex: 2,
+            width: '100%',
+            maxWidth: '1440px',
+            margin: '0 auto',
+            padding: '24px 40px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}
+        >
           {/* Left Brand Mark */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
             <a href="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: '#ffffff' }}>
@@ -520,31 +523,41 @@ export default function App() {
           textAlign: 'center',
           padding: '0 24px'
         }}>
-          <h1 style={{
-            fontSize: '64px',
-            fontWeight: 800,
-            letterSpacing: '-0.035em',
-            lineHeight: 1.12,
-            margin: '0 0 16px 0',
-            textShadow: '0 2px 14px rgba(0,0,0,0.5)'
-          }}>
-            {currentHero.prefix}<br />
-            <span style={{ color: '#71F6D2' }}>{currentHero.middle}</span><br />
-            {currentHero.suffix}
+          {/* Animated 3-Line Headline */}
+          <h1
+            key={heroIndex}
+            style={{
+              fontSize: '64px',
+              fontWeight: 800,
+              letterSpacing: '-0.035em',
+              lineHeight: 1.12,
+              margin: '0 0 16px 0',
+              textShadow: '0 2px 14px rgba(0,0,0,0.5)'
+            }}
+          >
+            <span className="hero-line-1">{currentHero.prefix}</span><br />
+            <span className="hero-line-2" style={{ color: '#71F6D2' }}>{currentHero.middle}</span><br />
+            <span className="hero-line-3">{currentHero.suffix}</span>
           </h1>
 
-          <p style={{
-            fontSize: '19px',
-            color: 'rgba(255, 255, 255, 0.92)',
-            maxWidth: '680px',
-            margin: '0 auto 32px auto',
-            lineHeight: 1.5,
-            textShadow: '0 1px 6px rgba(0,0,0,0.4)'
-          }}>
+          <p
+            className="hero-animate-text"
+            style={{
+              fontSize: '19px',
+              color: 'rgba(255, 255, 255, 0.92)',
+              maxWidth: '680px',
+              margin: '0 auto 32px auto',
+              lineHeight: 1.5,
+              textShadow: '0 1px 6px rgba(0,0,0,0.4)'
+            }}
+          >
             The flight data recorder for autonomous AI agents. Inspect every decision, stop runaway loops before budgets burn, and rewind to any moment in history.
           </p>
 
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
+          <div
+            className="hero-animate-cta"
+            style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}
+          >
             <a
               href={`${COCKPIT_URL}/dashboard`}
               className="btn-press"
@@ -582,15 +595,18 @@ export default function App() {
         </div>
 
         {/* Video Playlist Indicator Dots (Titles Video 1-4 Removed) */}
-        <div style={{
-          position: 'relative',
-          zIndex: 2,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '8px',
-          paddingBottom: '32px'
-        }}>
+        <div
+          className="hero-animate-dots"
+          style={{
+            position: 'relative',
+            zIndex: 2,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            paddingBottom: '32px'
+          }}
+        >
           {HERO_VIDEOS.map((_, idx) => (
             <button
               key={idx}
