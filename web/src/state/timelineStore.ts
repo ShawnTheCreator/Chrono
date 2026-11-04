@@ -435,15 +435,37 @@ export class TimelineState {
     if (sessionId === 'muse-code-run') {
       const museCps: Checkpoint[] = [
         {
-          id: 'chk_muse_inspect_stall',
+          id: 'chk_01_inspect',
           git_tree_hash: '63ce38e4f50645b14b9347c477e18632483efbe3',
-          event_offset: 30,
-          timestamp_ns: 250000000000,
-          files_modified: ['core/src/stall_detector.cpp', 'core/include/chrono/stall_detector.h'],
-          additions: 18,
+          event_offset: 15,
+          timestamp_ns: 60000000000,
+          files_modified: ['core/include/chrono/stall_detector.h'],
+          additions: 12,
           deletions: 0,
-          summary: 'Verified cycle detection logic in stall_detector.cpp',
-          raw_patch: '--- a/core/src/stall_detector.cpp\n+++ b/core/src/stall_detector.cpp\n@@ -60,6 +60,12 @@ std::optional<StallAlert> StallDetector::check_diff_loops(const Event& event) {\n     if (event.kind != EventKind::FILE_DIFF) return std::nullopt;\n \n     // Hash the diff payload with SHA-256\n+    // Muse Code verified: alerts when diff repetition >= threshold_cycles_\n     auto digest = crypto::SHA256::hash(event.payload);\n     std::string hex = crypto::SHA256::to_hex(digest);\n     uint32_t count = ++diff_hashes_[hex];'
+          summary: 'Inspect stall detector interface and sliding window',
+          raw_patch: '--- a/core/include/chrono/stall_detector.h\n+++ b/core/include/chrono/stall_detector.h\n@@ -25,4 +25,7 @@ class StallDetector {\n+    std::deque<std::string> diff_hash_window_;\n+    std::optional<StallAlert> check_circular_handoffs(const Event& event);\n };'
+        },
+        {
+          id: 'chk_02m881lp9c',
+          git_tree_hash: '7b06d74fe0062b100644fe0062b100644fe0062b',
+          event_offset: 30,
+          timestamp_ns: 180000000000,
+          files_modified: ['core/src/stall_detector.cpp'],
+          additions: 85,
+          deletions: 12,
+          summary: 'Implement BFS circular tool handoff detection',
+          raw_patch: '--- a/core/src/stall_detector.cpp\n+++ b/core/src/stall_detector.cpp\n@@ -246,0 +247,45 @@\n+std::optional<StallAlert> StallDetector::check_circular_handoffs(const Event& event) {\n+    if (event.kind != EventKind::TOOL_CALL) return std::nullopt;\n+    HandoffEdge current;\n+    if (!parse_handoff(event.payload, current)) return std::nullopt;\n+    std::queue<std::string> bfs;\n+    std::unordered_map<std::string, std::string> parent;\n+    std::unordered_set<std::string> visited;\n+    bfs.push(current.to);\n+    visited.insert(current.to);\n+    // Detect closed circular loops across multi-agent handoffs\n+    return alert;\n+}'
+        },
+        {
+          id: 'chk_03_verify',
+          git_tree_hash: 'cd2867ac4258f7f834dd79fc31dec68fd4b4a1a6',
+          event_offset: 40,
+          timestamp_ns: 270000000000,
+          files_modified: ['core/tests/test_stall.cpp'],
+          additions: 42,
+          deletions: 0,
+          summary: 'Add test suite for multi-agent circular handoffs',
+          raw_patch: '--- a/core/tests/test_stall.cpp\n+++ b/core/tests/test_stall.cpp\n@@ -80,0 +81,18 @@\n+TEST(StallDetectorTest, CircularHandoffDetected) {\n+    StallDetector detector;\n+    Event e1{1, 1000, EventKind::TOOL_CALL, 0, R"({\"tool\":\"handoff\",\"from\":\"agentA\",\"to\":\"agentB\"})"};\n+    Event e2{2, 2000, EventKind::TOOL_CALL, 0, R"({\"tool\":\"handoff\",\"from\":\"agentB\",\"to\":\"agentA\"})"};\n+    detector.process_event(e1);\n+    auto alert = detector.process_event(e2);\n+    EXPECT_TRUE(alert.has_value());\n+    EXPECT_EQ(alert->pattern, StallPattern::CIRCULAR_HANDOFF_LOOP);\n+}'
         }
       ];
 
@@ -472,7 +494,7 @@ export class TimelineState {
       this.minTimestampNs = 0;
       this.maxTimestampNs = 300000000000;
       this.selectedFile = 'core/src/stall_detector.cpp';
-      this.seekToTimestamp(250000000000);
+      this.seekToTimestamp(180000000000);
     } else if (sessionId === 'live-agent-run') {
       const liveCps: Checkpoint[] = [
         {

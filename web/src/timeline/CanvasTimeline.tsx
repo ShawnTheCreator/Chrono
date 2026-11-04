@@ -12,6 +12,7 @@ export const CanvasTimeline: React.FC<CanvasTimelineProps> = ({ onToggleCollapse
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const clickedCheckpointRef = useRef<boolean>(false);
   const [zoom, setZoom] = useState(1.0);
   const [panOffset, setPanOffset] = useState(0);
 
@@ -361,19 +362,21 @@ export const CanvasTimeline: React.FC<CanvasTimelineProps> = ({ onToggleCollapse
     const norm = (x - panOffset) / (canvas.clientWidth * zoom);
     const ts = state.minTimestampNs + Math.round(norm * range);
 
-    // Check if clicked near a checkpoint diamond (within 16px)
+    // Check if clicked near a checkpoint diamond (generous 28px hit radius)
     let clickedCp = null;
     for (const cp of state.checkpoints) {
       const cx = (((cp.timestamp_ns - state.minTimestampNs) / range) * canvas.clientWidth * zoom) + panOffset;
-      if (Math.abs(cx - x) <= 16) {
+      if (Math.abs(cx - x) <= 28) {
         clickedCp = cp;
         break;
       }
     }
 
     if (clickedCp) {
+      clickedCheckpointRef.current = true;
       store.selectCheckpoint(clickedCp);
     } else {
+      clickedCheckpointRef.current = false;
       store.seekToTimestamp(ts);
     }
 
@@ -382,7 +385,7 @@ export const CanvasTimeline: React.FC<CanvasTimelineProps> = ({ onToggleCollapse
   };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    if (!isDragging) return;
+    if (!isDragging || clickedCheckpointRef.current) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const rect = canvas.getBoundingClientRect();
@@ -395,6 +398,7 @@ export const CanvasTimeline: React.FC<CanvasTimelineProps> = ({ onToggleCollapse
 
   const handlePointerUp = (e: React.PointerEvent<HTMLCanvasElement>) => {
     setIsDragging(false);
+    clickedCheckpointRef.current = false;
     try {
       e.currentTarget.releasePointerCapture(e.pointerId);
     } catch {}
@@ -509,6 +513,37 @@ export const CanvasTimeline: React.FC<CanvasTimelineProps> = ({ onToggleCollapse
           >
             ⏭
           </button>
+
+          {/* Checkpoint Quick Select Pills */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', margin: '0 4px' }}>
+            {state.checkpoints.map((cp) => {
+              const isSelected = state.activeCheckpoint?.id === cp.id;
+              return (
+                <button
+                  key={cp.id}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    store.selectCheckpoint(cp);
+                  }}
+                  style={{
+                    background: isSelected ? '#dafbe1' : '#f8fafc',
+                    border: `1px solid ${isSelected ? '#b4f0c0' : '#e2e8f0'}`,
+                    color: isSelected ? '#1a7f37' : '#64748b',
+                    padding: '2px 7px',
+                    borderRadius: '4px',
+                    fontSize: '10px',
+                    fontWeight: isSelected ? 700 : 500,
+                    cursor: 'pointer',
+                    fontFamily: '"JetBrains Mono", monospace',
+                    whiteSpace: 'nowrap'
+                  }}
+                  title={cp.summary}
+                >
+                  {cp.id}
+                </button>
+              );
+            })}
+          </div>
 
           <div style={{ width: '1px', height: '14px', background: theme.border.default, margin: '0 2px' }} />
 
