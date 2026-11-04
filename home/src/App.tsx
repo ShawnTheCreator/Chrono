@@ -397,13 +397,37 @@ export default function App() {
     }
   }, [videoIndex]);
 
-  // Cycle Hero Text
+  // Typewriter Hero Animation for dynamic blue text
+  const [typedText, setTypedText] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+
   useEffect(() => {
-    const timer = setInterval(() => {
-      setHeroIndex((prev) => (prev + 1) % HERO_ROTATING_LINES.length);
-    }, 3500);
-    return () => clearInterval(timer);
-  }, []);
+    const currentMiddle = HERO_ROTATING_LINES[heroIndex].middle;
+    let timer: ReturnType<typeof setTimeout>;
+
+    if (!isDeleting) {
+      if (typedText.length < currentMiddle.length) {
+        timer = setTimeout(() => {
+          setTypedText(currentMiddle.slice(0, typedText.length + 1));
+        }, 55);
+      } else {
+        timer = setTimeout(() => {
+          setIsDeleting(true);
+        }, 2200);
+      }
+    } else {
+      if (typedText.length > 0) {
+        timer = setTimeout(() => {
+          setTypedText(currentMiddle.slice(0, typedText.length - 1));
+        }, 28);
+      } else {
+        setIsDeleting(false);
+        setHeroIndex((prev) => (prev + 1) % HERO_ROTATING_LINES.length);
+      }
+    }
+
+    return () => clearTimeout(timer);
+  }, [typedText, isDeleting, heroIndex]);
 
   const [scrollY, setScrollY] = useState(0);
   const transitionTrackRef = useRef<HTMLDivElement | null>(null);
@@ -646,20 +670,40 @@ export default function App() {
           textAlign: 'center',
           padding: '0 24px'
         }}>
-          {/* Animated 3-Line Headline */}
+          {/* Animated 3-Line Headline with Typing Blue Text */}
           <h1
-            key={heroIndex}
             style={{
-              fontSize: '64px',
+              fontSize: 'clamp(44px, 5.2vw, 68px)',
               fontWeight: 800,
               letterSpacing: '-0.035em',
-              lineHeight: 1.12,
+              lineHeight: 1.15,
               margin: '0 0 16px 0',
               textShadow: '0 2px 14px rgba(0,0,0,0.5)'
             }}
           >
             <span className="hero-line-1">{currentHero.prefix}</span><br />
-            <span className="hero-line-2" style={{ color: '#71F6D2' }}>{currentHero.middle}</span><br />
+            <span
+              className="hero-line-2"
+              style={{
+                color: '#0082FB',
+                display: 'inline-flex',
+                alignItems: 'center',
+                minHeight: '1.15em'
+              }}
+            >
+              {typedText}
+              <span
+                style={{
+                  display: 'inline-block',
+                  width: '3.5px',
+                  height: '0.82em',
+                  backgroundColor: '#0082FB',
+                  marginLeft: '5px',
+                  borderRadius: '2px',
+                  animation: 'cursorBlink 0.8s infinite'
+                }}
+              />
+            </span><br />
             <span className="hero-line-3">{currentHero.suffix}</span>
           </h1>
 
@@ -717,40 +761,8 @@ export default function App() {
           </div>
         </div>
 
-        {/* Video Playlist Indicator Dots (Titles Video 1-4 Removed) */}
-        <div
-          className="hero-animate-dots"
-          style={{
-            position: 'relative',
-            zIndex: 2,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '8px',
-            paddingBottom: '32px'
-          }}
-        >
-          {HERO_VIDEOS.map((_, idx) => (
-            <button
-              key={idx}
-              onClick={() => setVideoIndex(idx)}
-              aria-label={`Switch to video ${idx + 1}`}
-              className="btn-press"
-              style={{
-                width: videoIndex === idx ? '26px' : '8px',
-                height: '8px',
-                borderRadius: '9999px',
-                backgroundColor: videoIndex === idx ? '#0064E0' : 'rgba(255,255,255,0.4)',
-                border: videoIndex === idx ? '1px solid #71F6D2' : '1px solid rgba(255,255,255,0.2)',
-                cursor: 'pointer',
-                padding: 0,
-                outline: 'none',
-                backdropFilter: 'blur(6px)',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-              }}
-            />
-          ))}
-        </div>
+        {/* Bottom Hero Spacer (Video Changer Dots Removed as requested) */}
+        <div style={{ height: '32px' }} />
       </section>
 
       {/* RISING OVERLAY CONTENT CONTAINER (RISES UP & COVERS STATIC HERO ON SCROLL) */}

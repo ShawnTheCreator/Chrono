@@ -315,3 +315,13 @@ code, pre, .mono {
 .sticker-orbit-track:hover .sticker-orbit-note {
   animation-play-state: paused;
 }
+
+
+@keyframes cursorBlink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
