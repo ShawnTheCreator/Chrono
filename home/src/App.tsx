@@ -295,97 +295,205 @@ const COCKPIT_TARGETS = [
   }
 ];
 
-// Research Constellation Cards for Section 3 (Inspired by high-stakes autonomous AI research reference)
-const FLOATING_RESEARCH_CARDS = [
+// Chrono Constellation Dimension Cards for Section 3 (Inspired by editorial research reference)
+const CHRONO_CONSTELLATION_CARDS = [
   {
     id: 1,
-    src: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=400&q=80',
     left: '12%',
-    top: '28%',
-    width: '135px',
-    height: '135px',
-    radius: '22px'
+    top: '26%',
+    width: '165px',
+    height: '148px',
+    radius: '20px',
+    bg: '#0F172A',
+    border: '1px solid rgba(239, 68, 68, 0.35)',
+    shadow: '0 16px 36px rgba(0, 0, 0, 0.16)',
+    tag: '⚠️ STALL TRIPWIRE',
+    tagColor: '#EF4444',
+    title: 'Runaway Loop Caught',
+    desc: '3 identical failing edits intercepted.',
+    metric: 'Saved: $14.20 tokens',
+    metricColor: '#EF4444',
+    isDark: true
   },
   {
     id: 2,
-    src: 'https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&w=400&q=80',
     left: '27%',
     top: '12%',
-    width: '125px',
-    height: '140px',
-    radius: '20px'
+    width: '160px',
+    height: '135px',
+    radius: '20px',
+    bg: '#FFFFFF',
+    border: '1px solid #E2E8F0',
+    shadow: '0 16px 36px rgba(0, 0, 0, 0.08)',
+    tag: '🔒 MERKLE SEAL',
+    tagColor: '#10B981',
+    title: 'Cryptographic Ledger',
+    desc: 'Block 0x8F2A sealed tamper-evident.',
+    metric: 'SHA-256 Audit Trail',
+    metricColor: '#10B981',
+    isDark: false
   },
   {
     id: 3,
-    src: 'https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&w=400&q=80',
-    left: '45%',
-    top: '6%',
-    width: '105px',
-    height: '95px',
-    radius: '18px'
+    left: '49%',
+    top: '7%',
+    width: '150px',
+    height: '115px',
+    radius: '18px',
+    bg: '#090D16',
+    border: '1px solid rgba(113, 246, 210, 0.3)',
+    shadow: '0 16px 36px rgba(0, 0, 0, 0.16)',
+    tag: '● LIVE 60 FPS INGEST',
+    tagColor: '#71F6D2',
+    title: 'Zero-Drop Telemetry',
+    desc: 'Continuous state streaming.',
+    metric: '< 12μs Ring Ingest',
+    metricColor: '#71F6D2',
+    isDark: true
   },
   {
     id: 4,
-    src: 'https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=400&q=80',
-    left: '91%',
-    top: '18%',
-    width: '65px',
-    height: '60px',
-    radius: '12px'
+    left: '71%',
+    top: '10%',
+    width: '165px',
+    height: '135px',
+    radius: '20px',
+    bg: '#FAF5FF',
+    border: '1px solid #E9D5FF',
+    shadow: '0 16px 36px rgba(99, 102, 241, 0.08)',
+    tag: '✦ ROOT-CAUSE AI',
+    tagColor: '#8B5CF6',
+    title: 'Instant Diagnosis',
+    desc: 'Synthesizes failure in plain English in 2s.',
+    metric: '0 Raw Logs Needed',
+    metricColor: '#8B5CF6',
+    isDark: false
   },
   {
     id: 5,
-    src: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80',
-    left: '86%',
-    top: '49%',
-    width: '85px',
-    height: '85px',
-    radius: '16px'
+    left: '88%',
+    top: '22%',
+    width: '145px',
+    height: '135px',
+    radius: '20px',
+    bg: '#FFFFFF',
+    border: '1px solid #E2E8F0',
+    shadow: '0 16px 36px rgba(0, 0, 0, 0.08)',
+    tag: '⏪ TIME-TRAVEL',
+    tagColor: '#0082FB',
+    title: 'Snapshot Rollback',
+    desc: 'Revert to Checkpoint #28 cleanly.',
+    metric: '1.8ms Rollback',
+    metricColor: '#0082FB',
+    isDark: false
   },
   {
     id: 6,
-    src: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=400&q=80',
-    left: '9%',
-    top: '62%',
-    width: '145px',
-    height: '150px',
-    radius: '24px'
+    left: '88%',
+    top: '52%',
+    width: '160px',
+    height: '145px',
+    radius: '20px',
+    bg: '#0F172A',
+    border: '1px solid rgba(0, 130, 251, 0.35)',
+    shadow: '0 16px 36px rgba(0, 0, 0, 0.16)',
+    tag: 'DIFF INSPECTOR',
+    tagColor: '#0082FB',
+    title: 'Verified Code Edits',
+    desc: '+48 additions, -12 deletions.',
+    metric: 'Pre-flight Diff Gate',
+    metricColor: '#0082FB',
+    isDark: true
   },
   {
     id: 7,
-    src: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=400&q=80',
-    left: '22%',
-    top: '84%',
-    width: '135px',
-    height: '145px',
-    radius: '22px'
+    left: '11%',
+    top: '68%',
+    width: '165px',
+    height: '148px',
+    radius: '20px',
+    bg: '#FFFFFF',
+    border: '1px solid #E2E8F0',
+    shadow: '0 16px 36px rgba(0, 0, 0, 0.08)',
+    tag: '⚡ SWARM SYNC',
+    tagColor: '#F59E0B',
+    title: 'Multi-Agent Recorder',
+    desc: 'Coordinating Coder, Planner, Tester.',
+    metric: '10k Events / Sec',
+    metricColor: '#D97706',
+    isDark: false
   },
   {
     id: 8,
-    src: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=400&q=80',
-    left: '39%',
+    left: '26%',
     top: '86%',
-    width: '125px',
-    height: '145px',
-    radius: '20px'
+    width: '155px',
+    height: '130px',
+    radius: '18px',
+    bg: '#0B1220',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    shadow: '0 16px 36px rgba(0, 0, 0, 0.16)',
+    tag: 'C++20 CORE',
+    tagColor: '#71F6D2',
+    title: 'Lock-Free Buffer',
+    desc: 'High-throughput flight recording.',
+    metric: '99.999% Durability',
+    metricColor: '#71F6D2',
+    isDark: true
   },
   {
     id: 9,
-    src: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=400&q=80',
-    left: '55%',
-    top: '80%',
-    width: '115px',
-    height: '120px',
-    radius: '18px'
+    left: '46%',
+    top: '89%',
+    width: '160px',
+    height: '130px',
+    radius: '18px',
+    bg: '#FFFFFF',
+    border: '1px solid #E2E8F0',
+    shadow: '0 16px 36px rgba(0, 0, 0, 0.08)',
+    tag: '🛡️ ASVS LEVEL 2',
+    tagColor: '#16A34A',
+    title: 'OWASP Security Gate',
+    desc: 'Zero credential leakage.',
+    metric: 'Enterprise Certified',
+    metricColor: '#16A34A',
+    isDark: false
   },
   {
     id: 10,
-    src: 'https://images.unsplash.com/photo-1517976487502-d5cb3771e72e?auto=format&fit=crop&w=400&q=80',
-    left: '72%',
-    top: '68%',
-    width: '95px',
-    height: '105px',
-    radius: '16px'
+    left: '65%',
+    top: '87%',
+    width: '150px',
+    height: '128px',
+    radius: '18px',
+    bg: '#0F172A',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    shadow: '0 16px 36px rgba(0, 0, 0, 0.16)',
+    tag: 'SANDBOX CHROOT',
+    tagColor: '#94A3B8',
+    title: 'Isolated Execution',
+    desc: 'Clean environment rollback.',
+    metric: 'Zero Side-Effects',
+    metricColor: '#94A3B8',
+    isDark: true
+  },
+  {
+    id: 11,
+    left: '78%',
+    top: '69%',
+    width: '160px',
+    height: '138px',
+    radius: '20px',
+    bg: '#090D16',
+    border: '1px solid rgba(0, 100, 224, 0.4)',
+    shadow: '0 16px 36px rgba(0, 0, 0, 0.18)',
+    tag: 'FLIGHT DECK',
+    tagColor: '#0082FB',
+    title: 'Interactive Cockpit',
+    desc: 'Visual timeline & state tree.',
+    metric: 'Real-Time Telemetry',
+    metricColor: '#0082FB',
+    isDark: true
   }
 ];
 
@@ -1122,7 +1230,7 @@ export default function App() {
             </div>
           </div>
 
-          {/* SECTION 3 (SLIDES IN FROM THE RIGHT: MATCHES USER'S REFERENCE IMAGE) */}
+          {/* SECTION 3 (SLIDES IN FROM THE RIGHT: CHRONO CAPABILITIES IN EDITORIAL CONSTELLATION) */}
           <div style={{
             position: 'absolute',
             top: 0,
@@ -1134,15 +1242,15 @@ export default function App() {
             backgroundColor: '#F3F3F5',
             borderTopLeftRadius: '40px',
             borderBottomLeftRadius: '40px',
-            boxShadow: '-30px 0 90px rgba(0, 0, 0, 0.35), -4px 0 16px rgba(0, 0, 0, 0.1)',
+            boxShadow: '-40px 0 100px rgba(0, 0, 0, 0.45), -6px 0 24px rgba(0, 0, 0, 0.15)',
             zIndex: 30,
             overflow: 'hidden',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center'
           }}>
-            {/* Constellation of Floating Research Cards */}
-            {FLOATING_RESEARCH_CARDS.map((card) => (
+            {/* Constellation of Floating Chrono Dimension Cards */}
+            {CHRONO_CONSTELLATION_CARDS.map((card) => (
               <div
                 key={card.id}
                 style={{
@@ -1152,51 +1260,127 @@ export default function App() {
                   width: card.width,
                   height: card.height,
                   borderRadius: card.radius,
-                  overflow: 'hidden',
-                  boxShadow: '0 14px 34px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06)',
-                  backgroundColor: '#E5E7EB',
+                  backgroundColor: card.bg,
+                  border: card.border,
+                  boxShadow: card.shadow,
                   transform: 'translate(-50%, -50%)',
-                  pointerEvents: 'none',
+                  padding: '12px 14px',
+                  boxSizing: 'border-box',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  pointerEvents: 'auto',
+                  cursor: 'default',
+                  transition: 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease',
                   zIndex: 5
                 }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translate(-50%, -54%) scale(1.05)';
+                  e.currentTarget.style.zIndex = '20';
+                  e.currentTarget.style.boxShadow = '0 24px 50px rgba(0, 0, 0, 0.24)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translate(-50%, -50%) scale(1)';
+                  e.currentTarget.style.zIndex = '5';
+                  e.currentTarget.style.boxShadow = card.shadow;
+                }}
               >
-                <img
-                  src={card.src}
-                  alt="Research Dimension"
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    display: 'block'
-                  }}
-                />
+                {/* Header Tag */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span style={{
+                    fontSize: '9px',
+                    fontWeight: 800,
+                    letterSpacing: '0.04em',
+                    color: card.tagColor,
+                    fontFamily: 'monospace',
+                    textTransform: 'uppercase'
+                  }}>
+                    {card.tag}
+                  </span>
+                  <span style={{
+                    width: '6px',
+                    height: '6px',
+                    borderRadius: '50%',
+                    backgroundColor: card.tagColor,
+                    boxShadow: `0 0 6px ${card.tagColor}`
+                  }} />
+                </div>
+
+                {/* Content */}
+                <div>
+                  <div style={{
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    color: card.isDark ? '#F8FAFC' : '#0F172A',
+                    lineHeight: 1.25,
+                    marginBottom: '3px',
+                    letterSpacing: '-0.01em'
+                  }}>
+                    {card.title}
+                  </div>
+                  <div style={{
+                    fontSize: '10.5px',
+                    color: card.isDark ? '#94A3B8' : '#64748B',
+                    lineHeight: 1.3
+                  }}>
+                    {card.desc}
+                  </div>
+                </div>
+
+                {/* Footer Metric Pill */}
+                <div style={{
+                  fontSize: '9.5px',
+                  fontWeight: 700,
+                  color: card.metricColor,
+                  backgroundColor: card.isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)',
+                  border: card.isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.06)',
+                  padding: '3px 7px',
+                  borderRadius: '6px',
+                  fontFamily: 'monospace',
+                  width: 'fit-content'
+                }}>
+                  ✓ {card.metric}
+                </div>
               </div>
             ))}
 
-            {/* Central Headline & Get Started Pill (Exact match to reference image) */}
+            {/* Central Headline & Get Started Pill (Exact design from reference with Chrono copy) */}
             <div style={{
               position: 'relative',
               zIndex: 10,
               textAlign: 'center',
-              maxWidth: '850px',
+              maxWidth: '820px',
               padding: '0 24px'
             }}>
               <h2 style={{
-                fontSize: 'clamp(44px, 5.8vw, 78px)',
+                fontSize: 'clamp(42px, 5.5vw, 76px)',
                 fontWeight: 800,
                 letterSpacing: '-0.035em',
                 color: '#09090b',
                 lineHeight: 1.05,
-                margin: '0 0 24px 0'
+                margin: '0 0 16px 0'
               }}>
-                Artificial Intelligence<br />
-                Real <span style={{ color: '#A89A86' }}>Research</span>
+                Autonomous Agents<br />
+                Real <span style={{ color: '#A89A86' }}>Observability</span>
               </h2>
+
+              <p style={{
+                fontSize: 'clamp(14px, 1.2vw, 17px)',
+                color: '#64748B',
+                maxWidth: '560px',
+                margin: '0 auto 28px auto',
+                lineHeight: 1.5,
+                fontWeight: 500
+              }}>
+                Database-grade flight data recording, microsecond state rollback, and cryptographic audit proofs for autonomous coding agents.
+              </p>
 
               <a
                 href={COCKPIT_URL}
                 style={{
-                  display: 'inline-block',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
                   backgroundColor: '#ffffff',
                   color: '#09090b',
                   textDecoration: 'none',
@@ -1205,11 +1389,20 @@ export default function App() {
                   padding: '13px 34px',
                   borderRadius: '9999px',
                   border: '1px solid rgba(0, 0, 0, 0.08)',
-                  boxShadow: '0 6px 20px rgba(0, 0, 0, 0.06)',
-                  transition: 'all 0.2s ease'
+                  boxShadow: '0 8px 24px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04)',
+                  transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 12px 30px rgba(0, 0, 0, 0.12)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04)';
                 }}
               >
                 Get Started
+                <IconArrowUpRight size={15} />
               </a>
             </div>
           </div>
