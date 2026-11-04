@@ -209,23 +209,18 @@ const FAQ_ITEMS = [
   }
 ];
 
-// Cockpit Interactive Tour Targets for Cursor & Highlighting
+// Cockpit Interactive Tour Targets for Cursor & Highlighting (Simple, written in black)
 const COCKPIT_TARGETS = [
   {
     id: 1,
     name: 'Runaway Loop Intercepted',
     cursorX: 49,
     cursorY: 82,
-    badgeText: '⚠️ RUNAWAY LOOP CAUGHT',
-    badgeColor: '#EF4444',
-    title: 'Autonomous Agent Paused',
-    explanation: 'Agent repeated identical failing edits 3 times. Execution automatically paused to protect API budget and prevent file damage.',
-    keyMetric: 'Budget Protected: $14.20 saved',
-    popoverPos: {
-      bottom: 'calc(100% + 14px)',
+    label: '⚠️ Runaway loop caught — execution paused to protect budget',
+    labelPos: {
+      bottom: 'calc(100% + 8px)',
       left: '50%',
-      transform: 'translateX(-50%)',
-      width: '320px'
+      transform: 'translateX(-50%)'
     },
     highlight: {
       left: '37%',
@@ -233,10 +228,8 @@ const COCKPIT_TARGETS = [
       width: '26%',
       height: '19%',
       border: '2px solid #EF4444',
-      glow: '0 0 30px rgba(239, 68, 68, 0.55), inset 0 0 16px rgba(239, 68, 68, 0.2)',
-      bg: 'rgba(239, 68, 68, 0.1)',
-      tagBg: '#EF4444',
-      tagText: '⚠️ RUNAWAY LOOP INTERCEPTED'
+      glow: '0 0 24px rgba(239, 68, 68, 0.35)',
+      bg: 'rgba(239, 68, 68, 0.08)'
     }
   },
   {
@@ -244,15 +237,11 @@ const COCKPIT_TARGETS = [
     name: 'Recorded Code Changes',
     cursorX: 42,
     cursorY: 38,
-    badgeText: '● CODE DIFF RECORDED',
-    badgeColor: '#0082FB',
-    title: 'Cryptographic Verification',
-    explanation: 'Inspects every added and deleted line before code touches production. Zero unverified agent edits.',
-    keyMetric: '+48 additions, -12 deletions • SHA-256',
-    popoverPos: {
-      top: '12px',
-      left: '14px',
-      width: '320px'
+    label: '● Code diff recorded — verifies changes before applying',
+    labelPos: {
+      top: '10px',
+      left: '12px',
+      transform: 'none'
     },
     highlight: {
       left: '21%',
@@ -260,10 +249,8 @@ const COCKPIT_TARGETS = [
       width: '50%',
       height: '60%',
       border: '2px solid #0082FB',
-      glow: '0 0 32px rgba(0, 130, 251, 0.55), inset 0 0 20px rgba(0, 130, 251, 0.15)',
-      bg: 'rgba(0, 130, 251, 0.08)',
-      tagBg: '#0082FB',
-      tagText: '● CODE CHANGES RECORDED'
+      glow: '0 0 24px rgba(0, 130, 251, 0.35)',
+      bg: 'rgba(0, 130, 251, 0.06)'
     }
   },
   {
@@ -271,15 +258,11 @@ const COCKPIT_TARGETS = [
     name: 'Root-Cause Reasoner',
     cursorX: 84,
     cursorY: 46,
-    badgeText: '✦ PLAIN-ENGLISH DIAGNOSIS',
-    badgeColor: '#8B5CF6',
-    title: 'Instant Root-Cause Analysis',
-    explanation: 'Explains exactly why the agent failed in plain human language in seconds—without digging through thousands of raw terminal lines.',
-    keyMetric: 'Root Cause: Missing oauth token refresh',
-    popoverPos: {
-      top: '12px',
+    label: '✦ Root-cause diagnosis — explains failure without raw logs',
+    labelPos: {
+      top: '10px',
       right: '10px',
-      width: '260px'
+      transform: 'none'
     },
     highlight: {
       left: '73%',
@@ -287,51 +270,35 @@ const COCKPIT_TARGETS = [
       width: '25%',
       height: '78%',
       border: '2px solid #8B5CF6',
-      glow: '0 0 32px rgba(139, 92, 246, 0.55), inset 0 0 20px rgba(139, 92, 246, 0.15)',
-      bg: 'rgba(139, 92, 246, 0.08)',
-      tagBg: '#8B5CF6',
-      tagText: '✦ ROOT-CAUSE EXPLANATION'
+      glow: '0 0 24px rgba(139, 92, 246, 0.35)',
+      bg: 'rgba(139, 92, 246, 0.06)'
     }
   }
 ];
 
-// Chrono Constellation Dimension Cards for Section 3 (Inspired by editorial research reference)
-const CHRONO_CONSTELLATION_CARDS = [
+// Blue Sticker Notes with White Text for Section 3
+const BLUE_STICKER_NOTES = [
   {
     id: 1,
     left: '12%',
     top: '26%',
-    width: '165px',
-    height: '148px',
-    radius: '20px',
-    bg: '#0F172A',
-    border: '1px solid rgba(239, 68, 68, 0.35)',
-    shadow: '0 16px 36px rgba(0, 0, 0, 0.16)',
-    tag: '⚠️ STALL TRIPWIRE',
-    tagColor: '#EF4444',
-    title: 'Runaway Loop Caught',
-    desc: '3 identical failing edits intercepted.',
-    metric: 'Saved: $14.20 tokens',
-    metricColor: '#EF4444',
-    isDark: true
+    width: '160px',
+    height: '135px',
+    rotate: '-2.5deg',
+    title: '⚠️ Stall Tripwire',
+    note: 'Caught runaway loop repeating failing edit 3x. Saved $14.20 budget.',
+    tag: 'Budget Protected'
   },
   {
     id: 2,
     left: '27%',
     top: '12%',
-    width: '160px',
-    height: '135px',
-    radius: '20px',
-    bg: '#FFFFFF',
-    border: '1px solid #E2E8F0',
-    shadow: '0 16px 36px rgba(0, 0, 0, 0.08)',
-    tag: '🔒 MERKLE SEAL',
-    tagColor: '#10B981',
-    title: 'Cryptographic Ledger',
-    desc: 'Block 0x8F2A sealed tamper-evident.',
-    metric: 'SHA-256 Audit Trail',
-    metricColor: '#10B981',
-    isDark: false
+    width: '155px',
+    height: '130px',
+    rotate: '1.8deg',
+    title: '🔒 Merkle Audit',
+    note: 'Block 0x8F2A cryptographically sealed. Tamper-evident.',
+    tag: 'SHA-256 Chain'
   },
   {
     id: 3,
@@ -339,161 +306,98 @@ const CHRONO_CONSTELLATION_CARDS = [
     top: '7%',
     width: '150px',
     height: '115px',
-    radius: '18px',
-    bg: '#090D16',
-    border: '1px solid rgba(113, 246, 210, 0.3)',
-    shadow: '0 16px 36px rgba(0, 0, 0, 0.16)',
-    tag: '● LIVE 60 FPS INGEST',
-    tagColor: '#71F6D2',
-    title: 'Zero-Drop Telemetry',
-    desc: 'Continuous state streaming.',
-    metric: '< 12μs Ring Ingest',
-    metricColor: '#71F6D2',
-    isDark: true
+    rotate: '-1deg',
+    title: '● 60 FPS Telemetry',
+    note: 'Zero-drop continuous state recording under 12μs.',
+    tag: 'Live Ingest'
   },
   {
     id: 4,
     left: '71%',
     top: '10%',
-    width: '165px',
-    height: '135px',
-    radius: '20px',
-    bg: '#FAF5FF',
-    border: '1px solid #E9D5FF',
-    shadow: '0 16px 36px rgba(99, 102, 241, 0.08)',
-    tag: '✦ ROOT-CAUSE AI',
-    tagColor: '#8B5CF6',
-    title: 'Instant Diagnosis',
-    desc: 'Synthesizes failure in plain English in 2s.',
-    metric: '0 Raw Logs Needed',
-    metricColor: '#8B5CF6',
-    isDark: false
+    width: '160px',
+    height: '130px',
+    rotate: '2.5deg',
+    title: '✦ Root-Cause AI',
+    note: 'Explains why the agent failed in plain English in 2 seconds.',
+    tag: 'Zero Raw Logs'
   },
   {
     id: 5,
     left: '88%',
     top: '22%',
     width: '145px',
-    height: '135px',
-    radius: '20px',
-    bg: '#FFFFFF',
-    border: '1px solid #E2E8F0',
-    shadow: '0 16px 36px rgba(0, 0, 0, 0.08)',
-    tag: '⏪ TIME-TRAVEL',
-    tagColor: '#0082FB',
-    title: 'Snapshot Rollback',
-    desc: 'Revert to Checkpoint #28 cleanly.',
-    metric: '1.8ms Rollback',
-    metricColor: '#0082FB',
-    isDark: false
+    height: '125px',
+    rotate: '-2deg',
+    title: '⏪ Time-Travel',
+    note: 'Revert agent to clean Checkpoint #28 in 1.8ms.',
+    tag: 'Instant Rewind'
   },
   {
     id: 6,
     left: '88%',
     top: '52%',
-    width: '160px',
-    height: '145px',
-    radius: '20px',
-    bg: '#0F172A',
-    border: '1px solid rgba(0, 130, 251, 0.35)',
-    shadow: '0 16px 36px rgba(0, 0, 0, 0.16)',
-    tag: 'DIFF INSPECTOR',
-    tagColor: '#0082FB',
-    title: 'Verified Code Edits',
-    desc: '+48 additions, -12 deletions.',
-    metric: 'Pre-flight Diff Gate',
-    metricColor: '#0082FB',
-    isDark: true
+    width: '155px',
+    height: '130px',
+    rotate: '1.5deg',
+    title: 'Diff Inspector',
+    note: 'Inspects +48 / -12 lines before changes touch production.',
+    tag: 'Verified Edits'
   },
   {
     id: 7,
     left: '11%',
     top: '68%',
-    width: '165px',
-    height: '148px',
-    radius: '20px',
-    bg: '#FFFFFF',
-    border: '1px solid #E2E8F0',
-    shadow: '0 16px 36px rgba(0, 0, 0, 0.08)',
-    tag: '⚡ SWARM SYNC',
-    tagColor: '#F59E0B',
-    title: 'Multi-Agent Recorder',
-    desc: 'Coordinating Coder, Planner, Tester.',
-    metric: '10k Events / Sec',
-    metricColor: '#D97706',
-    isDark: false
+    width: '160px',
+    height: '135px',
+    rotate: '2.2deg',
+    title: '⚡ Swarm Sync',
+    note: 'Synchronizes Planner, Coder, and Tester at 10k events/sec.',
+    tag: 'Swarm Telemetry'
   },
   {
     id: 8,
     left: '26%',
     top: '86%',
-    width: '155px',
-    height: '130px',
-    radius: '18px',
-    bg: '#0B1220',
-    border: '1px solid rgba(255, 255, 255, 0.1)',
-    shadow: '0 16px 36px rgba(0, 0, 0, 0.16)',
-    tag: 'C++20 CORE',
-    tagColor: '#71F6D2',
-    title: 'Lock-Free Buffer',
-    desc: 'High-throughput flight recording.',
-    metric: '99.999% Durability',
-    metricColor: '#71F6D2',
-    isDark: true
+    width: '150px',
+    height: '125px',
+    rotate: '-1.8deg',
+    title: 'C++20 Engine',
+    note: 'Lock-free ring buffer with 99.999% state durability.',
+    tag: 'Zero Drops'
   },
   {
     id: 9,
     left: '46%',
     top: '89%',
-    width: '160px',
-    height: '130px',
-    radius: '18px',
-    bg: '#FFFFFF',
-    border: '1px solid #E2E8F0',
-    shadow: '0 16px 36px rgba(0, 0, 0, 0.08)',
-    tag: '🛡️ ASVS LEVEL 2',
-    tagColor: '#16A34A',
-    title: 'OWASP Security Gate',
-    desc: 'Zero credential leakage.',
-    metric: 'Enterprise Certified',
-    metricColor: '#16A34A',
-    isDark: false
+    width: '155px',
+    height: '125px',
+    rotate: '1.2deg',
+    title: '🛡️ Security Gate',
+    note: 'OWASP ASVS Level 2 certified. Zero leaked secrets or keys.',
+    tag: 'Compliance Ready'
   },
   {
     id: 10,
     left: '65%',
     top: '87%',
     width: '150px',
-    height: '128px',
-    radius: '18px',
-    bg: '#0F172A',
-    border: '1px solid rgba(255, 255, 255, 0.1)',
-    shadow: '0 16px 36px rgba(0, 0, 0, 0.16)',
-    tag: 'SANDBOX CHROOT',
-    tagColor: '#94A3B8',
-    title: 'Isolated Execution',
-    desc: 'Clean environment rollback.',
-    metric: 'Zero Side-Effects',
-    metricColor: '#94A3B8',
-    isDark: true
+    height: '125px',
+    rotate: '-2.2deg',
+    title: 'Clean Sandbox',
+    note: 'Container chroot isolation with clean state rollback.',
+    tag: 'Zero Side-Effects'
   },
   {
     id: 11,
     left: '78%',
     top: '69%',
-    width: '160px',
-    height: '138px',
-    radius: '20px',
-    bg: '#090D16',
-    border: '1px solid rgba(0, 100, 224, 0.4)',
-    shadow: '0 16px 36px rgba(0, 0, 0, 0.18)',
-    tag: 'FLIGHT DECK',
-    tagColor: '#0082FB',
-    title: 'Interactive Cockpit',
-    desc: 'Visual timeline & state tree.',
-    metric: 'Real-Time Telemetry',
-    metricColor: '#0082FB',
-    isDark: true
+    width: '155px',
+    height: '130px',
+    rotate: '2.8deg',
+    title: 'Flight Deck',
+    note: 'Visual scrub bar, state inspector, and causal timeline.',
+    tag: 'Interactive Deck'
   }
 ];
 
@@ -1092,7 +996,7 @@ export default function App() {
                       <div className="cockpit-laser-bar" />
                     </div>
 
-                    {/* Click Highlights with Crystal-Clear Plain-English Callouts */}
+                    {/* Click Highlights: Simple, Clean Text Written in Black */}
                     {COCKPIT_TARGETS.map((target) => {
                       const isSelected = activeHighlightId === target.id;
                       return (
@@ -1114,88 +1018,32 @@ export default function App() {
                             borderRadius: '8px',
                             opacity: isSelected ? 1 : 0,
                             transform: isSelected ? 'scale(1)' : 'scale(0.98)',
-                            transition: 'opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                            transition: 'opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
                             zIndex: 25,
                             cursor: 'pointer',
                             pointerEvents: 'auto'
                           }}
                         >
-                          {/* Top Tag Badge */}
-                          <div style={{
-                            position: 'absolute',
-                            top: '6px',
-                            right: '8px',
-                            backgroundColor: target.highlight.tagBg,
-                            color: '#ffffff',
-                            fontSize: '10px',
-                            fontWeight: 800,
-                            letterSpacing: '0.04em',
-                            padding: '3px 8px',
-                            borderRadius: '4px',
-                            boxShadow: '0 2px 10px rgba(0,0,0,0.35)',
-                            fontFamily: 'monospace',
-                            pointerEvents: 'none',
-                            whiteSpace: 'nowrap'
-                          }}>
-                            {target.highlight.tagText}
-                          </div>
-
-                          {/* Clear Plain-English Callout Card */}
+                          {/* Simple Label Written in Black */}
                           {isSelected && (
                             <div style={{
                               position: 'absolute',
-                              ...target.popoverPos,
-                              backgroundColor: 'rgba(15, 23, 42, 0.96)',
-                              backdropFilter: 'blur(12px)',
-                              border: `1px solid ${target.badgeColor}66`,
-                              borderRadius: '10px',
-                              padding: '10px 14px',
-                              boxShadow: `0 14px 34px rgba(0,0,0,0.5), 0 0 20px ${target.badgeColor}22`,
+                              ...target.labelPos,
+                              backgroundColor: '#ffffff',
+                              color: '#000000',
+                              fontSize: '11.5px',
+                              fontWeight: 700,
+                              padding: '5px 12px',
+                              borderRadius: '6px',
+                              border: '1px solid rgba(0, 0, 0, 0.2)',
+                              boxShadow: '0 4px 14px rgba(0, 0, 0, 0.18)',
+                              whiteSpace: 'nowrap',
                               zIndex: 40,
-                              color: '#ffffff',
                               pointerEvents: 'none',
-                              textAlign: 'left'
+                              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                              animation: 'heroFadeUp 0.2s cubic-bezier(0.16, 1, 0.3, 1) both'
                             }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                                <span style={{
-                                  fontSize: '9px',
-                                  fontWeight: 800,
-                                  letterSpacing: '0.04em',
-                                  color: target.badgeColor,
-                                  backgroundColor: `${target.badgeColor}20`,
-                                  padding: '2px 6px',
-                                  borderRadius: '4px',
-                                  fontFamily: 'monospace'
-                                }}>
-                                  {target.badgeText}
-                                </span>
-                              </div>
-                              <div style={{
-                                fontSize: '12px',
-                                fontWeight: 700,
-                                color: '#F8FAFC',
-                                marginBottom: '3px',
-                                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-                              }}>
-                                {target.title}
-                              </div>
-                              <div style={{
-                                fontSize: '11px',
-                                color: '#CBD5E1',
-                                lineHeight: 1.35,
-                                marginBottom: '6px',
-                                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-                              }}>
-                                {target.explanation}
-                              </div>
-                              <div style={{
-                                fontSize: '10px',
-                                fontWeight: 600,
-                                color: target.badgeColor,
-                                fontFamily: 'monospace'
-                              }}>
-                                ✓ {target.keyMetric}
-                              </div>
+                              {target.label}
                             </div>
                           )}
                         </div>
@@ -1268,8 +1116,8 @@ export default function App() {
             alignItems: 'center',
             justifyContent: 'center'
           }}>
-            {/* Constellation of Floating Chrono Dimension Cards */}
-            {CHRONO_CONSTELLATION_CARDS.map((card) => (
+            {/* Constellation of Blue Sticker Notes with White Text */}
+            {BLUE_STICKER_NOTES.map((card) => (
               <div
                 key={card.id}
                 style={{
@@ -1278,87 +1126,80 @@ export default function App() {
                   top: card.top,
                   width: card.width,
                   height: card.height,
-                  borderRadius: card.radius,
-                  backgroundColor: card.bg,
-                  border: card.border,
-                  boxShadow: card.shadow,
-                  transform: 'translate(-50%, -50%)',
-                  padding: '12px 14px',
+                  borderRadius: '12px',
+                  backgroundColor: '#0064E0',
+                  color: '#ffffff',
+                  boxShadow: '0 12px 26px rgba(0, 100, 224, 0.28), 0 3px 8px rgba(0, 0, 0, 0.1)',
+                  transform: `translate(-50%, -50%) rotate(${card.rotate})`,
+                  padding: '14px 14px 12px 14px',
                   boxSizing: 'border-box',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
                   pointerEvents: 'auto',
                   cursor: 'default',
-                  transition: 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease',
-                  zIndex: 5
+                  transition: 'transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s ease',
+                  zIndex: 5,
+                  overflow: 'hidden'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translate(-50%, -54%) scale(1.05)';
+                  e.currentTarget.style.transform = 'translate(-50%, -54%) rotate(0deg) scale(1.06)';
                   e.currentTarget.style.zIndex = '20';
-                  e.currentTarget.style.boxShadow = '0 24px 50px rgba(0, 0, 0, 0.24)';
+                  e.currentTarget.style.boxShadow = '0 20px 42px rgba(0, 100, 224, 0.38), 0 6px 14px rgba(0, 0, 0, 0.15)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translate(-50%, -50%) scale(1)';
+                  e.currentTarget.style.transform = `translate(-50%, -50%) rotate(${card.rotate}) scale(1)`;
                   e.currentTarget.style.zIndex = '5';
-                  e.currentTarget.style.boxShadow = card.shadow;
+                  e.currentTarget.style.boxShadow = '0 12px 26px rgba(0, 100, 224, 0.28), 0 3px 8px rgba(0, 0, 0, 0.1)';
                 }}
               >
-                {/* Header Tag */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <span style={{
-                    fontSize: '9px',
-                    fontWeight: 800,
-                    letterSpacing: '0.04em',
-                    color: card.tagColor,
-                    fontFamily: 'monospace',
-                    textTransform: 'uppercase'
-                  }}>
-                    {card.tag}
-                  </span>
-                  <span style={{
-                    width: '6px',
-                    height: '6px',
-                    borderRadius: '50%',
-                    backgroundColor: card.tagColor,
-                    boxShadow: `0 0 6px ${card.tagColor}`
-                  }} />
-                </div>
+                {/* Sticker Top Adhesive Strip */}
+                <div style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: '5px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.28)'
+                }} />
 
                 {/* Content */}
                 <div>
                   <div style={{
-                    fontSize: '12px',
+                    fontSize: '12.5px',
                     fontWeight: 700,
-                    color: card.isDark ? '#F8FAFC' : '#0F172A',
+                    color: '#ffffff',
                     lineHeight: 1.25,
-                    marginBottom: '3px',
-                    letterSpacing: '-0.01em'
+                    marginBottom: '5px',
+                    letterSpacing: '-0.01em',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
                   }}>
-                    {card.title}
+                    <span>{card.title}</span>
                   </div>
                   <div style={{
-                    fontSize: '10.5px',
-                    color: card.isDark ? '#94A3B8' : '#64748B',
-                    lineHeight: 1.3
+                    fontSize: '11px',
+                    color: '#EFF6FF',
+                    lineHeight: 1.35
                   }}>
-                    {card.desc}
+                    {card.note}
                   </div>
                 </div>
 
-                {/* Footer Metric Pill */}
+                {/* Footer Tag Pill in White */}
                 <div style={{
                   fontSize: '9.5px',
                   fontWeight: 700,
-                  color: card.metricColor,
-                  backgroundColor: card.isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)',
-                  border: card.isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.06)',
-                  padding: '3px 7px',
-                  borderRadius: '6px',
+                  color: '#ffffff',
+                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                  border: '1px solid rgba(255, 255, 255, 0.28)',
+                  padding: '2px 7px',
+                  borderRadius: '4px',
                   fontFamily: 'monospace',
                   width: 'fit-content'
                 }}>
-                  ✓ {card.metric}
+                  #{card.tag}
                 </div>
               </div>
             ))}
