@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="chronoFaviconGrad" x1="10%" y1="10%" x2="90%" y2="90%">
+      <stop offset="0%" stop-color="#0082FB"/>
+      <stop offset="45%" stop-color="#0073EE"/>
+      <stop offset="100%" stop-color="#0064E0"/>
+    </linearGradient>
+    <linearGradient id="chronoFaviconAccent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#71F6D2"/>
+      <stop offset="100%" stop-color="#0082FB"/>
+    </linearGradient>
+  </defs>
+  <!-- Stylized C Ribbon -->
+  <path d="M 74 26 A 35 35 0 1 0 74 74" fill="none" stroke="url(#chronoFaviconGrad)" stroke-width="12" stroke-linecap="round"/>
+  <!-- Central Pivot -->
+  <circle cx="50" cy="50" r="6.5" fill="url(#chronoFaviconGrad)"/>
+  <!-- Hour Hand (10:10 stance) -->
+  <line x1="50" y1="50" x2="34" y2="32" stroke="url(#chronoFaviconGrad)" stroke-width="7" stroke-linecap="round"/>
+  <!-- Minute Hand pointing towards opening of C -->
+  <line x1="50" y1="50" x2="68" y2="38" stroke="url(#chronoFaviconAccent)" stroke-width="6" stroke-linecap="round"/>
+  <!-- Polished Center Pin -->
+  <circle cx="50" cy="50" r="2.5" fill="#FFFFFF"/>
+</svg>
