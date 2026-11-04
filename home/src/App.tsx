@@ -432,7 +432,6 @@ export default function App() {
   const [scrollY, setScrollY] = useState(0);
   const transitionTrackRef = useRef<HTMLDivElement | null>(null);
   const [section3Slide, setSection3Slide] = useState(100);
-  const [section2ScrollY, setSection2ScrollY] = useState(0);
 
   useEffect(() => {
     let ticking = false;
@@ -441,33 +440,15 @@ export default function App() {
         window.requestAnimationFrame(() => {
           setScrollY(window.scrollY);
 
-          if (transitionTrackRef.current) {
-            const rect = transitionTrackRef.current.getBoundingClientRect();
-            const vh = window.innerHeight;
-            const scrollDistance = rect.height - vh;
-            if (scrollDistance > 0) {
-              const rawProgress = Math.min(1, Math.max(0, -rect.top / scrollDistance));
-
-              // Phase 1: 0.0 to 0.52 (Section 2 is 100% STAGNANT in view, plenty of time to view entire cockpit & animation)
-              if (rawProgress <= 0.52) {
-                setSection2ScrollY(0);
-                setSection3Slide(100);
-              }
-              // Phase 2: 0.52 to 0.94 (Section 2 remains STAGNANT; Section 3 smoothly slides in from right)
-              else if (rawProgress <= 0.94) {
-                setSection2ScrollY(0);
-                const p2 = (rawProgress - 0.52) / 0.42;
-                setSection3Slide((1 - p2) * 100);
-              }
-              // Phase 3: 0.94 to 1.0 (Section 3 is 100% covering Section 2)
-              else {
-                setSection2ScrollY(0);
-                setSection3Slide(0);
-              }
-            } else {
-              setSection3Slide(100);
-              setSection2ScrollY(0);
-            }
+          const vh = window.innerHeight || 800;
+          // When scrollY reaches vh, Section 2 is at top of screen.
+          // As scrollY goes from vh to 2 * vh, Section 3 smoothly slides from right (100%) to left (0%), directly covering Section 2!
+          const offset = window.scrollY - vh;
+          if (offset <= 0) {
+            setSection3Slide(100);
+          } else {
+            const progress = Math.min(1, Math.max(0, offset / vh));
+            setSection3Slide((1 - progress) * 100);
           }
 
           ticking = false;
@@ -774,7 +755,7 @@ export default function App() {
         ref={transitionTrackRef}
         style={{
           position: 'relative',
-          minHeight: '360vh',
+          minHeight: '200vh',
           backgroundColor: '#ffffff'
         }}
       >
@@ -786,55 +767,56 @@ export default function App() {
           overflow: 'hidden',
           backgroundColor: '#ffffff'
         }}>
-          {/* SECTION 2 (STAGNANT IN THE BACKGROUND: ENTIRE COCKPIT VISIBLE, ZERO CUTOFF) */}
+          {/* SECTION 2 (STAGNANT IN THE BACKGROUND: NO BLACK BARS, PROPORTIONATE WINDOW) */}
           <div style={{
             position: 'absolute',
-            top: 0,
-            left: 0,
+            inset: 0,
             width: '100%',
             height: '100%',
             backgroundColor: '#ffffff',
             display: 'flex',
             flexDirection: 'column',
+            alignItems: 'center',
             justifyContent: 'center',
-            padding: '24px 40px',
+            padding: '20px 32px',
             boxSizing: 'border-box'
           }}>
             <div style={{
-              maxWidth: '1320px',
+              maxWidth: '980px',
               width: '100%',
               margin: '0 auto',
               display: 'flex',
               flexDirection: 'column',
-              gap: '16px'
+              alignItems: 'center'
             }}>
-              {/* Header: Clean, Compact, No "FLIGHT DECK HEADER" badge */}
+              {/* Header */}
               <div style={{
+                width: '100%',
                 display: 'flex',
                 alignItems: 'flex-end',
                 justifyContent: 'space-between',
-                gap: '24px'
+                marginBottom: '14px',
+                gap: '20px'
               }}>
                 <div>
                   <h2 style={{
-                    fontSize: 'clamp(26px, 2.5vw, 36px)',
+                    fontSize: 'clamp(22px, 2.2vw, 30px)',
                     fontWeight: 800,
                     letterSpacing: '-0.025em',
                     color: '#09090b',
                     lineHeight: 1.15,
-                    margin: '0 0 6px 0'
+                    margin: '0 0 4px 0'
                   }}>
                     Beyond raw log dumps.<br />
                     <span style={{ color: '#0064E0' }}>Complete visibility in 60 FPS motion.</span>
                   </h2>
                   <p style={{
-                    fontSize: '14px',
+                    fontSize: '13px',
                     color: '#475569',
-                    lineHeight: 1.5,
-                    maxWidth: '680px',
+                    lineHeight: 1.4,
                     margin: 0
                   }}>
-                    Chrono transforms autonomous agent execution into an interactive, cryptographically verified black-box flight recorder.
+                    Chrono transforms autonomous agent execution into an interactive, cryptographically verified flight recorder.
                   </p>
                 </div>
 
@@ -844,7 +826,7 @@ export default function App() {
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: '6px',
-                    fontSize: '14px',
+                    fontSize: '13px',
                     fontWeight: 700,
                     color: '#0064E0',
                     textDecoration: 'none',
@@ -853,12 +835,12 @@ export default function App() {
                     whiteSpace: 'nowrap'
                   }}
                 >
-                  Launch the live Cockpit
-                  <IconArrowUpRight size={15} />
+                  Launch Cockpit
+                  <IconArrowUpRight size={14} />
                 </a>
               </div>
 
-              {/* Cockpit Frame: Sized Proportionately So It Is NEVER Cut Off */}
+              {/* Cockpit Frame (Properly Sized at 980px Max Width with ZERO Black Sides) */}
               <div
                 ref={cockpitFrameRef}
                 onMouseMove={handleCockpitMouseMove}
@@ -866,58 +848,55 @@ export default function App() {
                 style={{
                   position: 'relative',
                   perspective: '1400px',
-                  width: '100%'
+                  width: '100%',
+                  maxWidth: '980px'
                 }}
               >
-                {/* Ambient Colored Back-Glow */}
+                {/* Ambient Glow */}
                 <div style={{
                   position: 'absolute',
                   inset: '-15px',
-                  background: 'radial-gradient(ellipse 70% 50% at 50% 30%, rgba(0, 100, 224, 0.18) 0%, rgba(113, 246, 210, 0.10) 40%, transparent 75%)',
+                  background: 'radial-gradient(ellipse 70% 50% at 50% 30%, rgba(0, 100, 224, 0.16) 0%, rgba(113, 246, 210, 0.08) 40%, transparent 75%)',
                   filter: 'blur(35px)',
                   zIndex: 0,
                   pointerEvents: 'none',
                   animation: 'cockpitAmbientGlow 6s ease-in-out infinite'
                 }} />
 
-                {/* Chassis Frame */}
+                {/* Chassis Window */}
                 <div style={{
                   position: 'relative',
                   zIndex: 2,
                   backgroundColor: '#ffffff',
-                  borderRadius: '18px',
+                  borderRadius: '16px',
                   border: '1px solid #E5E7EB',
-                  boxShadow: '0 20px 60px -15px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.04)',
+                  boxShadow: '0 20px 50px -15px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.04)',
                   overflow: 'hidden',
                   transform: `perspective(1400px) rotateX(${cockpitTilt.y}deg) rotateY(${cockpitTilt.x}deg)`,
                   transition: 'transform 0.18s cubic-bezier(0.2, 0, 0, 1)',
                   transformStyle: 'preserve-3d'
                 }}>
-                  {/* Clean White Window Titlebar with Traffic Lights */}
+                  {/* Clean White Window Titlebar */}
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
-                    padding: '10px 18px',
+                    padding: '9px 16px',
                     backgroundColor: '#ffffff',
                     borderBottom: '1px solid #E5E7EB'
                   }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
-                      <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#EF4444', display: 'inline-block' }} />
-                      <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#F59E0B', display: 'inline-block' }} />
-                      <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#10B981', display: 'inline-block' }} />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ width: '9px', height: '9px', borderRadius: '50%', backgroundColor: '#EF4444', display: 'inline-block' }} />
+                      <span style={{ width: '9px', height: '9px', borderRadius: '50%', backgroundColor: '#F59E0B', display: 'inline-block' }} />
+                      <span style={{ width: '9px', height: '9px', borderRadius: '50%', backgroundColor: '#10B981', display: 'inline-block' }} />
                     </div>
                   </div>
 
-                  {/* Screenshot Stage: Constrained to fit within viewport height */}
+                  {/* Screenshot Stage: Zero Black Sides (Image fills 100% width naturally) */}
                   <div style={{
                     position: 'relative',
                     overflow: 'hidden',
                     lineHeight: 0,
-                    backgroundColor: '#090D16',
-                    maxHeight: 'calc(100vh - 240px)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
+                    width: '100%'
                   }}>
                     <img
                       src="/cockpit-screenshot.png"
@@ -925,19 +904,17 @@ export default function App() {
                       style={{
                         width: '100%',
                         height: 'auto',
-                        maxHeight: 'calc(100vh - 240px)',
-                        objectFit: 'contain',
                         display: 'block',
                         filter: 'contrast(1.03) brightness(1.01)'
                       }}
                     />
 
-                    {/* Animated Laser Scanning Beam */}
+                    {/* Laser scanline */}
                     <div className="cockpit-laser-sweep">
                       <div className="cockpit-laser-bar" />
                     </div>
 
-                    {/* CLICK HIGHLIGHT OVERLAYS */}
+                    {/* Click Highlights */}
                     {COCKPIT_TARGETS.map((target) => {
                       const isSelected = activeHighlightId === target.id;
                       return (
@@ -956,7 +933,7 @@ export default function App() {
                             border: target.highlight.border,
                             backgroundColor: target.highlight.bg,
                             boxShadow: target.highlight.glow,
-                            borderRadius: '10px',
+                            borderRadius: '8px',
                             opacity: isSelected ? 1 : 0,
                             transform: isSelected ? 'scale(1)' : 'scale(0.98)',
                             transition: 'opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -967,16 +944,16 @@ export default function App() {
                         >
                           <div style={{
                             position: 'absolute',
-                            top: '8px',
-                            right: '10px',
+                            top: '6px',
+                            right: '8px',
                             backgroundColor: target.highlight.tagBg,
                             color: '#ffffff',
-                            fontSize: '10px',
+                            fontSize: '9px',
                             fontWeight: 800,
-                            letterSpacing: '0.06em',
-                            padding: '3px 8px',
-                            borderRadius: '5px',
-                            boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
+                            letterSpacing: '0.05em',
+                            padding: '2px 6px',
+                            borderRadius: '4px',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
                             fontFamily: 'monospace',
                             pointerEvents: 'none'
                           }}>
@@ -986,7 +963,7 @@ export default function App() {
                       );
                     })}
 
-                    {/* ANIMATED VIRTUAL CURSOR (Clicks and Highlights targets in sequence) */}
+                    {/* Virtual Mouse Cursor */}
                     <div
                       style={{
                         position: 'absolute',
@@ -996,10 +973,10 @@ export default function App() {
                         transition: 'left 0.72s cubic-bezier(0.25, 1, 0.5, 1), top 0.72s cubic-bezier(0.25, 1, 0.5, 1), transform 0.14s ease',
                         pointerEvents: 'none',
                         zIndex: 40,
-                        filter: 'drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5))'
+                        filter: 'drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5))'
                       }}
                     >
-                      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                         <path
                           d="M4.5 3.5L11.5 20.5L14.2 13.8L21 11L4.5 3.5Z"
                           fill="#0F172A"
@@ -1015,8 +992,8 @@ export default function App() {
                             position: 'absolute',
                             top: '3px',
                             left: '4px',
-                            width: '26px',
-                            height: '26px',
+                            width: '24px',
+                            height: '24px',
                             borderRadius: '50%',
                             border: '2px solid #0082FB',
                             backgroundColor: 'rgba(0, 130, 251, 0.25)',
