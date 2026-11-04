@@ -650,95 +650,28 @@ export default function App() {
           <div style={{
             position: 'relative',
             zIndex: 2,
-            backgroundColor: '#090D16',
+            backgroundColor: '#ffffff',
             borderRadius: '24px',
-            border: '1px solid rgba(255, 255, 255, 0.14)',
-            boxShadow: '0 30px 80px -20px rgba(0, 15, 40, 0.5), 0 0 0 1px rgba(0, 130, 251, 0.25)',
+            border: '1px solid #E5E7EB',
+            boxShadow: '0 25px 70px -15px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.04)',
             overflow: 'hidden',
             transform: `perspective(1400px) rotateX(${cockpitTilt.y}deg) rotateY(${cockpitTilt.x}deg)`,
             transition: 'transform 0.18s cubic-bezier(0.2, 0, 0, 1)',
             transformStyle: 'preserve-3d'
           }}>
-            {/* Window Titlebar / Chrome */}
+            {/* Window Titlebar / Chrome (Clean White) */}
             <div style={{
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'space-between',
               padding: '14px 22px',
-              backgroundColor: '#0E1424',
-              borderBottom: '1px solid rgba(255, 255, 255, 0.08)'
+              backgroundColor: '#ffffff',
+              borderBottom: '1px solid #E5E7EB'
             }}>
               {/* Traffic Light Dots */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#FF5F56', display: 'inline-block' }} />
                 <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#FFBD2E', display: 'inline-block' }} />
                 <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#27C93F', display: 'inline-block' }} />
-                <span style={{
-                  marginLeft: '14px',
-                  fontSize: '12px',
-                  fontWeight: 600,
-                  fontFamily: 'monospace',
-                  color: 'rgba(255, 255, 255, 0.65)',
-                  letterSpacing: '0.04em'
-                }}>
-                  chronod // session-04n112tt8a &mdash; flight_recording.bin
-                </span>
-              </div>
-
-              {/* Live Flight Telemetry Badges */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                {/* 60 FPS Recording Status */}
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  backgroundColor: 'rgba(16, 185, 129, 0.14)',
-                  border: '1px solid rgba(16, 185, 129, 0.35)',
-                  borderRadius: '9999px',
-                  padding: '3px 10px',
-                  fontSize: '11px',
-                  fontWeight: 700,
-                  color: '#34D399',
-                  fontFamily: 'monospace'
-                }}>
-                  <span style={{
-                    width: '6px',
-                    height: '6px',
-                    borderRadius: '50%',
-                    backgroundColor: '#10B981',
-                    animation: 'timecodeBlink 1.4s ease-in-out infinite'
-                  }} />
-                  LIVE REC 60FPS
-                </div>
-
-                {/* SHA-256 Ledger Badge */}
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  backgroundColor: 'rgba(0, 130, 251, 0.14)',
-                  border: '1px solid rgba(0, 130, 251, 0.3)',
-                  borderRadius: '9999px',
-                  padding: '3px 10px',
-                  fontSize: '11px',
-                  fontWeight: 600,
-                  color: '#71F6D2',
-                  fontFamily: 'monospace'
-                }}>
-                  <IconLock size={12} color="#71F6D2" />
-                  LEDGER: SEALED (0x8F2A)
-                </div>
-
-                {/* Timecode */}
-                <div style={{
-                  fontSize: '12px',
-                  fontWeight: 700,
-                  color: '#ffffff',
-                  fontFamily: 'monospace',
-                  letterSpacing: '0.06em'
-                }}>
-                  04:55.284 <span style={{ color: 'rgba(255,255,255,0.4)' }}>/ 05:20.000</span>
-                </div>
               </div>
             </div>
 
@@ -976,92 +909,6 @@ export default function App() {
                   </div>
                 </div>
               </div>
-            </div>
-
-            {/* Bottom Interactive HUD Bar */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '14px 24px',
-              backgroundColor: '#0B101D',
-              borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-              flexWrap: 'wrap',
-              gap: '12px'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-                <span style={{ fontSize: '12px', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  Interactive Hotspots:
-                </span>
-                <button
-                  onClick={() => setActiveHotspot(1)}
-                  style={{
-                    backgroundColor: activeHotspot === 1 ? 'rgba(239, 68, 68, 0.25)' : 'rgba(255, 255, 255, 0.06)',
-                    color: activeHotspot === 1 ? '#FCA5A5' : '#CBD5E1',
-                    border: activeHotspot === 1 ? '1px solid #EF4444' : '1px solid rgba(255, 255, 255, 0.1)',
-                    borderRadius: '8px',
-                    padding: '5px 12px',
-                    fontSize: '12px',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease'
-                  }}
-                >
-                  [1] Stall Tripwire
-                </button>
-                <button
-                  onClick={() => setActiveHotspot(2)}
-                  style={{
-                    backgroundColor: activeHotspot === 2 ? 'rgba(113, 246, 210, 0.2)' : 'rgba(255, 255, 255, 0.06)',
-                    color: activeHotspot === 2 ? '#71F6D2' : '#CBD5E1',
-                    border: activeHotspot === 2 ? '1px solid #71F6D2' : '1px solid rgba(255, 255, 255, 0.1)',
-                    borderRadius: '8px',
-                    padding: '5px 12px',
-                    fontSize: '12px',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease'
-                  }}
-                >
-                  [2] Code Diff Viewer
-                </button>
-                <button
-                  onClick={() => setActiveHotspot(3)}
-                  style={{
-                    backgroundColor: activeHotspot === 3 ? 'rgba(0, 130, 251, 0.25)' : 'rgba(255, 255, 255, 0.06)',
-                    color: activeHotspot === 3 ? '#93C5FD' : '#CBD5E1',
-                    border: activeHotspot === 3 ? '1px solid #0082FB' : '1px solid rgba(255, 255, 255, 0.1)',
-                    borderRadius: '8px',
-                    padding: '5px 12px',
-                    fontSize: '12px',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease'
-                  }}
-                >
-                  [3] Root-Cause Reasoner
-                </button>
-              </div>
-
-              <a
-                href={COCKPIT_URL}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  backgroundColor: '#0064E0',
-                  color: '#ffffff',
-                  textDecoration: 'none',
-                  fontSize: '13px',
-                  fontWeight: 700,
-                  padding: '7px 16px',
-                  borderRadius: '9999px',
-                  boxShadow: '0 4px 12px rgba(0, 100, 224, 0.4)'
-                }}
-              >
-                Open Fullscreen Flight Deck
-                <IconArrowUpRight size={14} color="#ffffff" />
-              </a>
             </div>
           </div>
         </div>
