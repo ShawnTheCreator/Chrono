@@ -209,10 +209,96 @@ const FAQ_ITEMS = [
   }
 ];
 
+// Cockpit Interactive Tour Targets for Cursor & Highlighting
+const COCKPIT_TARGETS = [
+  {
+    id: 1,
+    name: 'Timeline Checkpoint #29',
+    cursorX: 49,
+    cursorY: 82,
+    highlight: {
+      left: '37%',
+      top: '75%',
+      width: '26%',
+      height: '16%',
+      border: '2px solid #EF4444',
+      glow: '0 0 28px rgba(239, 68, 68, 0.45), inset 0 0 16px rgba(239, 68, 68, 0.15)',
+      bg: 'rgba(239, 68, 68, 0.08)',
+      tagBg: '#EF4444',
+      tagText: 'CHECKPOINT #29 // STALL DETECTED'
+    }
+  },
+  {
+    id: 2,
+    name: 'Code Diff Inspector',
+    cursorX: 42,
+    cursorY: 38,
+    highlight: {
+      left: '21%',
+      top: '13%',
+      width: '50%',
+      height: '60%',
+      border: '2px solid #0082FB',
+      glow: '0 0 32px rgba(0, 130, 251, 0.45), inset 0 0 20px rgba(0, 130, 251, 0.12)',
+      bg: 'rgba(0, 130, 251, 0.06)',
+      tagBg: '#0082FB',
+      tagText: 'DIFF INSPECTOR // src/auth/provider.ts'
+    }
+  },
+  {
+    id: 3,
+    name: 'Root-Cause Reasoner',
+    cursorX: 84,
+    cursorY: 46,
+    highlight: {
+      left: '73%',
+      top: '13%',
+      width: '25%',
+      height: '78%',
+      border: '2px solid #6366F1',
+      glow: '0 0 32px rgba(99, 102, 241, 0.45), inset 0 0 20px rgba(99, 102, 241, 0.12)',
+      bg: 'rgba(99, 102, 241, 0.07)',
+      tagBg: '#6366F1',
+      tagText: 'REASONING // AUTOMATED POST-MORTEM'
+    }
+  }
+];
+
 export default function App() {
   const [heroIndex, setHeroIndex] = useState(0);
   const [videoIndex, setVideoIndex] = useState(0);
-  const [activeHotspot, setActiveHotspot] = useState<number | null>(null);
+  const [cursorStep, setCursorStep] = useState(0);
+  const [cursorPos, setCursorPos] = useState({ x: 49, y: 82 });
+  const [isClicking, setIsClicking] = useState(false);
+  const [activeHighlightId, setActiveHighlightId] = useState<number>(1);
+
+  // Automatic Cursor Tour Loop
+  useEffect(() => {
+    const cycle = setInterval(() => {
+      setCursorStep((prev) => (prev + 1) % COCKPIT_TARGETS.length);
+    }, 3200);
+    return () => clearInterval(cycle);
+  }, []);
+
+  // Sync cursor glide, click ripple, and zone highlighting
+  useEffect(() => {
+    const target = COCKPIT_TARGETS[cursorStep];
+    if (!target) return;
+
+    setCursorPos({ x: target.cursorX, y: target.cursorY });
+
+    const clickTimer = setTimeout(() => {
+      setIsClicking(true);
+      setActiveHighlightId(target.id);
+
+      const unclickTimer = setTimeout(() => {
+        setIsClicking(false);
+      }, 240);
+      return () => clearTimeout(unclickTimer);
+    }, 720);
+
+    return () => clearTimeout(clickTimer);
+  }, [cursorStep]);
   const [cockpitTilt, setCockpitTilt] = useState({ x: 0, y: 0 });
   const cockpitFrameRef = useRef<HTMLDivElement | null>(null);
 
@@ -732,220 +818,98 @@ export default function App() {
                 <div className="cockpit-laser-bar" />
               </div>
 
-              {/* MOTION HOTSPOT 1: STALL TRIPWIRE INTERCEPT (Timeline Loop Catch) */}
-              <div
-                onMouseEnter={() => setActiveHotspot(1)}
-                onMouseLeave={() => setActiveHotspot(null)}
-                style={{
-                  position: 'absolute',
-                  left: '49%',
-                  top: '76%',
-                  transform: 'translate(-50%, -50%)',
-                  zIndex: 25,
-                  cursor: 'pointer'
-                }}
-              >
-                {/* Radar Ring */}
-                <div style={{
-                  width: '28px',
-                  height: '28px',
-                  borderRadius: '50%',
-                  backgroundColor: 'rgba(239, 68, 68, 0.3)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  animation: 'radarPingRed 2s infinite'
-                }}>
-                  <div style={{
-                    width: '12px',
-                    height: '12px',
-                    borderRadius: '50%',
-                    backgroundColor: '#EF4444',
-                    boxShadow: '0 0 12px #EF4444'
-                  }} />
-                </div>
-
-                {/* Floating Motion Badge */}
-                <div style={{
-                  position: 'absolute',
-                  bottom: '36px',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  backgroundColor: 'rgba(15, 23, 42, 0.94)',
-                  backdropFilter: 'blur(12px)',
-                  border: '1px solid rgba(239, 68, 68, 0.6)',
-                  borderRadius: '12px',
-                  padding: '10px 14px',
-                  whiteSpace: 'nowrap',
-                  boxShadow: '0 12px 30px rgba(0,0,0,0.5)',
-                  pointerEvents: 'none',
-                  animation: 'floatBadge1 3s ease-in-out infinite',
-                  transition: 'all 0.2s ease',
-                  opacity: activeHotspot === 1 || activeHotspot === null ? 1 : 0.4
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '3px' }}>
-                    <span style={{
-                      backgroundColor: '#EF4444',
+              {/* CLICK HIGHLIGHT OVERLAYS */}
+              {COCKPIT_TARGETS.map((target) => {
+                const isSelected = activeHighlightId === target.id;
+                return (
+                  <div
+                    key={target.id}
+                    onClick={() => {
+                      setCursorStep(COCKPIT_TARGETS.findIndex((t) => t.id === target.id));
+                      setActiveHighlightId(target.id);
+                    }}
+                    style={{
+                      position: 'absolute',
+                      left: target.highlight.left,
+                      top: target.highlight.top,
+                      width: target.highlight.width,
+                      height: target.highlight.height,
+                      border: target.highlight.border,
+                      backgroundColor: target.highlight.bg,
+                      boxShadow: target.highlight.glow,
+                      borderRadius: '10px',
+                      opacity: isSelected ? 1 : 0,
+                      transform: isSelected ? 'scale(1)' : 'scale(0.98)',
+                      transition: 'opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      zIndex: 25,
+                      cursor: 'pointer',
+                      pointerEvents: 'auto'
+                    }}
+                  >
+                    {/* Glowing High-Tech Tag */}
+                    <div style={{
+                      position: 'absolute',
+                      top: '8px',
+                      right: '10px',
+                      backgroundColor: target.highlight.tagBg,
                       color: '#ffffff',
                       fontSize: '10px',
                       fontWeight: 800,
-                      padding: '2px 6px',
-                      borderRadius: '4px',
-                      letterSpacing: '0.04em'
+                      letterSpacing: '0.06em',
+                      padding: '3px 8px',
+                      borderRadius: '5px',
+                      boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
+                      fontFamily: 'monospace',
+                      pointerEvents: 'none'
                     }}>
-                      TRIPWIRE INTERCEPT
-                    </span>
-                    <span style={{ fontSize: '11px', fontWeight: 700, color: '#FCA5A5', fontFamily: 'monospace' }}>
-                      Checkpoint #29 (04:55)
-                    </span>
+                      {target.highlight.tagText}
+                    </div>
                   </div>
-                  <div style={{ fontSize: '12px', fontWeight: 600, color: '#ffffff' }}>
-                    Agent repeated failing edits 3x &bull; Paused to save budget
-                  </div>
-                </div>
-              </div>
+                );
+              })}
 
-              {/* MOTION HOTSPOT 2: LIVE CODE DIFF VIEWER */}
+              {/* ANIMATED VIRTUAL CURSOR (Clicks and Highlights targets in sequence) */}
               <div
-                onMouseEnter={() => setActiveHotspot(2)}
-                onMouseLeave={() => setActiveHotspot(null)}
                 style={{
                   position: 'absolute',
-                  left: '32%',
-                  top: '38%',
-                  transform: 'translate(-50%, -50%)',
-                  zIndex: 25,
-                  cursor: 'pointer'
+                  left: `${cursorPos.x}%`,
+                  top: `${cursorPos.y}%`,
+                  transform: `translate(-4px, -2px) scale(${isClicking ? 0.82 : 1})`,
+                  transition: 'left 0.72s cubic-bezier(0.25, 1, 0.5, 1), top 0.72s cubic-bezier(0.25, 1, 0.5, 1), transform 0.14s ease',
+                  pointerEvents: 'none',
+                  zIndex: 40,
+                  filter: 'drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5))'
                 }}
               >
-                {/* Radar Ring */}
-                <div style={{
-                  width: '28px',
-                  height: '28px',
-                  borderRadius: '50%',
-                  backgroundColor: 'rgba(113, 246, 210, 0.25)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  animation: 'radarPingCyan 2.2s infinite'
-                }}>
-                  <div style={{
-                    width: '12px',
-                    height: '12px',
-                    borderRadius: '50%',
-                    backgroundColor: '#71F6D2',
-                    boxShadow: '0 0 12px #71F6D2'
-                  }} />
-                </div>
+                {/* SVG Mouse Pointer */}
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M4.5 3.5L11.5 20.5L14.2 13.8L21 11L4.5 3.5Z"
+                    fill="#0F172A"
+                    stroke="#FFFFFF"
+                    strokeWidth="1.5"
+                    strokeLinejoin="round"
+                  />
+                </svg>
 
-                {/* Floating Motion Badge */}
-                <div style={{
-                  position: 'absolute',
-                  bottom: '36px',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  backgroundColor: 'rgba(15, 23, 42, 0.94)',
-                  backdropFilter: 'blur(12px)',
-                  border: '1px solid rgba(113, 246, 210, 0.5)',
-                  borderRadius: '12px',
-                  padding: '10px 14px',
-                  whiteSpace: 'nowrap',
-                  boxShadow: '0 12px 30px rgba(0,0,0,0.5)',
-                  pointerEvents: 'none',
-                  animation: 'floatBadge2 3.4s ease-in-out infinite',
-                  transition: 'all 0.2s ease',
-                  opacity: activeHotspot === 2 || activeHotspot === null ? 1 : 0.4
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '3px' }}>
-                    <span style={{
-                      backgroundColor: '#0082FB',
-                      color: '#ffffff',
-                      fontSize: '10px',
-                      fontWeight: 800,
-                      padding: '2px 6px',
-                      borderRadius: '4px'
-                    }}>
-                      DIFF ENGINE
-                    </span>
-                    <span style={{ fontSize: '11px', fontWeight: 700, color: '#71F6D2', fontFamily: 'monospace' }}>
-                      src/auth/provider.ts
-                    </span>
-                  </div>
-                  <div style={{ fontSize: '12px', fontWeight: 600, color: '#ffffff' }}>
-                    +48 additions &bull; -12 deletions cryptographically verified
-                  </div>
-                </div>
-              </div>
-
-              {/* MOTION HOTSPOT 3: ROOT-CAUSE REASONER (Meta Muse Spark Diagnostics) */}
-              <div
-                onMouseEnter={() => setActiveHotspot(3)}
-                onMouseLeave={() => setActiveHotspot(null)}
-                style={{
-                  position: 'absolute',
-                  left: '78%',
-                  top: '32%',
-                  transform: 'translate(-50%, -50%)',
-                  zIndex: 25,
-                  cursor: 'pointer'
-                }}
-              >
-                {/* Radar Ring */}
-                <div style={{
-                  width: '28px',
-                  height: '28px',
-                  borderRadius: '50%',
-                  backgroundColor: 'rgba(0, 100, 224, 0.3)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  animation: 'radarPingBlue 2.4s infinite'
-                }}>
-                  <div style={{
-                    width: '12px',
-                    height: '12px',
-                    borderRadius: '50%',
-                    backgroundColor: '#0082FB',
-                    boxShadow: '0 0 12px #0082FB'
-                  }} />
-                </div>
-
-                {/* Floating Motion Badge */}
-                <div style={{
-                  position: 'absolute',
-                  bottom: '36px',
-                  right: '0',
-                  backgroundColor: 'rgba(15, 23, 42, 0.94)',
-                  backdropFilter: 'blur(12px)',
-                  border: '1px solid rgba(0, 130, 251, 0.5)',
-                  borderRadius: '12px',
-                  padding: '10px 14px',
-                  whiteSpace: 'nowrap',
-                  boxShadow: '0 12px 30px rgba(0,0,0,0.5)',
-                  pointerEvents: 'none',
-                  animation: 'floatBadge1 3.2s ease-in-out infinite',
-                  transition: 'all 0.2s ease',
-                  opacity: activeHotspot === 3 || activeHotspot === null ? 1 : 0.4
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '3px' }}>
-                    <span style={{
-                      backgroundColor: '#6366F1',
-                      color: '#ffffff',
-                      fontSize: '10px',
-                      fontWeight: 800,
-                      padding: '2px 6px',
-                      borderRadius: '4px'
-                    }}>
-                      ROOT-CAUSE DIAGNOSTIC
-                    </span>
-                    <span style={{ fontSize: '11px', fontWeight: 700, color: '#A5B4FC', fontFamily: 'monospace' }}>
-                      Reasoning Synth (18ms)
-                    </span>
-                  </div>
-                  <div style={{ fontSize: '12px', fontWeight: 600, color: '#ffffff' }}>
-                    Cyclic loop detected &bull; Recommended rollback to Checkpoint #28
-                  </div>
-                </div>
+                {/* Click Ripple Wave */}
+                {isClicking && (
+                  <span
+                    style={{
+                      position: 'absolute',
+                      top: '3px',
+                      left: '4px',
+                      width: '26px',
+                      height: '26px',
+                      borderRadius: '50%',
+                      border: '2px solid #0082FB',
+                      backgroundColor: 'rgba(0, 130, 251, 0.25)',
+                      transform: 'translate(-50%, -50%)',
+                      animation: 'cursorClickRipple 0.35s ease-out forwards',
+                      pointerEvents: 'none'
+                    }}
+                  />
+                )}
               </div>
             </div>
           </div>

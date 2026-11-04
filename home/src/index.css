@@ -270,3 +270,14 @@ code, pre, .mono {
   pointer-events: none;
   transform: translateX(-100%);
 }
+
+@keyframes cursorClickRipple {
+  0% {
+    transform: translate(-50%, -50%) scale(0.2);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2.4);
+    opacity: 0;
+  }
+}
