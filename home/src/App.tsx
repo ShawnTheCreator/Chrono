@@ -353,9 +353,7 @@ export default function App() {
   }, []);
 
   const vh = typeof window !== 'undefined' ? window.innerHeight : 900;
-  const heroProgress = Math.min(1, Math.max(0, scrollY / (vh || 1)));
-  const heroScale = 1 - heroProgress * 0.05;
-  const heroOpacity = 1 - heroProgress * 0.45;
+  const isHeroCovered = scrollY >= vh;
 
     const currentHero = HERO_ROTATING_LINES[heroIndex];
 
@@ -367,12 +365,13 @@ export default function App() {
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
       overflowX: 'clip'
     }}>
-      {/* 1. HERO SECTION WITH BACKGROUND VIDEO PLAYER (VID1 TO VID4) - STICKY 100VH */}
+      {/* 1. HERO SECTION WITH BACKGROUND VIDEO PLAYER (VID1 TO VID4) - FIXED 100VH STATIC */}
       <section style={{
-        position: 'sticky',
+        position: 'fixed',
         top: 0,
+        left: 0,
+        right: 0,
         zIndex: 1,
-        minHeight: '100vh',
         height: '100vh',
         width: '100%',
         margin: 0,
@@ -383,10 +382,8 @@ export default function App() {
         justifyContent: 'space-between',
         color: '#ffffff',
         overflow: 'hidden',
-        transform: `scale(${heroScale})`,
-        opacity: heroOpacity,
-        transformOrigin: 'center 40%',
-        willChange: 'transform, opacity'
+        visibility: isHeroCovered ? 'hidden' : 'visible',
+        pointerEvents: isHeroCovered ? 'none' : 'auto'
       }}>
         {/* Full-Bleed Background Video Player */}
         <video
@@ -633,15 +630,16 @@ export default function App() {
         </div>
       </section>
 
-      {/* RISING OVERLAY CONTENT CONTAINER (RISES & COVERS HERO ON SCROLL) */}
+      {/* RISING OVERLAY CONTENT CONTAINER (RISES UP & COVERS STATIC HERO ON SCROLL) */}
       <div style={{
         position: 'relative',
         zIndex: 10,
+        marginTop: '100vh',
         backgroundColor: '#ffffff',
-        borderTopLeftRadius: '36px',
-        borderTopRightRadius: '36px',
-        boxShadow: '0 -25px 70px rgba(0, 0, 0, 0.45), 0 -4px 16px rgba(0, 0, 0, 0.15)',
-        marginTop: 0
+        borderTopLeftRadius: '40px',
+        borderTopRightRadius: '40px',
+        boxShadow: '0 -30px 90px rgba(0, 0, 0, 0.45), 0 -4px 16px rgba(0, 0, 0, 0.15)',
+        minHeight: '100vh'
       }}>
         {/* 2. CHRONO COCKPIT MOTION GRAPHIC SHOWCASE */}
       <section id="chrono-features" style={{
