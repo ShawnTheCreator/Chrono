@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-const COCKPIT_URL = (import.meta as any).env?.VITE_COCKPIT_URL || 'http://localhost:3001';
+const COCKPIT_URL = (import.meta as any).env?.VITE_COCKPIT_URL || (import.meta as any).env?.VITE_DASHBOARD_URL || 'https://chrono-dashboard-alpha.vercel.app';
 
 interface CheckpointBlock {
   index: number;

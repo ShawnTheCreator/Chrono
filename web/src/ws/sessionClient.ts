@@ -1,6 +1,6 @@
 import { store } from '../state/timelineStore';
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BRIDGE_URL || process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8000';
+const BACKEND_URL = process.env.NEXT_PUBLIC_BRIDGE_URL || process.env.NEXT_PUBLIC_BACKEND_URL || 'https://chrono-doip.onrender.com';
 
 export class SessionClient {
   private eventSource: EventSource | null = null;

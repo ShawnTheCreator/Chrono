@@ -1,5 +1,5 @@
 // OWASP-hardened authentication client for Chrono Cockpit
-const BACKEND_URL = process.env.NEXT_PUBLIC_BRIDGE_URL || 'http://127.0.0.1:8000';
+const BACKEND_URL = process.env.NEXT_PUBLIC_BRIDGE_URL || process.env.NEXT_PUBLIC_BACKEND_URL || 'https://chrono-doip.onrender.com';
 
 export interface AuthUser {
   email: string;

@@ -14,7 +14,7 @@ import { sessionClient } from '../../src/ws/sessionClient';
 import { authClient, AuthUser } from '../../src/auth/authClient';
 import { theme } from '../../src/app/theme';
 
-const HOME_URL = process.env.NEXT_PUBLIC_HOME_URL || 'http://localhost:3000';
+const HOME_URL = process.env.NEXT_PUBLIC_HOME_URL || 'https://home-five-psi.vercel.app';
 import {
   GitBranchIcon,
   ShieldCheckIcon,

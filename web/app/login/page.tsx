@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { authClient } from '../../src/auth/authClient';
 
-const HOME_URL = process.env.NEXT_PUBLIC_HOME_URL || 'http://localhost:3000';
+const HOME_URL = process.env.NEXT_PUBLIC_HOME_URL || 'https://home-five-psi.vercel.app';
 
 // Chrono Signature Logo: Stylized "C" with Clock Hands in Meta Metallic Blue
 const ChronoLogo = ({ size = 28 }: { size?: number }) => (
