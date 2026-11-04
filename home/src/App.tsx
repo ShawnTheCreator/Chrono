@@ -500,6 +500,52 @@ export default function App() {
     };
   }, []);
 
+  const scrollToSection = (target: 'top' | 'features' | 'capabilities' | 'manifesto' | 'faq') => {
+    const vh = window.innerHeight || 800;
+    if (target === 'top') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (window.history && window.history.pushState) window.history.pushState(null, '', ' ');
+    } else if (target === 'features') {
+      window.scrollTo({ top: vh, behavior: 'smooth' });
+      if (window.history && window.history.pushState) window.history.pushState(null, '', '#features');
+    } else if (target === 'capabilities') {
+      const targetScroll = vh + (vh * 0.35) + (vh * 0.90) + (vh * 0.175);
+      window.scrollTo({ top: targetScroll, behavior: 'smooth' });
+      if (window.history && window.history.pushState) window.history.pushState(null, '', '#capabilities');
+    } else if (target === 'manifesto') {
+      const targetScroll = vh + (vh * 0.35) + (vh * 0.90) + (vh * 0.35) + (vh * 0.90) + (vh * 0.15);
+      window.scrollTo({ top: targetScroll, behavior: 'smooth' });
+      if (window.history && window.history.pushState) window.history.pushState(null, '', '#manifesto');
+    } else if (target === 'faq') {
+      const faqEl = document.getElementById('faq');
+      if (faqEl) {
+        faqEl.scrollIntoView({ behavior: 'smooth' });
+      }
+      if (window.history && window.history.pushState) window.history.pushState(null, '', '#faq');
+    }
+  };
+
+  useEffect(() => {
+    const handleHash = () => {
+      const hash = window.location.hash.toLowerCase().replace('#', '');
+      if (hash === 'features' || hash === 'chrono-features') {
+        scrollToSection('features');
+      } else if (hash === 'capabilities' || hash === 'observability' || hash === 'chrono-capabilities') {
+        scrollToSection('capabilities');
+      } else if (hash === 'manifesto' || hash === 'about') {
+        scrollToSection('manifesto');
+      } else if (hash === 'faq') {
+        scrollToSection('faq');
+      }
+    };
+
+    if (window.location.hash) {
+      setTimeout(handleHash, 250);
+    }
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, []);
+
   const vh = typeof window !== 'undefined' ? window.innerHeight : 900;
   const isHeroCovered = scrollY >= vh;
 
@@ -593,7 +639,14 @@ export default function App() {
         >
           {/* Left Brand Mark */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-            <a href="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: '#ffffff' }}>
+            <a
+              href="/"
+              onClick={(e) => {
+                e.preventDefault();
+                scrollToSection('top');
+              }}
+              style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: '#ffffff' }}
+            >
               <ChronoLogo size={32} color="#0064E0" />
               <span style={{ fontSize: '20px', fontWeight: 800, letterSpacing: '-0.02em' }}>CHRONO</span>
             </a>
@@ -619,28 +672,68 @@ export default function App() {
             fontSize: '14px',
             fontWeight: 500
           }}>
-            <a href="#chrono-features" style={{ color: '#ffffff', textDecoration: 'none', opacity: 0.9 }}>Features</a>
-            <a href="#capabilities" style={{ color: '#ffffff', textDecoration: 'none', opacity: 0.9 }}>Capabilities</a>
-            <a href="#faq" style={{ color: '#ffffff', textDecoration: 'none', opacity: 0.9 }}>FAQ</a>
+            <a
+              href="#features"
+              onClick={(e) => {
+                e.preventDefault();
+                scrollToSection('features');
+              }}
+              style={{ color: '#ffffff', textDecoration: 'none', opacity: 0.9, transition: 'opacity 0.15s ease' }}
+              onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')}
+              onMouseLeave={(e) => (e.currentTarget.style.opacity = '0.9')}
+            >
+              Features
+            </a>
+            <a
+              href="#capabilities"
+              onClick={(e) => {
+                e.preventDefault();
+                scrollToSection('capabilities');
+              }}
+              style={{ color: '#ffffff', textDecoration: 'none', opacity: 0.9, transition: 'opacity 0.15s ease' }}
+              onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')}
+              onMouseLeave={(e) => (e.currentTarget.style.opacity = '0.9')}
+            >
+              Capabilities
+            </a>
+            <a
+              href="#faq"
+              onClick={(e) => {
+                e.preventDefault();
+                scrollToSection('faq');
+              }}
+              style={{ color: '#ffffff', textDecoration: 'none', opacity: 0.9, transition: 'opacity 0.15s ease' }}
+              onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')}
+              onMouseLeave={(e) => (e.currentTarget.style.opacity = '0.9')}
+            >
+              FAQ
+            </a>
           </nav>
 
           {/* Right Action: Solid Blue Pill Button */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
             <a
               href={`${COCKPIT_URL}/login`}
+              target="_blank"
+              rel="noopener noreferrer"
               style={{
                 fontSize: '13px',
                 fontWeight: 600,
                 color: '#ffffff',
                 textDecoration: 'none',
-                opacity: 0.9
+                opacity: 0.9,
+                transition: 'opacity 0.15s ease'
               }}
+              onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')}
+              onMouseLeave={(e) => (e.currentTarget.style.opacity = '0.9')}
             >
               Sign in
             </a>
 
             <a
               href={`${COCKPIT_URL}/dashboard`}
+              target="_blank"
+              rel="noopener noreferrer"
               className="btn-press"
               style={{
                 backgroundColor: '#0064E0',
@@ -653,8 +746,11 @@ export default function App() {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '8px',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+                boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                transition: 'background-color 0.15s ease, transform 0.1s ease'
               }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#0052b8')}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#0064E0')}
             >
               <span>Launch Cockpit</span>
             </a>
@@ -727,6 +823,8 @@ export default function App() {
           >
             <a
               href={`${COCKPIT_URL}/dashboard`}
+              target="_blank"
+              rel="noopener noreferrer"
               className="btn-press"
               style={{
                 backgroundColor: '#0064E0',
@@ -736,14 +834,21 @@ export default function App() {
                 fontWeight: 700,
                 padding: '12px 28px',
                 borderRadius: '9999px',
-                boxShadow: '0 4px 14px rgba(0,0,0,0.4)'
+                boxShadow: '0 4px 14px rgba(0,0,0,0.4)',
+                transition: 'background-color 0.15s ease, transform 0.1s ease'
               }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#0052b8')}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#0064E0')}
             >
               Launch Cockpit
             </a>
 
             <a
-              href="#chrono-features"
+              href="#features"
+              onClick={(e) => {
+                e.preventDefault();
+                scrollToSection('features');
+              }}
               style={{
                 backgroundColor: 'rgba(255,255,255,0.18)',
                 color: '#ffffff',
@@ -753,8 +858,11 @@ export default function App() {
                 padding: '12px 24px',
                 borderRadius: '9999px',
                 backdropFilter: 'blur(8px)',
-                border: '1px solid rgba(255,255,255,0.3)'
+                border: '1px solid rgba(255,255,255,0.3)',
+                transition: 'background-color 0.15s ease'
               }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.28)')}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.18)')}
             >
               Explore Features ↓
             </a>
@@ -795,19 +903,23 @@ export default function App() {
           backgroundColor: '#ffffff'
         }}>
           {/* SECTION 2 (STAGNANT IN THE BACKGROUND: NO BLACK BARS, PROPORTIONATE WINDOW) */}
-          <div style={{
-            position: 'absolute',
-            inset: 0,
-            width: '100%',
-            height: '100%',
-            backgroundColor: '#ffffff',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '20px 32px',
-            boxSizing: 'border-box'
-          }}>
+          <div
+            id="features"
+            style={{
+              position: 'absolute',
+              inset: 0,
+              width: '100%',
+              height: '100%',
+              backgroundColor: '#ffffff',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '20px 32px',
+              boxSizing: 'border-box'
+            }}
+          >
+            <span id="chrono-features" style={{ position: 'absolute', top: 0, opacity: 0, pointerEvents: 'none' }} />
             <div style={{
               maxWidth: '980px',
               width: '100%',
@@ -848,7 +960,9 @@ export default function App() {
                 </div>
 
                 <a
-                  href={COCKPIT_URL}
+                  href={`${COCKPIT_URL}/cockpit`}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
@@ -1043,24 +1157,28 @@ export default function App() {
           </div>
 
           {/* SECTION 3 (SLIDES IN FROM THE RIGHT: CHRONO CAPABILITIES IN EDITORIAL CONSTELLATION) */}
-          <div style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            transform: `translateX(${section3Slide}%)`,
-            willChange: 'transform',
-            backgroundColor: '#F3F3F5',
-            borderTopLeftRadius: '40px',
-            borderBottomLeftRadius: '40px',
-            boxShadow: '-40px 0 100px rgba(0, 0, 0, 0.45), -6px 0 24px rgba(0, 0, 0, 0.15)',
-            zIndex: 30,
-            overflow: 'hidden',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
+          <div
+            id="capabilities"
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              transform: `translateX(${section3Slide}%)`,
+              willChange: 'transform',
+              backgroundColor: '#F3F3F5',
+              borderTopLeftRadius: '40px',
+              borderBottomLeftRadius: '40px',
+              boxShadow: '-40px 0 100px rgba(0, 0, 0, 0.45), -6px 0 24px rgba(0, 0, 0, 0.15)',
+              zIndex: 30,
+              overflow: 'hidden',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            <span id="chrono-capabilities" style={{ position: 'absolute', top: 0, opacity: 0, pointerEvents: 'none' }} />
             {/* Rotating Clockwise Orbit Track for Sticker Notes (Spacious 860px Diameter) */}
             <div
               className="sticker-orbit-track"
@@ -1202,7 +1320,9 @@ export default function App() {
               </p>
 
               <a
-                href={COCKPIT_URL}
+                href={`${COCKPIT_URL}/dashboard`}
+                target="_blank"
+                rel="noopener noreferrer"
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -1234,27 +1354,31 @@ export default function App() {
           </div>
 
           {/* SECTION 4 (SLIDES IN FROM LEFT TO RIGHT: SINGLE IMPACTFUL SENTENCE ABOUT CHRONO) */}
-          <div style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            transform: `translateX(${section4Slide}%)`,
-            willChange: 'transform',
-            backgroundColor: '#FFFFFF',
-            borderTopRightRadius: '40px',
-            borderBottomRightRadius: '40px',
-            boxShadow: '40px 0 100px rgba(0, 0, 0, 0.45), 6px 0 24px rgba(0, 0, 0, 0.15)',
-            zIndex: 40,
-            overflow: 'hidden',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '0 clamp(24px, 6vw, 96px)',
-            boxSizing: 'border-box'
-          }}>
+          <div
+            id="manifesto"
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              transform: `translateX(${section4Slide}%)`,
+              willChange: 'transform',
+              backgroundColor: '#FFFFFF',
+              borderTopRightRadius: '40px',
+              borderBottomRightRadius: '40px',
+              boxShadow: '40px 0 100px rgba(0, 0, 0, 0.45), 6px 0 24px rgba(0, 0, 0, 0.15)',
+              zIndex: 40,
+              overflow: 'hidden',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '0 clamp(24px, 6vw, 96px)',
+              boxSizing: 'border-box'
+            }}
+          >
+            <span id="about" style={{ position: 'absolute', top: 0, opacity: 0, pointerEvents: 'none' }} />
             <div style={{
               maxWidth: '960px',
               width: '100%',
@@ -1314,7 +1438,9 @@ export default function App() {
                 justifyContent: 'center'
               }}>
                 <a
-                  href={COCKPIT_URL}
+                  href={`${COCKPIT_URL}/dashboard`}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
@@ -1382,7 +1508,8 @@ export default function App() {
       <section id="faq" style={{
         maxWidth: '1280px',
         margin: '0 auto',
-        padding: '0 36px 96px 36px'
+        padding: '0 36px 96px 36px',
+        scrollMarginTop: '80px'
       }}>
         <div style={{
           fontSize: '12px',
@@ -1471,7 +1598,10 @@ export default function App() {
         }}>
           {/* Brand & Mission */}
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#111827', marginBottom: '16px' }}>
+            <div
+              onClick={() => scrollToSection('top')}
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#111827', marginBottom: '16px', cursor: 'pointer' }}
+            >
               <ChronoLogo size={28} color="#0064E0" />
               <span style={{ fontSize: '18px', fontWeight: 800 }}>CHRONO</span>
             </div>
@@ -1490,10 +1620,19 @@ export default function App() {
           <div>
             <div style={{ fontSize: '13px', fontWeight: 700, color: '#111827', marginBottom: '14px' }}>Product</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <a href={`${COCKPIT_URL}/dashboard`} style={{ color: '#64748B', textDecoration: 'none' }}>Flight Cockpit</a>
-              <a href="#capabilities" style={{ color: '#64748B', textDecoration: 'none' }}>Capabilities</a>
-              <a href="#chrono-features" style={{ color: '#64748B', textDecoration: 'none' }}>Loop Protection</a>
-              <a href={`${COCKPIT_URL}/login`} style={{ color: '#64748B', textDecoration: 'none' }}>Operator Portal</a>
+              <a href={`${COCKPIT_URL}/cockpit`} target="_blank" rel="noopener noreferrer" className="footer-link">Flight Cockpit</a>
+              <a href={`${COCKPIT_URL}/dashboard`} target="_blank" rel="noopener noreferrer" className="footer-link">Dashboard Metrics</a>
+              <a
+                href="#features"
+                onClick={(e) => {
+                  e.preventDefault();
+                  scrollToSection('features');
+                }}
+                className="footer-link"
+              >
+                Interactive Tour
+              </a>
+              <a href={`${COCKPIT_URL}/login`} target="_blank" rel="noopener noreferrer" className="footer-link">Operator Portal</a>
             </div>
           </div>
 
@@ -1501,10 +1640,20 @@ export default function App() {
           <div>
             <div style={{ fontSize: '13px', fontWeight: 700, color: '#111827', marginBottom: '14px' }}>Capabilities</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <a href="#capabilities" style={{ color: '#64748B', textDecoration: 'none' }}>Flight Recording</a>
-              <a href="#capabilities" style={{ color: '#64748B', textDecoration: 'none' }}>Tamper-Proof Logs</a>
-              <a href="#capabilities" style={{ color: '#64748B', textDecoration: 'none' }}>Root-Cause Analysis</a>
-              <a href="#capabilities" style={{ color: '#64748B', textDecoration: 'none' }}>Instant Rewind</a>
+              <a
+                href="#capabilities"
+                onClick={(e) => {
+                  e.preventDefault();
+                  scrollToSection('capabilities');
+                }}
+                className="footer-link"
+              >
+                Observability Overview
+              </a>
+              <a href={`${COCKPIT_URL}/cockpit`} target="_blank" rel="noopener noreferrer" className="footer-link">Flight Recording</a>
+              <a href="https://github.com/ShawnTheCreator/Chrono" target="_blank" rel="noopener noreferrer" className="footer-link">Tamper-Proof Logs</a>
+              <a href={`${COCKPIT_URL}/cockpit`} target="_blank" rel="noopener noreferrer" className="footer-link">Root-Cause Analysis</a>
+              <a href={`${COCKPIT_URL}/cockpit`} target="_blank" rel="noopener noreferrer" className="footer-link">Instant Rewind</a>
             </div>
           </div>
 
@@ -1512,10 +1661,19 @@ export default function App() {
           <div>
             <div style={{ fontSize: '13px', fontWeight: 700, color: '#111827', marginBottom: '14px' }}>Resources</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <a href="https://github.com/ShawnTheCreator/Chrono" target="_blank" rel="noreferrer" style={{ color: '#64748B', textDecoration: 'none' }}>GitHub Repository</a>
-              <a href="https://github.com/ShawnTheCreator/Chrono/blob/main/DESIGN.md" target="_blank" rel="noreferrer" style={{ color: '#64748B', textDecoration: 'none' }}>Design System</a>
-              <a href="#faq" style={{ color: '#64748B', textDecoration: 'none' }}>Frequently Asked Questions</a>
-              <a href={`${COCKPIT_URL}/dashboard`} style={{ color: '#64748B', textDecoration: 'none' }}>Live Demo</a>
+              <a href="https://github.com/ShawnTheCreator/Chrono" target="_blank" rel="noopener noreferrer" className="footer-link">GitHub Repository</a>
+              <a href="https://github.com/ShawnTheCreator/Chrono/blob/main/DESIGN.md" target="_blank" rel="noopener noreferrer" className="footer-link">Design System</a>
+              <a
+                href="#faq"
+                onClick={(e) => {
+                  e.preventDefault();
+                  scrollToSection('faq');
+                }}
+                className="footer-link"
+              >
+                Frequently Asked Questions
+              </a>
+              <a href={`${COCKPIT_URL}/dashboard`} target="_blank" rel="noopener noreferrer" className="footer-link">Live Demo</a>
             </div>
           </div>
 
@@ -1523,10 +1681,19 @@ export default function App() {
           <div>
             <div style={{ fontSize: '13px', fontWeight: 700, color: '#111827', marginBottom: '14px' }}>Overview</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <span style={{ color: '#64748B' }}>Zero Overhead Recording</span>
-              <span style={{ color: '#64748B' }}>Cryptographic Verification</span>
-              <span style={{ color: '#64748B' }}>Open Source (MIT)</span>
-              <span style={{ color: '#64748B' }}>Version 1.0.0</span>
+              <a
+                href="#manifesto"
+                onClick={(e) => {
+                  e.preventDefault();
+                  scrollToSection('manifesto');
+                }}
+                className="footer-link"
+              >
+                Chrono Mission
+              </a>
+              <a href="https://github.com/ShawnTheCreator/Chrono/blob/main/README.md" target="_blank" rel="noopener noreferrer" className="footer-link">Documentation</a>
+              <a href="https://github.com/ShawnTheCreator/Chrono/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" className="footer-link">Open Source (MIT)</a>
+              <a href="https://github.com/ShawnTheCreator/Chrono/releases" target="_blank" rel="noopener noreferrer" className="footer-link">Version 1.0.0 Releases</a>
             </div>
           </div>
         </div>
@@ -1549,9 +1716,9 @@ export default function App() {
           </div>
 
           <div style={{ display: 'flex', gap: '20px' }}>
-            <a href={`${COCKPIT_URL}/login`} style={{ color: '#111827', textDecoration: 'none', fontWeight: 500 }}>Operator Portal</a>
-            <a href={`${COCKPIT_URL}/dashboard`} style={{ color: '#111827', textDecoration: 'none', fontWeight: 500 }}>Cockpit Dashboard</a>
-            <a href="https://github.com/ShawnTheCreator/Chrono" target="_blank" rel="noreferrer" style={{ color: '#111827', textDecoration: 'none', fontWeight: 500 }}>GitHub</a>
+            <a href={`${COCKPIT_URL}/login`} target="_blank" rel="noopener noreferrer" className="footer-link" style={{ fontWeight: 500 }}>Operator Portal</a>
+            <a href={`${COCKPIT_URL}/dashboard`} target="_blank" rel="noopener noreferrer" className="footer-link" style={{ fontWeight: 500 }}>Cockpit Dashboard</a>
+            <a href="https://github.com/ShawnTheCreator/Chrono" target="_blank" rel="noopener noreferrer" className="footer-link" style={{ fontWeight: 500 }}>GitHub</a>
           </div>
         </div>
       </footer>

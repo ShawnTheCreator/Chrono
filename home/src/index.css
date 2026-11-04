@@ -325,3 +325,13 @@ code, pre, .mono {
     opacity: 0;
   }
 }
+
+.footer-link {
+  color: #64748B;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.footer-link:hover {
+  color: #0064E0;
+}
