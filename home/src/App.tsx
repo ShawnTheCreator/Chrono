@@ -9,6 +9,7 @@ interface CheckpointBlock {
   actionSummary: string;
   status: string;
   verified: boolean;
+  hash?: string;
 }
 
 const SAMPLE_BLOCKS: CheckpointBlock[] = [
@@ -18,7 +19,8 @@ const SAMPLE_BLOCKS: CheckpointBlock[] = [
     timestamp: '00:00',
     actionSummary: 'Workspace initialized and recorder connected to agent process',
     status: 'Verified Healthy',
-    verified: true
+    verified: true,
+    hash: '0x8f2c...e14d'
   },
   {
     index: 12,
@@ -26,7 +28,8 @@ const SAMPLE_BLOCKS: CheckpointBlock[] = [
     timestamp: '02:30',
     actionSummary: 'Executed build target and updated dependencies',
     status: 'Verified Healthy',
-    verified: true
+    verified: true,
+    hash: '0x3a91...b572'
   },
   {
     index: 29,
@@ -34,7 +37,8 @@ const SAMPLE_BLOCKS: CheckpointBlock[] = [
     timestamp: '04:55',
     actionSummary: 'Paused execution: Agent repeated identical failing edits 3 times',
     status: 'Alert Triggered',
-    verified: true
+    verified: true,
+    hash: '0x7e44...c890'
   },
   {
     index: 41,
@@ -42,104 +46,13 @@ const SAMPLE_BLOCKS: CheckpointBlock[] = [
     timestamp: '05:20',
     actionSummary: 'Verified final codebase state and generated forensic report',
     status: 'Verified Complete',
-    verified: true
+    verified: true,
+    hash: '0x1d08...f633'
   }
 ];
 
-// Clean Modern SVG Icons
-const IconShield = ({ size = 20, color = 'currentColor' }: { size?: number; color?: string }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-  </svg>
-);
-
-const IconLock = ({ size = 20, color = 'currentColor' }: { size?: number; color?: string }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-  </svg>
-);
-
-const IconAlertTriangle = ({ size = 20, color = 'currentColor' }: { size?: number; color?: string }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
-    <line x1="12" y1="9" x2="12" y2="13" />
-    <line x1="12" y1="17" x2="12.01" y2="17" />
-  </svg>
-);
-
-const IconZap = ({ size = 20, color = 'currentColor' }: { size?: number; color?: string }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-  </svg>
-);
-
-const IconCheck = ({ size = 16, color = 'currentColor' }: { size?: number; color?: string }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="20 6 9 17 4 12" />
-  </svg>
-);
-
-const IconClock = ({ size = 20, color = 'currentColor' }: { size?: number; color?: string }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="10" />
-    <polyline points="12 6 12 12 16 14" />
-  </svg>
-);
-
-const IconPlane = ({ size = 20, color = 'currentColor' }: { size?: number; color?: string }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z" />
-  </svg>
-);
-
-const IconActivity = ({ size = 20, color = 'currentColor' }: { size?: number; color?: string }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
-  </svg>
-);
-
-const IconThumbsUp = ({ size = 16, color = 'currentColor' }: { size?: number; color?: string }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M7 10v12" />
-    <path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h3" />
-  </svg>
-);
-
-const IconThumbsDown = ({ size = 16, color = 'currentColor' }: { size?: number; color?: string }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M17 14V2" />
-    <path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-3" />
-  </svg>
-);
-
-const IconChevronDown = ({ size = 18, color = 'currentColor' }: { size?: number; color?: string }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="6 9 12 15 18 9" />
-  </svg>
-);
-
-const IconChevronRight = ({ size = 18, color = 'currentColor' }: { size?: number; color?: string }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="9 18 15 12 9 6" />
-  </svg>
-);
-
-const IconPlus = ({ size = 18, color = 'currentColor' }: { size?: number; color?: string }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="12" y1="5" x2="12" y2="19" />
-    <line x1="5" y1="12" x2="19" y2="12" />
-  </svg>
-);
-
-const IconMinus = ({ size = 18, color = 'currentColor' }: { size?: number; color?: string }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="5" y1="12" x2="19" y2="12" />
-  </svg>
-);
-
 // Chrono Signature Logo: Stylized "C" with Clock Hands in Meta Metallic Blue
-const ChronoLogo = ({ size = 28 }: { size?: number; color?: string }) => (
+const ChronoLogo = ({ size = 26, color = '#0064E0' }: { size?: number; color?: string }) => (
   <svg
     width={size}
     height={size}
@@ -151,58 +64,30 @@ const ChronoLogo = ({ size = 28 }: { size?: number; color?: string }) => (
     <defs>
       <linearGradient id="chronoHomeGrad" x1="10%" y1="10%" x2="90%" y2="90%">
         <stop offset="0%" stopColor="#0082FB" />
-        <stop offset="45%" stopColor="#0073EE" />
-        <stop offset="100%" stopColor="#0064E0" />
+        <stop offset="50%" stopColor="#0064E0" />
+        <stop offset="100%" stopColor="#0052B8" />
       </linearGradient>
       <linearGradient id="chronoHomeAccent" x1="0%" y1="0%" x2="100%" y2="100%">
         <stop offset="0%" stopColor="#71F6D2" />
         <stop offset="100%" stopColor="#0082FB" />
       </linearGradient>
     </defs>
-    {/* Main "C" Arc */}
-    <path
-      d="M 74 26 A 35 35 0 1 0 74 74"
+    <circle cx="50" cy="50" r="46" stroke="url(#chronoHomeGrad)" strokeWidth="6" strokeOpacity="0.3" fill="none" />
+    <circle
+      cx="50"
+      cy="50"
+      r="46"
+      stroke="url(#chronoHomeGrad)"
+      strokeWidth="6"
+      strokeDasharray="210 80"
+      strokeLinecap="round"
       fill="none"
-      stroke="url(#chronoHomeGrad)"
-      strokeWidth="11"
-      strokeLinecap="round"
     />
-    {/* Center Pivot */}
-    <circle cx="50" cy="50" r="6" fill="url(#chronoHomeGrad)" />
-    {/* Hour Hand (10 o'clock stance) */}
-    <line
-      x1="50"
-      y1="50"
-      x2="35"
-      y2="33"
-      stroke="url(#chronoHomeGrad)"
-      strokeWidth="6.5"
-      strokeLinecap="round"
-    />
-    {/* Minute Hand pointing gracefully into opening of the C */}
-    <line
-      x1="50"
-      y1="50"
-      x2="68"
-      y2="38"
-      stroke="url(#chronoHomeAccent)"
-      strokeWidth="5.5"
-      strokeLinecap="round"
-    />
-    {/* Polished Center Pin */}
-    <circle cx="50" cy="50" r="2.2" fill="#FFFFFF" />
+    <circle cx="50" cy="50" r="5" fill="url(#chronoHomeAccent)" />
+    <line x1="50" y1="50" x2="50" y2="24" stroke="#ffffff" strokeWidth="4.5" strokeLinecap="round" />
+    <line x1="50" y1="50" x2="68" y2="50" stroke="url(#chronoHomeAccent)" strokeWidth="4" strokeLinecap="round" />
   </svg>
 );
-
-// Clear, Jargon-Free Hero Rotating Value Propositions
-const HERO_ROTATING_LINES = [
-  { prefix: "Chrono records", middle: "every decision", suffix: "while agents run" },
-  { prefix: "Chrono stops", middle: "repetitive loops", suffix: "before budgets burn" },
-  { prefix: "Chrono verifies", middle: "every step", suffix: "with complete certainty" },
-  { prefix: "Chrono explains", middle: "why tasks fail", suffix: "and how to fix them" },
-  { prefix: "Chrono protects", middle: "your codebase", suffix: "from runaway mistakes" },
-  { prefix: "Chrono lets you", middle: "rewind history", suffix: "to any moment instantly" }
-];
 
 const HERO_VIDEOS = [
   '/videos/vid1.mp4',
@@ -211,66 +96,110 @@ const HERO_VIDEOS = [
   '/videos/vid4.mp4'
 ];
 
+// Forensic Showcase Slides Data (Replaces generic icons & user stories with real interactive capabilities)
+const FORENSIC_SLIDES = [
+  {
+    id: 'ledger',
+    badge: 'CAPABILITY 01 // IMMUTABLE LEDGER',
+    title: 'Tamper-Proof Audit History',
+    tagline: 'Cryptographically sealed in an append-only hash chain',
+    description: 'Every tool invocation, bash execution, file patch, and agent transition is sealed in an append-only SHA-256 Merkle chain. Once written, past records cannot be quietly edited, reordered, or deleted, providing internal security and external compliance auditors with mathematical certainty of every action.',
+    stats: [
+      { label: 'Integrity Seal', val: 'SHA-256 Merkle' },
+      { label: 'Seal Latency', val: '< 0.8ms' },
+      { label: 'Tamper Resistance', val: '100% Immutable' }
+    ],
+    demoType: 'ledger'
+  },
+  {
+    id: 'stall',
+    badge: 'CAPABILITY 02 // STALL TRIPWIRE',
+    title: 'Autonomous Stall Loop Breaker',
+    tagline: 'Intercept runaway loops before API budgets vanish',
+    description: 'As events flow in real time, Chrono maintains a sliding window over file diffs and tool failures. When the detector spots ping-pong edits, repeated bash errors, or high token consumption with zero forward progress, it triggers an instant stall tripwire, halting the agent before thousands of dollars in cloud tokens burn.',
+    stats: [
+      { label: 'Loop Detection', val: 'Sliding Window' },
+      { label: 'Alert Latency', val: 'Instant (0ms)' },
+      { label: 'Token Waste Saved', val: '100% Prevented' }
+    ],
+    demoType: 'diff'
+  },
+  {
+    id: 'muse',
+    badge: 'CAPABILITY 03 // META MUSE SPARK',
+    title: 'Cognitive Root-Cause Analysis',
+    tagline: 'Plain-English diagnosis with actionable recovery directives',
+    description: 'Instead of forcing human operators to dig through 10,000 lines of terminal logs, Chrono passes checkpoint telemetry into Meta Muse Spark. It delivers an instant plain-English post-mortem explaining exactly why the agent got stuck, paired with an exact course-correction directive ready to paste back into the agent.',
+    stats: [
+      { label: 'Analysis Model', val: 'Muse Spark 1.3' },
+      { label: 'Context Horizon', val: 'Full Checkpoint' },
+      { label: 'Diagnosis Speed', val: '~22s Live Gen' }
+    ],
+    demoType: 'forensic'
+  },
+  {
+    id: 'rewind',
+    badge: 'CAPABILITY 04 // TIME MACHINE',
+    title: 'Surgical Rewind & Safe Branching',
+    tagline: 'Jump to any healthy historical moment without data loss',
+    description: 'When an agent goes off track, you never need to restart from scratch. Chrono allows you to scrub backward along the verified timeline, preview codebase state at any past checkpoint, inject updated instructions, and fork execution into a clean new branch while preserving the complete historical record.',
+    stats: [
+      { label: 'Rollback Granularity', val: 'Per-Checkpoint' },
+      { label: 'State Restoration', val: 'Zero Data Loss' },
+      { label: 'Branching Mode', val: 'Non-Destructive' }
+    ],
+    demoType: 'rewind'
+  }
+];
+
 const FAQ_ITEMS = [
   {
-    question: "What is Chrono?",
-    answer: "Chrono is a flight data recorder for autonomous AI agents. It gives you full visibility into what your agents are doing, automatically detects when they get stuck, and lets you rewind to any point in time."
+    question: "How does Chrono know when an agent is working or stuck?",
+    answer: "Chrono attaches directly to the agent's live event stream or JSONL session transcript in real time. It monitors file diffs, tool errors, and token velocity using a high-speed sliding window algorithm. The moment the agent begins looping on identical failed edits, Chrono appends a StallAlert event to the chain."
   },
   {
-    question: "Does Chrono slow down my agents?",
-    answer: "No. Chrono runs quietly in the background with zero noticeable impact on your agent's execution speed or responsiveness."
+    question: "Does Chrono slow down my coding agent?",
+    answer: "No. The core chronod recorder is written in modern C++20 and ingests events via a zero-copy ring buffer with less than 0.8ms latency and under 0.4% host CPU usage. It operates completely out-of-band."
   },
   {
-    question: "How does Chrono prevent runaway costs?",
-    answer: "Agents often get trapped trying the same failing solution over and over. Chrono detects repetitive edits in real time and pauses execution automatically before hundreds of unnecessary calls are made."
+    question: "What makes the audit history tamper-proof?",
+    answer: "Every recorded checkpoint block incorporates the cryptographic SHA-256 hash of its predecessor, creating an unbroken chain. If even a single byte of past tool output or code diff is modified after the fact, the mathematical receipt immediately fails verification."
   },
   {
-    question: "Can I undo mistakes an agent made?",
-    answer: "Yes. Chrono lets you rewind your agent's timeline to any historical checkpoint, update your prompt or code instructions, and resume smoothly."
-  },
-  {
-    question: "How do I know the history hasn't been altered?",
-    answer: "Chrono uses an append-only audit trail where every event is cryptographically sealed. Any deleted or modified step immediately shows up as invalid."
-  },
-  {
-    question: "Can I understand why an agent failed without reading thousands of lines of logs?",
-    answer: "Yes. When an agent runs into an error, Chrono automatically produces a clear, structured post-mortem explaining what went wrong and suggesting how to resolve it."
-  },
-  {
-    question: "Does Chrono work with my existing tools?",
-    answer: "Yes. Chrono connects to popular coding agents, CLI tools, and custom agent workflows with a lightweight adapter."
-  },
-  {
-    question: "Who is Chrono for?",
-    answer: "Chrono is built for software engineers, DevOps teams, and AI safety leaders building and relying on autonomous agents in production."
+    question: "Which AI agents and harnesses are supported?",
+    answer: "Chrono works universally with any coding agent that writes an event stream or file transcript, including Muse Code, Claude Code, Cursor, OpenDevin, and custom autonomous scripts."
   }
 ];
 
 export default function App() {
-  const [heroIndex, setHeroIndex] = useState(0);
   const [videoIndex, setVideoIndex] = useState(0);
-  const [activeFeatureTab, setActiveFeatureTab] = useState(0);
+  const [activeSlide, setActiveSlide] = useState(0);
+  const [isSlideAutoplaying, setIsSlideAutoplaying] = useState(true);
 
-  // Timeline Scrubber State
+  // Unique Navbar Ticker State
+  const [navbarTickerIndex, setNavbarTickerIndex] = useState(0);
+
+  // Timeline Scrubber State (Studio Cockpit Demo)
   const [playheadPercent, setPlayheadPercent] = useState(78);
   const [animStage, setAnimStage] = useState<'running' | 'stalled' | 'intervened'>('intervened');
   const [formattedTimestamp, setFormattedTimestamp] = useState('05:20');
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [isHovered, setIsHovered] = useState(false);
-  const [mouseTilt, setMouseTilt] = useState({ rx: 0, ry: 0 });
-  const containerRef = useRef<HTMLDivElement | null>(null);
 
   // Audit State
   const [isVerifying, setIsVerifying] = useState(false);
   const [verifyResult, setVerifyResult] = useState<string | null>(null);
   const [selectedBlock, setSelectedBlock] = useState<CheckpointBlock>(SAMPLE_BLOCKS[2]);
 
-  // FAQ Accordion State (first item open by default)
+  // Rewind demo state in slide 4
+  const [rewindBranchActive, setRewindBranchActive] = useState(false);
+
+  // FAQ Accordion State
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
-  // Hero Video Ref & Playback
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
+  // Video playback
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.muted = true;
@@ -278,15 +207,24 @@ export default function App() {
     }
   }, [videoIndex]);
 
-  // Cycle Hero Text
+  // Unique Navbar Ticker Cycle
   useEffect(() => {
-    const timer = setInterval(() => {
-      setHeroIndex((prev) => (prev + 1) % HERO_ROTATING_LINES.length);
-    }, 3500);
-    return () => clearInterval(timer);
+    const tickerInterval = setInterval(() => {
+      setNavbarTickerIndex((prev) => (prev + 1) % 4);
+    }, 2800);
+    return () => clearInterval(tickerInterval);
   }, []);
 
-  // Continuous narrative playback loop
+  // Slide Show Auto-advance
+  useEffect(() => {
+    if (!isSlideAutoplaying) return;
+    const slideTimer = setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % FORENSIC_SLIDES.length);
+    }, 6000);
+    return () => clearInterval(slideTimer);
+  }, [isSlideAutoplaying]);
+
+  // Timeline Auto-play Loop
   useEffect(() => {
     if (!isAutoPlaying || isHovered) return;
 
@@ -319,75 +257,216 @@ export default function App() {
     return () => clearInterval(interval);
   }, [isAutoPlaying, isHovered]);
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left - rect.width / 2;
-    const y = e.clientY - rect.top - rect.height / 2;
-    const rx = -(y / rect.height) * 6;
-    const ry = (x / rect.width) * 6;
-    setMouseTilt({ rx, ry });
-  };
-
-  const handleMouseLeave = () => {
-    setMouseTilt({ rx: 0, ry: 0 });
-    setIsHovered(false);
-  };
-
-  const handleRunVerify = () => {
+  const handleVerifyLedger = () => {
     setIsVerifying(true);
     setVerifyResult(null);
     setTimeout(() => {
       setIsVerifying(false);
-      setVerifyResult('Audit Passed: All 41 checkpoints verified. Complete historical integrity confirmed.');
-    }, 450);
+      setVerifyResult("Cryptographic chain verified: 41 blocks unaltered • Merkle Root: 0x8f2c...e14d");
+    }, 850);
   };
 
-  const handleManualSeek = (pct: number) => {
-    setIsAutoPlaying(false);
-    setPlayheadPercent(pct);
-    if (pct < 65) {
-      setAnimStage('running');
-      setFormattedTimestamp('02:15');
-    } else if (pct < 76) {
-      setAnimStage('stalled');
-      setFormattedTimestamp('04:55');
-    } else {
-      setAnimStage('intervened');
-      setFormattedTimestamp('05:20');
-    }
-  };
+  const tickerItems = [
+    { tag: 'REC', label: 'FLIGHT BLACK BOX ACTIVE', code: '00:04:55' },
+    { tag: 'MERKLE', label: 'BLOCK #41 SEALED', code: '0x8f2c..e14d' },
+    { tag: 'SENTRY', label: 'STALL TRIPWIRE ARMED', code: '0.85 RISK DETECTED' },
+    { tag: 'STREAM', label: 'STARLETTE 60FPS SSE', code: 'SUB-MS LATENCY' }
+  ];
 
-  const currentHero = HERO_ROTATING_LINES[heroIndex];
+  const currentSlide = FORENSIC_SLIDES[activeSlide];
 
   return (
     <div style={{
+      backgroundColor: '#090D16',
+      color: '#F8FAFC',
       minHeight: '100vh',
-      backgroundColor: '#ffffff',
-      color: '#111827',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-      overflowX: 'hidden'
+      fontFamily: "'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif"
     }}>
-      {/* 1. HERO SECTION WITH BACKGROUND VIDEO PLAYER (VID1 TO VID4) - FULL BLEED 100VH ZERO WHITE SPACE */}
+
+      {/* ─────────────────────────────────────────────────────────────
+          1. FLOATING DYNAMIC ISLAND NAVBAR (AWWWARDS UNIQUE DESIGN)
+      ───────────────────────────────────────────────────────────── */}
+      <header
+        className="hero-animate-header"
+        style={{
+          position: 'fixed',
+          top: '18px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 100,
+          width: 'calc(100% - 40px)',
+          maxWidth: '1240px',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          backgroundColor: 'rgba(10, 15, 26, 0.82)',
+          border: '1px solid rgba(255, 255, 255, 0.12)',
+          borderRadius: '9999px',
+          padding: '10px 22px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          boxShadow: '0 20px 40px -12px rgba(0, 0, 0, 0.6)'
+        }}
+      >
+        {/* Left: Brand + Unique Live Telemetry Capsule */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <a
+            href="/"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              textDecoration: 'none',
+              color: '#ffffff'
+            }}
+          >
+            <ChronoLogo size={28} color="#0064E0" />
+            <span style={{ fontSize: '18px', fontWeight: 800, letterSpacing: '-0.03em' }}>CHRONO</span>
+          </a>
+
+          <div style={{ width: '1px', height: '18px', backgroundColor: 'rgba(255, 255, 255, 0.15)' }} />
+
+          {/* THE UNIQUE CHANGING NAVBAR ANIMATION: Dynamic Radar & Live Telemetry Ticker */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '9px',
+              backgroundColor: 'rgba(0, 0, 0, 0.45)',
+              border: '1px solid rgba(113, 246, 210, 0.25)',
+              padding: '4px 12px',
+              borderRadius: '9999px',
+              fontSize: '11px',
+              fontFamily: "'JetBrains Mono', monospace"
+            }}
+            title="Real-time flight data recorder status"
+          >
+            {/* Pulsing Live Radar Indicator */}
+            <span
+              style={{
+                width: '7px',
+                height: '7px',
+                borderRadius: '50%',
+                backgroundColor: '#10B981',
+                display: 'inline-block',
+                animation: 'radarPulse 2s infinite ease-out'
+              }}
+            />
+
+            {/* Dancing Telemetry Waveform Bars */}
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '2px', height: '14px', width: '14px' }}>
+              <span className="wave-bar-1" style={{ width: '2.5px', backgroundColor: '#71F6D2', borderRadius: '1px', display: 'block' }} />
+              <span className="wave-bar-2" style={{ width: '2.5px', backgroundColor: '#0DACF1', borderRadius: '1px', display: 'block' }} />
+              <span className="wave-bar-3" style={{ width: '2.5px', backgroundColor: '#0082FB', borderRadius: '1px', display: 'block' }} />
+            </div>
+
+            {/* Unique Vertical Sliding Status Ticker */}
+            <div style={{ overflow: 'hidden', height: '16px', display: 'flex', alignItems: 'center' }}>
+              <span
+                key={navbarTickerIndex}
+                className="navbar-ticker-text"
+                style={{
+                  color: '#E2E8F0',
+                  fontWeight: 600,
+                  letterSpacing: '0.02em',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                <span style={{ color: '#71F6D2', marginRight: '6px' }}>
+                  {tickerItems[navbarTickerIndex].tag}
+                </span>
+                {tickerItems[navbarTickerIndex].label}
+                <span style={{ color: 'rgba(255,255,255,0.4)', marginLeft: '6px' }}>
+                  [{tickerItems[navbarTickerIndex].code}]
+                </span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Center: Clean Minimalist Nav Anchors */}
+        <nav style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '24px',
+          fontSize: '13px',
+          fontWeight: 500
+        }}>
+          <a href="#slideshow" style={{ color: '#E2E8F0', textDecoration: 'none', opacity: 0.85, transition: 'opacity 0.2s' }}>
+            Forensics
+          </a>
+          <a href="#cockpit-section" style={{ color: '#E2E8F0', textDecoration: 'none', opacity: 0.85 }}>
+            Flight Cockpit
+          </a>
+          <a href="#architecture" style={{ color: '#E2E8F0', textDecoration: 'none', opacity: 0.85 }}>
+            Architecture
+          </a>
+          <a href="#audit-section" style={{ color: '#E2E8F0', textDecoration: 'none', opacity: 0.85 }}>
+            Ledger Audit
+          </a>
+          <a href="#faq" style={{ color: '#E2E8F0', textDecoration: 'none', opacity: 0.85 }}>
+            FAQ
+          </a>
+        </nav>
+
+        {/* Right: Actions */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <a
+            href={`${COCKPIT_URL}/login`}
+            style={{
+              fontSize: '13px',
+              fontWeight: 600,
+              color: '#ffffff',
+              textDecoration: 'none',
+              opacity: 0.85,
+              padding: '6px 12px'
+            }}
+          >
+            Sign In
+          </a>
+
+          <a
+            href={`${COCKPIT_URL}/dashboard`}
+            className="btn-press shimmer-hover"
+            style={{
+              backgroundColor: '#0064E0',
+              backgroundImage: 'linear-gradient(135deg, #0082FB 0%, #0064E0 100%)',
+              color: '#ffffff',
+              textDecoration: 'none',
+              fontSize: '13px',
+              fontWeight: 700,
+              padding: '8px 20px',
+              borderRadius: '9999px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              boxShadow: '0 4px 14px rgba(0, 100, 224, 0.45)',
+              border: '1px solid rgba(255, 255, 255, 0.18)'
+            }}
+          >
+            <span>Launch Cockpit</span>
+            <span style={{ fontSize: '11px', opacity: 0.8 }}>→</span>
+          </a>
+        </div>
+      </header>
+
+      {/* ─────────────────────────────────────────────────────────────
+          2. CINEMATIC HERO SECTION
+      ───────────────────────────────────────────────────────────── */}
       <section style={{
         position: 'relative',
         minHeight: '100vh',
-        height: '100vh',
-        width: '100%',
-        margin: 0,
-        padding: 0,
-        backgroundColor: '#090D16',
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'space-between',
-        color: '#ffffff',
+        justifyContent: 'center',
+        padding: '140px 36px 72px 36px',
         overflow: 'hidden'
       }}>
-        {/* Full-Bleed Background Video Player */}
+        {/* Background Video */}
         <video
           ref={videoRef}
-          key={videoIndex}
           autoPlay
+          loop={false}
           muted
           playsInline
           onEnded={() => setVideoIndex((prev) => (prev + 1) % HERO_VIDEOS.length)}
@@ -400,1620 +479,1455 @@ export default function App() {
             width: '100%',
             height: '100%',
             objectFit: 'cover',
-            display: 'block',
             zIndex: 0,
-            pointerEvents: 'none',
-            margin: 0,
-            padding: 0,
-            border: 'none',
-            outline: 'none',
-            backgroundColor: '#090D16'
+            backgroundColor: '#090D16',
+            filter: 'brightness(0.72) contrast(1.1)'
           }}
         >
           <source src={HERO_VIDEOS[videoIndex]} type="video/mp4" />
         </video>
 
-        {/* Ambient Dark Overlay to Guarantee Crisp Typography */}
+        {/* Ambient Dark Gradient Vignette */}
         <div style={{
           position: 'absolute',
           top: 0,
           left: 0,
           right: 0,
           bottom: 0,
-          width: '100%',
-          height: '100%',
-          background: 'linear-gradient(180deg, rgba(9, 13, 22, 0.45) 0%, rgba(9, 13, 22, 0.20) 40%, rgba(9, 13, 22, 0.55) 100%)',
+          background: 'radial-gradient(ellipse at center, rgba(9, 13, 22, 0.25) 0%, rgba(9, 13, 22, 0.85) 75%, #090D16 100%)',
           zIndex: 1,
           pointerEvents: 'none'
         }} />
 
-        {/* Transparent Top Navigation Bar */}
-        <header
-          className="hero-animate-header"
-          style={{
-            position: 'relative',
-            zIndex: 2,
-            width: '100%',
-            maxWidth: '1440px',
-            margin: '0 auto',
-            padding: '24px 40px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between'
-          }}
-        >
-          {/* Left Brand Mark */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-            <a href="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: '#ffffff' }}>
-              <ChronoLogo size={32} color="#0064E0" />
-              <span style={{ fontSize: '20px', fontWeight: 800, letterSpacing: '-0.02em' }}>CHRONO</span>
-            </a>
-            <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '14px' }}>|</span>
-            <span style={{
-              fontSize: '11px',
-              fontWeight: 700,
-              padding: '2px 8px',
-              borderRadius: '9999px',
-              backgroundColor: 'rgba(255,255,255,0.15)',
-              color: '#ffffff',
-              letterSpacing: '0.04em'
-            }}>
-              FLIGHT DATA RECORDER
-            </span>
-          </div>
-
-          {/* Center Links */}
-          <nav style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '26px',
-            fontSize: '14px',
-            fontWeight: 500
-          }}>
-            <a href="#chrono-features" style={{ color: '#ffffff', textDecoration: 'none', opacity: 0.9 }}>Features</a>
-            <a href="#cockpit-section" style={{ color: '#ffffff', textDecoration: 'none', fontWeight: 600 }}>Flight Cockpit</a>
-            <a href="#audit-section" style={{ color: '#ffffff', textDecoration: 'none', opacity: 0.9 }}>Audit Trail</a>
-            <a href="#capabilities" style={{ color: '#ffffff', textDecoration: 'none', opacity: 0.9 }}>Capabilities</a>
-            <a href="#faq" style={{ color: '#ffffff', textDecoration: 'none', opacity: 0.9 }}>FAQ</a>
-          </nav>
-
-          {/* Right Action: Solid Blue Pill Button */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-            <a
-              href={`${COCKPIT_URL}/login`}
-              style={{
-                fontSize: '13px',
-                fontWeight: 600,
-                color: '#ffffff',
-                textDecoration: 'none',
-                opacity: 0.9
-              }}
-            >
-              Sign in
-            </a>
-
-            <a
-              href={`${COCKPIT_URL}/dashboard`}
-              className="btn-press"
-              style={{
-                backgroundColor: '#0064E0',
-                color: '#ffffff',
-                textDecoration: 'none',
-                fontSize: '14px',
-                fontWeight: 600,
-                padding: '10px 22px',
-                borderRadius: '9999px',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
-              }}
-            >
-              <span>Launch Cockpit</span>
-            </a>
-          </div>
-        </header>
-
-        {/* Center Hero Copy */}
+        {/* Hero Content */}
         <div style={{
           position: 'relative',
           zIndex: 2,
-          maxWidth: '1000px',
-          margin: 'auto auto',
-          textAlign: 'center',
-          padding: '0 24px'
+          maxWidth: '1240px',
+          margin: '0 auto',
+          width: '100%',
+          textAlign: 'center'
         }}>
-          {/* Animated 3-Line Headline */}
-          <h1
-            key={heroIndex}
+          {/* Eyebrow Pill */}
+          <div
+            className="hero-line-1"
             style={{
-              fontSize: '64px',
-              fontWeight: 800,
-              letterSpacing: '-0.035em',
-              lineHeight: 1.12,
-              margin: '0 0 16px 0',
-              textShadow: '0 2px 14px rgba(0,0,0,0.5)'
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '6px 16px',
+              borderRadius: '9999px',
+              backgroundColor: 'rgba(255, 255, 255, 0.08)',
+              border: '1px solid rgba(255, 255, 255, 0.16)',
+              fontSize: '12px',
+              fontWeight: 700,
+              letterSpacing: '0.08em',
+              color: '#71F6D2',
+              marginBottom: '26px'
             }}
           >
-            <span className="hero-line-1">{currentHero.prefix}</span><br />
-            <span className="hero-line-2" style={{ color: '#71F6D2' }}>{currentHero.middle}</span><br />
-            <span className="hero-line-3">{currentHero.suffix}</span>
+            <span>✦</span>
+            <span>THE BLACK BOX FLIGHT RECORDER FOR AI AGENTS</span>
+          </div>
+
+          {/* High-Contrast Bold Headline */}
+          <h1 style={{
+            fontSize: '68px',
+            fontWeight: 800,
+            lineHeight: 1.08,
+            letterSpacing: '-0.035em',
+            color: '#FFFFFF',
+            margin: '0 0 24px 0'
+          }}>
+            <span className="hero-line-1">Every decision recorded.</span><br />
+            <span className="hero-line-2" style={{
+              background: 'linear-gradient(135deg, #71F6D2 0%, #0DACF1 50%, #0082FB 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              display: 'inline-block'
+            }}>
+              Every runaway loop caught.
+            </span><br />
+            <span className="hero-line-3" style={{ opacity: 0.9 }}>Complete peace of mind.</span>
           </h1>
 
+          {/* Editorial Subtitle */}
           <p
             className="hero-animate-text"
             style={{
-              fontSize: '19px',
-              color: 'rgba(255, 255, 255, 0.92)',
+              fontSize: '18px',
+              lineHeight: 1.6,
+              color: '#94A3B8',
               maxWidth: '680px',
-              margin: '0 auto 32px auto',
-              lineHeight: 1.5,
-              textShadow: '0 1px 6px rgba(0,0,0,0.4)'
+              margin: '0 auto 40px auto'
             }}
           >
-            The flight data recorder for autonomous AI agents. Inspect every decision, stop runaway loops before budgets burn, and rewind to any moment in history.
+            Chrono continuously captures every file patch, tool invocation, and command output in an immutable cryptographic hash chain. When an agent stalls, Chrono detects the loop, diagnoses the root cause, and hands you the fix.
           </p>
 
+          {/* Action CTAs */}
           <div
             className="hero-animate-cta"
-            style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              gap: '16px',
+              flexWrap: 'wrap'
+            }}
           >
             <a
               href={`${COCKPIT_URL}/dashboard`}
-              className="btn-press"
+              className="btn-press shimmer-hover"
               style={{
                 backgroundColor: '#0064E0',
+                backgroundImage: 'linear-gradient(135deg, #0082FB 0%, #0064E0 100%)',
                 color: '#ffffff',
                 textDecoration: 'none',
                 fontSize: '15px',
                 fontWeight: 700,
-                padding: '12px 28px',
+                padding: '14px 34px',
                 borderRadius: '9999px',
-                boxShadow: '0 4px 14px rgba(0,0,0,0.4)'
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                boxShadow: '0 6px 20px rgba(0, 100, 224, 0.45)',
+                border: '1px solid rgba(255, 255, 255, 0.2)'
               }}
             >
-              Launch Cockpit
+              <span>Explore Flight Cockpit</span>
+              <span>→</span>
             </a>
 
             <a
-              href="#cockpit-section"
+              href="https://github.com/ShawnTheCreator/Chrono"
+              target="_blank"
+              rel="noreferrer"
               style={{
-                backgroundColor: 'rgba(255,255,255,0.18)',
-                color: '#ffffff',
+                backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                color: '#F8FAFC',
                 textDecoration: 'none',
                 fontSize: '15px',
                 fontWeight: 600,
-                padding: '12px 24px',
+                padding: '14px 28px',
                 borderRadius: '9999px',
-                backdropFilter: 'blur(8px)',
-                border: '1px solid rgba(255,255,255,0.3)'
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                border: '1px solid rgba(255, 255, 255, 0.15)',
+                backdropFilter: 'blur(10px)'
               }}
             >
-              Explore Live Demo ↓
+              <span>View Source on GitHub</span>
+              <span style={{ fontSize: '12px', opacity: 0.7 }}>↗</span>
             </a>
           </div>
-        </div>
 
-        {/* Video Playlist Indicator Dots (Titles Video 1-4 Removed) */}
-        <div
-          className="hero-animate-dots"
-          style={{
-            position: 'relative',
-            zIndex: 2,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '8px',
-            paddingBottom: '32px'
-          }}
-        >
-          {HERO_VIDEOS.map((_, idx) => (
-            <button
-              key={idx}
-              onClick={() => setVideoIndex(idx)}
-              aria-label={`Switch to video ${idx + 1}`}
-              className="btn-press"
-              style={{
-                width: videoIndex === idx ? '26px' : '8px',
-                height: '8px',
-                borderRadius: '9999px',
-                backgroundColor: videoIndex === idx ? '#0064E0' : 'rgba(255,255,255,0.4)',
-                border: videoIndex === idx ? '1px solid #71F6D2' : '1px solid rgba(255,255,255,0.2)',
-                cursor: 'pointer',
-                padding: 0,
-                outline: 'none',
-                backdropFilter: 'blur(6px)',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-              }}
-            />
-          ))}
+          {/* Video Selector Dots */}
+          <div
+            className="hero-animate-dots"
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              gap: '8px',
+              marginTop: '56px'
+            }}
+          >
+            {HERO_VIDEOS.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => setVideoIndex(idx)}
+                aria-label={`Switch to video background ${idx + 1}`}
+                className="btn-press"
+                style={{
+                  width: videoIndex === idx ? '28px' : '8px',
+                  height: '6px',
+                  borderRadius: '9999px',
+                  backgroundColor: videoIndex === idx ? '#71F6D2' : 'rgba(255, 255, 255, 0.3)',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease'
+                }}
+              />
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* 2. CHRONO FEATURES: TAKE THE GUESSWORK OUT OF AGENT EXECUTION (2-COL ACCORDION + DEVICE MOCKUP) */}
-      <section id="chrono-features" style={{
-        maxWidth: '1280px',
-        margin: '0 auto',
-        padding: '96px 36px 80px 36px'
-      }}>
+      {/* ─────────────────────────────────────────────────────────────
+          3. AWWWARDS FORENSIC SHOWCASE SLIDESHOW
+          (Replaces generic icons, "CHRONO IN ACTION", and "SECURE AND IN CONTROL")
+      ───────────────────────────────────────────────────────────── */}
+      <section
+        id="slideshow"
+        style={{
+          maxWidth: '1280px',
+          margin: '0 auto',
+          padding: '110px 36px 90px 36px'
+        }}
+      >
         {/* Section Header */}
-        <div style={{ maxWidth: '840px', marginBottom: '56px' }}>
-          <div style={{
-            fontSize: '12px',
-            fontWeight: 700,
-            color: '#0064E0',
-            letterSpacing: '0.08em',
-            textTransform: 'uppercase',
-            marginBottom: '10px'
-          }}>
-            CHRONO FEATURES
-          </div>
-          <h2 style={{
-            fontSize: '44px',
-            fontWeight: 800,
-            letterSpacing: '-0.025em',
-            color: '#09090b',
-            lineHeight: 1.15,
-            margin: '0 0 16px 0'
-          }}>
-            Take the guesswork out of agent execution
-          </h2>
-          <p style={{
-            fontSize: '18px',
-            color: '#475569',
-            lineHeight: 1.6,
-            margin: 0
-          }}>
-            Chrono continuously records what your agents are doing, why they make decisions, and what files changed. Get complete visibility, automatic loop protection, and instant rollback controls.
-          </p>
-        </div>
-
-        {/* 2-Column Showcase */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: '64px', alignItems: 'center' }}>
-          {/* Left Column: Feature Accordion */}
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            {/* Item 1 */}
-            <div
-              onClick={() => setActiveFeatureTab(0)}
-              style={{
-                padding: '24px 0',
-                borderBottom: '1px solid #E5E7EB',
-                cursor: 'pointer'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#09090b', margin: 0 }}>
-                  Instant Timeline Replay
-                </h3>
-                <span style={{ color: '#0064E0' }}>
-                  {activeFeatureTab === 0 ? <IconChevronDown size={20} /> : <IconChevronRight size={20} />}
-                </span>
-              </div>
-              {activeFeatureTab === 0 && (
-                <p style={{ fontSize: '15px', color: '#475569', lineHeight: 1.6, margin: '14px 0 0 0' }}>
-                  Rewind and scrub through your agent's entire run. See every tool call, file change, and decision clearly laid out on an interactive visual timeline.
-                </p>
-              )}
-            </div>
-
-            {/* Item 2 */}
-            <div
-              onClick={() => setActiveFeatureTab(1)}
-              style={{
-                padding: '24px 0',
-                borderBottom: '1px solid #E5E7EB',
-                cursor: 'pointer'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#09090b', margin: 0 }}>
-                  Automatic Loop Protection
-                </h3>
-                <span style={{ color: '#0064E0' }}>
-                  {activeFeatureTab === 1 ? <IconChevronDown size={20} /> : <IconChevronRight size={20} />}
-                </span>
-              </div>
-              {activeFeatureTab === 1 && (
-                <p style={{ fontSize: '15px', color: '#475569', lineHeight: 1.6, margin: '14px 0 0 0' }}>
-                  Stop runaway costs before they escalate. Chrono detects when an agent gets stuck repeating the same mistakes and automatically pauses execution.
-                </p>
-              )}
-            </div>
-
-            {/* Item 3 */}
-            <div
-              onClick={() => setActiveFeatureTab(2)}
-              style={{
-                padding: '24px 0',
-                borderBottom: '1px solid #E5E7EB',
-                cursor: 'pointer'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#09090b', margin: 0 }}>
-                  Tamper-Proof Audit History
-                </h3>
-                <span style={{ color: '#0064E0' }}>
-                  {activeFeatureTab === 2 ? <IconChevronDown size={20} /> : <IconChevronRight size={20} />}
-                </span>
-              </div>
-              {activeFeatureTab === 2 && (
-                <p style={{ fontSize: '15px', color: '#475569', lineHeight: 1.6, margin: '14px 0 0 0' }}>
-                  Every action is permanently recorded in a secure, verifiable log so you always have reliable proof of what happened and when.
-                </p>
-              )}
-            </div>
-
-            {/* Item 4 */}
-            <div
-              onClick={() => setActiveFeatureTab(3)}
-              style={{
-                padding: '24px 0',
-                borderBottom: '1px solid #E5E7EB',
-                cursor: 'pointer'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#09090b', margin: 0 }}>
-                  Instant Root-Cause Explanations
-                </h3>
-                <span style={{ color: '#0064E0' }}>
-                  {activeFeatureTab === 3 ? <IconChevronDown size={20} /> : <IconChevronRight size={20} />}
-                </span>
-              </div>
-              {activeFeatureTab === 3 && (
-                <p style={{ fontSize: '15px', color: '#475569', lineHeight: 1.6, margin: '14px 0 0 0' }}>
-                  When an agent encounters an error or stalls, Chrono analyzes the failure and explains what went wrong in plain English with recommended fixes.
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Right Column: Realistic Cockpit Mobile / Alert View Mockup */}
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <div style={{
-              width: '340px',
-              backgroundColor: '#ffffff',
-              borderRadius: '40px',
-              border: '10px solid #1F2937',
-              boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.25)',
-              overflow: 'hidden',
-              display: 'flex',
-              flexDirection: 'column'
-            }}>
-              {/* Header */}
-              <div style={{
-                backgroundColor: '#090D16',
-                color: '#ffffff',
-                padding: '14px 18px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px'
-              }}>
-                <div style={{
-                  width: '34px',
-                  height: '34px',
-                  borderRadius: '50%',
-                  backgroundColor: '#EF4444',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <IconAlertTriangle size={18} color="#FFFFFF" />
-                </div>
-                <div>
-                  <div style={{ fontSize: '13px', fontWeight: 700 }}>Chrono Guardian</div>
-                  <div style={{ fontSize: '11px', color: '#71F6D2' }}>Active Protection</div>
-                </div>
-              </div>
-
-              {/* Body */}
-              <div style={{
-                backgroundColor: '#F3F4F6',
-                padding: '20px 14px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '14px',
-                minHeight: '380px'
-              }}>
-                {/* Event Record Card */}
-                <div style={{
-                  backgroundColor: '#ffffff',
-                  padding: '12px 14px',
-                  borderRadius: '12px',
-                  fontSize: '12px',
-                  color: '#111827',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.08)'
-                }}>
-                  <div style={{ color: '#6B7280', marginBottom: '4px' }}>Checkpoint #29 (04:55)</div>
-                  <div style={{ fontWeight: 700, color: '#DC2626' }}>Safety Alert: Stall Loop Detected</div>
-                  <div style={{ color: '#4B5563', marginTop: '4px' }}>Target: Authentication Module</div>
-                  <div style={{ color: '#4B5563' }}>Repeated failing edits: 3 attempts</div>
-                </div>
-
-                {/* Analysis Bubble */}
-                <div style={{
-                  backgroundColor: '#ffffff',
-                  padding: '12px 14px',
-                  borderRadius: '12px',
-                  fontSize: '12px',
-                  color: '#111827',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.08)'
-                }}>
-                  <div style={{ fontWeight: 700, color: '#0064E0', marginBottom: '4px' }}>Root-Cause Explanation</div>
-                  <p style={{ margin: 0, color: '#4B5563', lineHeight: 1.4 }}>
-                    "The agent is cycling identical edits without fixing the underlying configuration error. Execution paused to protect your budget."
-                  </p>
-                </div>
-
-                {/* Operator Intervention Action */}
-                <div style={{
-                  backgroundColor: '#ffffff',
-                  borderRadius: '12px',
-                  border: '1px solid #D1D5DB',
-                  padding: '14px',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.06)'
-                }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                    <span style={{ fontSize: '11px', fontWeight: 700, color: '#0064E0', textTransform: 'uppercase' }}>
-                      Recommended Action
-                    </span>
-                    <span style={{ fontSize: '11px', color: '#059669', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
-                      <IconCheck size={12} color="#059669" /> Safe Rollback
-                    </span>
-                  </div>
-                  <div style={{ fontSize: '18px', fontWeight: 800, color: '#111827', margin: '4px 0' }}>
-                    Rewind to Checkpoint #28
-                  </div>
-                  <div style={{ fontSize: '11px', color: '#6B7280', marginBottom: '12px' }}>
-                    Reverts failing edit and allows new instructions
-                  </div>
-                  <button
-                    onClick={() => alert('Surgical Rollback Executed! Safe execution resumed at checkpoint #28.')}
-                    style={{
-                      width: '100%',
-                      backgroundColor: '#0064E0',
-                      color: '#ffffff',
-                      border: 'none',
-                      borderRadius: '9999px',
-                      padding: '10px 0',
-                      fontSize: '13px',
-                      fontWeight: 700,
-                      cursor: 'pointer'
-                    }}
-                  >
-                    Execute Rollback
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 3. SECURE AND IN CONTROL: TWO LARGE CARDS */}
-      <section style={{
-        maxWidth: '1280px',
-        margin: '0 auto',
-        padding: '0 36px 96px 36px'
-      }}>
-        <div style={{
-          fontSize: '12px',
-          fontWeight: 700,
-          color: '#0064E0',
-          letterSpacing: '0.08em',
-          textTransform: 'uppercase',
-          marginBottom: '10px'
-        }}>
-          SECURE AND IN CONTROL
-        </div>
-        <h2 style={{
-          fontSize: '36px',
-          fontWeight: 800,
-          color: '#09090b',
-          letterSpacing: '-0.02em',
-          margin: '0 0 32px 0'
-        }}>
-          Built for privacy, safety, and undeniable proof
-        </h2>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '28px' }}>
-          {/* Card 1 */}
-          <div style={{
-            backgroundColor: '#F9FAFB',
-            border: '1px solid #E5E7EB',
-            borderRadius: '24px',
-            padding: '36px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between'
-          }}>
-            <div>
-              <div style={{
-                width: '44px',
-                height: '44px',
-                borderRadius: '50%',
-                backgroundColor: '#E0F2FE',
-                color: '#0064E0',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: '20px'
-              }}>
-                <IconLock size={22} color="#0064E0" />
-              </div>
-              <h3 style={{ fontSize: '22px', fontWeight: 800, color: '#111827', margin: '0 0 12px 0' }}>
-                Tamper-Proof Audit History
-              </h3>
-              <p style={{ fontSize: '15px', color: '#4B5563', lineHeight: 1.6, margin: '0 0 18px 0' }}>
-                Every recorded action is permanently sealed in an append-only log. Once committed, the history cannot be silently edited or deleted, giving security and compliance teams undeniable proof of every step.
-              </p>
-              <div style={{
-                fontSize: '12px',
-                fontWeight: 600,
-                color: '#047857',
-                backgroundColor: '#ECFDF5',
-                padding: '8px 14px',
-                borderRadius: '8px',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px'
-              }}>
-                <IconCheck size={14} color="#047857" /> Verifiable Audit Trail
-              </div>
-            </div>
-          </div>
-
-          {/* Card 2 */}
-          <div style={{
-            backgroundColor: '#F9FAFB',
-            border: '1px solid #E5E7EB',
-            borderRadius: '24px',
-            padding: '36px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between'
-          }}>
-            <div>
-              <div style={{
-                width: '44px',
-                height: '44px',
-                borderRadius: '50%',
-                backgroundColor: '#E0F2FE',
-                color: '#0064E0',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: '20px'
-              }}>
-                <IconShield size={22} color="#0064E0" />
-              </div>
-              <h3 style={{ fontSize: '22px', fontWeight: 800, color: '#111827', margin: '0 0 12px 0' }}>
-                Instant Surgical Rollbacks
-              </h3>
-              <p style={{ fontSize: '15px', color: '#4B5563', lineHeight: 1.6, margin: '0 0 18px 0' }}>
-                Review and pause agent actions before unintended damage happens. Rewind to any healthy historical moment, provide corrected guidance, and resume execution without losing prior work.
-              </p>
-              <div style={{
-                fontSize: '12px',
-                fontWeight: 600,
-                color: '#0284C7',
-                backgroundColor: '#F0F9FF',
-                padding: '8px 14px',
-                borderRadius: '8px',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px'
-              }}>
-                <IconZap size={14} color="#0284C7" /> Zero Data Loss Guarantee
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 4. CHRONO IN ACTION: SHOWCASE BANNER */}
-      <section style={{
-        maxWidth: '1280px',
-        margin: '0 auto',
-        padding: '0 36px 96px 36px'
-      }}>
-        <div style={{
-          fontSize: '12px',
-          fontWeight: 700,
-          color: '#0064E0',
-          letterSpacing: '0.08em',
-          textTransform: 'uppercase',
-          marginBottom: '10px'
-        }}>
-          CHRONO IN ACTION
-        </div>
-        <h2 style={{
-          fontSize: '36px',
-          fontWeight: 800,
-          color: '#09090b',
-          letterSpacing: '-0.02em',
-          margin: '0 0 12px 0'
-        }}>
-          See how Chrono protects your agent workflows
-        </h2>
-        <p style={{
-          fontSize: '16px',
-          color: '#4B5563',
-          maxWidth: '720px',
-          margin: '0 0 36px 0'
-        }}>
-          From automated code refactoring and tool invocations to catching runaway loops and generating forensic receipts. Chrono handles it all.
-        </p>
-
-        {/* Large Clean Light-Blue Banner */}
-        <div style={{
-          backgroundColor: '#F0F9FF',
-          border: '1px solid #BAE6FD',
-          borderRadius: '24px',
-          padding: '80px 48px',
-          textAlign: 'center',
-          position: 'relative'
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginBottom: '16px' }}>
-            <span style={{ padding: '6px 14px', borderRadius: '9999px', backgroundColor: '#E0F2FE', color: '#0064E0', fontSize: '12px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-              <IconClock size={15} color="#0064E0" /> COMPLETE VISIBILITY
-            </span>
-            <span style={{ padding: '6px 14px', borderRadius: '9999px', backgroundColor: '#E0F2FE', color: '#0064E0', fontSize: '12px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-              <IconShield size={15} color="#0064E0" /> TAMPER-PROOF AUDIT
-            </span>
-            <span style={{ padding: '6px 14px', borderRadius: '9999px', backgroundColor: '#E0F2FE', color: '#0064E0', fontSize: '12px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-              <IconActivity size={15} color="#0064E0" /> AUTOMATIC SAFEGUARDS
-            </span>
-          </div>
-
-          <h3 style={{
-            fontSize: '48px',
-            fontWeight: 800,
-            letterSpacing: '-0.03em',
-            color: '#0F172A',
-            lineHeight: 1.25,
-            margin: '0 0 12px 0'
-          }}>
-            Chrono is the flight data recorder<br />
-            for autonomous AI agents
-          </h3>
-
-          <p style={{ fontSize: '16px', color: '#475569', maxWidth: '640px', margin: '0 auto' }}>
-            Every decision recorded. Every mistake caught. Complete peace of mind.
-          </p>
-
-          <div style={{
-            position: 'absolute',
-            bottom: '24px',
-            right: '28px',
-            display: 'flex',
-            gap: '8px'
-          }}>
-            <button style={{
-              width: '36px',
-              height: '36px',
-              borderRadius: '50%',
-              backgroundColor: '#ffffff',
-              border: '1px solid #E2E8F0',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#0064E0'
-            }}>
-              <IconThumbsUp size={16} />
-            </button>
-            <button style={{
-              width: '36px',
-              height: '36px',
-              borderRadius: '50%',
-              backgroundColor: '#ffffff',
-              border: '1px solid #E2E8F0',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#64748B'
-            }}>
-              <IconThumbsDown size={16} />
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* 5. USER STORIES: OPERATOR EXPERIENCES */}
-      <section style={{
-        maxWidth: '1280px',
-        margin: '0 auto',
-        padding: '0 36px 96px 36px'
-      }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '48px', alignItems: 'center', marginBottom: '32px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '40px', flexWrap: 'wrap', gap: '20px' }}>
           <div>
             <div style={{
               fontSize: '12px',
               fontWeight: 700,
-              color: '#0064E0',
-              letterSpacing: '0.08em',
+              color: '#71F6D2',
+              letterSpacing: '0.1em',
               textTransform: 'uppercase',
               marginBottom: '10px'
             }}>
-              USER STORIES
+              01 // FLIGHT DECK FORENSICS
             </div>
-            <h2 style={{
-              fontSize: '36px',
-              fontWeight: 800,
-              color: '#09090b',
-              letterSpacing: '-0.02em',
-              margin: '0 0 12px 0'
-            }}>
-              Trusted by teams
-            </h2>
-            <p style={{
-              fontSize: '15px',
-              color: '#4B5563',
-              lineHeight: 1.5,
-              margin: '0 0 24px 0'
-            }}>
-              Teams rely on Chrono to supervise, audit, and debug complex autonomous agent tasks.
-            </p>
-            <a
-              href={`${COCKPIT_URL}/dashboard`}
-              className="btn-press"
-              style={{
-                backgroundColor: '#0064E0',
-                color: '#ffffff',
-                textDecoration: 'none',
-                fontSize: '13px',
-                fontWeight: 600,
-                padding: '10px 22px',
-                borderRadius: '9999px',
-                display: 'inline-block'
-              }}
-            >
-              Explore Cockpit
-            </a>
-          </div>
-
-          {/* 4 Portrait Cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
-            <div style={{
-              height: '380px',
-              borderRadius: '20px',
-              overflow: 'hidden',
-              position: 'relative',
-              backgroundImage: `linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.1) 50%), url('https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=600&q=80')`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'flex-end',
-              padding: '18px',
-              color: '#ffffff'
-            }}>
-              <div style={{ fontSize: '13px', fontWeight: 600, lineHeight: 1.4 }}>
-                "Chrono caught an agent repeating the same failing test 14 times while our team was away, saving thousands in API costs."
-              </div>
-              <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '8px' }}>— Engineering Lead</div>
-            </div>
-
-            <div style={{
-              height: '380px',
-              borderRadius: '20px',
-              overflow: 'hidden',
-              position: 'relative',
-              backgroundImage: `linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.1) 50%), url('https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80')`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'flex-end',
-              padding: '18px',
-              color: '#ffffff'
-            }}>
-              <div style={{ fontSize: '13px', fontWeight: 600, lineHeight: 1.4 }}>
-                "Having an undeniable audit trail gave our legal and security teams the confidence to approve autonomous workflows."
-              </div>
-              <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '8px' }}>— VP of AI Security</div>
-            </div>
-
-            <div style={{
-              height: '380px',
-              borderRadius: '20px',
-              overflow: 'hidden',
-              position: 'relative',
-              backgroundImage: `linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.1) 50%), url('https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80')`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'flex-end',
-              padding: '18px',
-              color: '#ffffff'
-            }}>
-              <div style={{ fontSize: '13px', fontWeight: 600, lineHeight: 1.4 }}>
-                "Being able to rewind an agent to the exact moment it went off track and redirect it changed how we build software."
-              </div>
-              <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '8px' }}>— Senior Developer</div>
-            </div>
-
-            <div style={{
-              height: '380px',
-              borderRadius: '20px',
-              overflow: 'hidden',
-              position: 'relative',
-              backgroundImage: `linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.1) 50%), url('https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=600&q=80')`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'flex-end',
-              padding: '18px',
-              color: '#ffffff'
-            }}>
-              <div style={{ fontSize: '13px', fontWeight: 600, lineHeight: 1.4 }}>
-                "The post-mortem explanations tell us why an agent failed in seconds rather than digging through raw log dumps."
-              </div>
-              <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '8px' }}>— DevOps Engineer</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 6. CHRONO FOR TEAMS & ENTERPRISE FLEETS */}
-      <section style={{
-        maxWidth: '1280px',
-        margin: '0 auto',
-        padding: '0 36px 96px 36px'
-      }}>
-        <div style={{
-          backgroundColor: '#EFF6FF',
-          border: '1px solid #DBEAFE',
-          borderRadius: '24px',
-          overflow: 'hidden',
-          display: 'grid',
-          gridTemplateColumns: '1.2fr 1fr'
-        }}>
-          <div style={{ padding: '48px' }}>
-            <div style={{
-              fontSize: '12px',
-              fontWeight: 700,
-              color: '#0064E0',
-              letterSpacing: '0.08em',
-              textTransform: 'uppercase',
-              marginBottom: '10px'
-            }}>
-              CHRONO FOR ENTERPRISE
-            </div>
-            <h2 style={{
-              fontSize: '36px',
-              fontWeight: 800,
-              color: '#09090b',
-              letterSpacing: '-0.02em',
-              margin: '0 0 16px 0'
-            }}>
-              Observability that scales with your agent fleet
-            </h2>
-            <p style={{
-              fontSize: '16px',
-              color: '#4B5563',
-              lineHeight: 1.6,
-              margin: '0 0 28px 0'
-            }}>
-              Deploy Chrono across all your autonomous coding agents and background workers. Centralize visibility, maintain compliance-ready audit trails, and protect your cloud budgets with automated safety guardrails.
-            </p>
-            <div style={{ display: 'flex', gap: '12px' }}>
-              <span style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '6px', backgroundColor: '#ffffff', color: '#1E40AF', fontWeight: 600, border: '1px solid #BFDBFE', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                <IconCheck size={14} color="#1E40AF" /> Centralized Monitoring
-              </span>
-              <span style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '6px', backgroundColor: '#ffffff', color: '#1E40AF', fontWeight: 600, border: '1px solid #BFDBFE', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                <IconCheck size={14} color="#1E40AF" /> Automatic Safeguards
-              </span>
-              <span style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '6px', backgroundColor: '#ffffff', color: '#1E40AF', fontWeight: 600, border: '1px solid #BFDBFE', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                <IconCheck size={14} color="#1E40AF" /> Compliance-Ready Exports
-              </span>
-            </div>
-          </div>
-
-          <div style={{
-            backgroundColor: '#DBEAFE',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '36px',
-            position: 'relative'
-          }}>
-            <h3 style={{
-              fontSize: '32px',
-              fontWeight: 800,
-              color: '#1E40AF',
-              textAlign: 'center',
-              lineHeight: 1.3
-            }}>
-              Complete Certainty Across All Your Agents
-            </h3>
-            <div style={{ position: 'absolute', bottom: '20px', right: '20px', display: 'flex', gap: '8px' }}>
-              <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#ffffff', color: '#1E40AF' }}>
-                <IconShield size={16} color="#1E40AF" />
-              </span>
-              <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#ffffff', color: '#1E40AF' }}>
-                <IconZap size={16} color="#1E40AF" />
-              </span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 7. DOWNLOAD CHRONO DESKTOP COCKPIT */}
-      <section style={{
-        maxWidth: '1280px',
-        margin: '0 auto',
-        padding: '0 36px 96px 36px'
-      }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '64px', alignItems: 'center' }}>
-          {/* Desktop App Window Preview */}
-          <div style={{
-            backgroundColor: '#ffffff',
-            borderRadius: '16px',
-            border: '1px solid #D1D5DB',
-            boxShadow: '0 20px 40px -10px rgba(0,0,0,0.12)',
-            overflow: 'hidden'
-          }}>
-            {/* Window Title Bar */}
-            <div style={{
-              height: '38px',
-              backgroundColor: '#F3F4F6',
-              borderBottom: '1px solid #E5E7EB',
-              display: 'flex',
-              alignItems: 'center',
-              padding: '0 14px',
-              gap: '8px'
-            }}>
-              <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#EF4444' }} />
-              <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#F59E0B' }} />
-              <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#10B981' }} />
-              <span style={{ fontSize: '11px', color: '#6B7280', margin: '0 auto', fontWeight: 600 }}>Chrono Cockpit — Desktop App</span>
-            </div>
-
-            {/* Window Content */}
-            <div style={{ height: '240px', backgroundColor: '#F9FAFB', padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-              <div style={{ fontSize: '15px', fontWeight: 700, color: '#111827', marginBottom: '8px' }}>
-                Continuous Background Recording Active
-              </div>
-              <div style={{ fontSize: '13px', color: '#6B7280', lineHeight: 1.6 }}>
-                Directly connected to local development agents. Smooth timeline scrubbing with instant historical verification. Zero performance impact on your workflow.
-              </div>
-            </div>
-          </div>
-
-          {/* Right Copy */}
-          <div>
             <h2 style={{
               fontSize: '40px',
               fontWeight: 800,
-              color: '#09090b',
+              color: '#FFFFFF',
               letterSpacing: '-0.025em',
-              margin: '0 0 16px 0'
+              margin: 0
             }}>
-              Download Chrono Desktop Cockpit
+              See how Chrono protects your agent workflows
             </h2>
+          </div>
+
+          {/* Autoplay / Manual Controls */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <button
+              onClick={() => setIsSlideAutoplaying(!isSlideAutoplaying)}
+              style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.06)',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                color: '#E2E8F0',
+                padding: '6px 14px',
+                borderRadius: '9999px',
+                fontSize: '12px',
+                fontFamily: "'JetBrains Mono', monospace",
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: isSlideAutoplaying ? '#10B981' : '#64748B' }} />
+              {isSlideAutoplaying ? 'AUTOPLAY ON' : 'PAUSED'}
+            </button>
+
+            <button
+              onClick={() => setActiveSlide((prev) => (prev === 0 ? FORENSIC_SLIDES.length - 1 : prev - 1))}
+              aria-label="Previous slide"
+              style={{
+                width: '38px',
+                height: '38px',
+                borderRadius: '50%',
+                backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                border: '1px solid rgba(255, 255, 255, 0.15)',
+                color: '#ffffff',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '14px'
+              }}
+            >
+              ←
+            </button>
+
+            <button
+              onClick={() => setActiveSlide((prev) => (prev + 1) % FORENSIC_SLIDES.length)}
+              aria-label="Next slide"
+              style={{
+                width: '38px',
+                height: '38px',
+                borderRadius: '50%',
+                backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                border: '1px solid rgba(255, 255, 255, 0.15)',
+                color: '#ffffff',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '14px'
+              }}
+            >
+              →
+            </button>
+          </div>
+        </div>
+
+        {/* Slide Selector Tabs */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(4, 1fr)',
+          gap: '12px',
+          marginBottom: '32px'
+        }}>
+          {FORENSIC_SLIDES.map((slide, idx) => {
+            const isCurrent = activeSlide === idx;
+            return (
+              <div
+                key={slide.id}
+                onClick={() => {
+                  setActiveSlide(idx);
+                  setIsSlideAutoplaying(false);
+                }}
+                style={{
+                  backgroundColor: isCurrent ? 'rgba(0, 100, 224, 0.18)' : 'rgba(255, 255, 255, 0.03)',
+                  border: isCurrent ? '1px solid #0082FB' : '1px solid rgba(255, 255, 255, 0.08)',
+                  borderRadius: '14px',
+                  padding: '16px 18px',
+                  cursor: 'pointer',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  transition: 'all 0.25s ease'
+                }}
+              >
+                {/* Active progress bar indicator */}
+                {isCurrent && isSlideAutoplaying && (
+                  <div style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    bottom: 0,
+                    width: '100%',
+                    backgroundColor: 'rgba(0, 130, 251, 0.08)',
+                    zIndex: 0
+                  }} />
+                )}
+
+                <div style={{ position: 'relative', zIndex: 1 }}>
+                  <div style={{
+                    fontSize: '11px',
+                    fontFamily: "'JetBrains Mono', monospace",
+                    color: isCurrent ? '#71F6D2' : '#64748B',
+                    marginBottom: '4px'
+                  }}>
+                    0{idx + 1} //
+                  </div>
+                  <div style={{
+                    fontSize: '14px',
+                    fontWeight: 700,
+                    color: isCurrent ? '#FFFFFF' : '#94A3B8'
+                  }}>
+                    {slide.title}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Slide Stage Deck: 2-Column High-Craft Visualizer */}
+        <div style={{
+          backgroundColor: '#0E1424',
+          border: '1px solid rgba(255, 255, 255, 0.12)',
+          borderRadius: '24px',
+          padding: '48px',
+          boxShadow: '0 24px 50px -12px rgba(0, 0, 0, 0.7)',
+          display: 'grid',
+          gridTemplateColumns: '1fr 1.15fr',
+          gap: '56px',
+          alignItems: 'center'
+        }}>
+          {/* Left Column: Editorial Explanation & Proof Stats */}
+          <div>
+            <div style={{
+              fontSize: '11px',
+              fontFamily: "'JetBrains Mono', monospace",
+              color: '#0DACF1',
+              letterSpacing: '0.08em',
+              marginBottom: '10px'
+            }}>
+              {currentSlide.badge}
+            </div>
+
+            <h3 style={{
+              fontSize: '34px',
+              fontWeight: 800,
+              color: '#FFFFFF',
+              letterSpacing: '-0.025em',
+              lineHeight: 1.18,
+              margin: '0 0 12px 0'
+            }}>
+              {currentSlide.title}
+            </h3>
+
+            <div style={{
+              fontSize: '15px',
+              color: '#71F6D2',
+              fontWeight: 600,
+              marginBottom: '18px'
+            }}>
+              {currentSlide.tagline}
+            </div>
+
             <p style={{
-              fontSize: '18px',
-              color: '#4B5563',
-              lineHeight: 1.5,
+              fontSize: '15px',
+              color: '#94A3B8',
+              lineHeight: 1.65,
               margin: '0 0 32px 0'
             }}>
-              Fast, responsive timeline inspection for macOS, Windows, and Linux.
+              {currentSlide.description}
             </p>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <a
-                href={`${COCKPIT_URL}/dashboard`}
-                className="btn-press"
-                style={{
-                  backgroundColor: '#0064E0',
-                  color: '#ffffff',
-                  textDecoration: 'none',
-                  fontSize: '14px',
-                  fontWeight: 600,
-                  padding: '12px 28px',
-                  borderRadius: '9999px',
-                  display: 'inline-block'
-                }}
-              >
-                Launch Cockpit
-              </a>
+            {/* Metric Badges */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, 1fr)',
+              gap: '14px',
+              paddingTop: '24px',
+              borderTop: '1px solid rgba(255, 255, 255, 0.08)'
+            }}>
+              {currentSlide.stats.map((st, sidx) => (
+                <div key={sidx}>
+                  <div style={{ fontSize: '11px', color: '#64748B', fontFamily: "'JetBrains Mono', monospace" }}>{st.label}</div>
+                  <div style={{ fontSize: '16px', fontWeight: 700, color: '#F8FAFC', marginTop: '4px' }}>{st.val}</div>
+                </div>
+              ))}
+            </div>
+          </div>
 
-              <a
-                href="https://github.com/ShawnTheCreator/Chrono"
-                target="_blank"
-                rel="noreferrer"
-                style={{
-                  fontSize: '14px',
-                  fontWeight: 600,
-                  color: '#0064E0',
-                  textDecoration: 'none'
-                }}
-              >
-                View on GitHub →
-              </a>
+          {/* Right Column: Interactive Bespoke Visualizer (NO generic SVG circles) */}
+          <div style={{
+            backgroundColor: '#060911',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: '16px',
+            overflow: 'hidden',
+            boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.8)'
+          }}>
+            {/* Visualizer Window Header */}
+            <div style={{
+              backgroundColor: '#0A0F1D',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+              padding: '12px 18px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: '#EF4444' }} />
+                <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: '#F59E0B' }} />
+                <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: '#10B981' }} />
+                <span style={{
+                  fontSize: '11px',
+                  fontFamily: "'JetBrains Mono', monospace",
+                  color: '#94A3B8',
+                  marginLeft: '8px'
+                }}>
+                  chrono-engine // {currentSlide.id}.telemetry
+                </span>
+              </div>
+              <span style={{
+                fontSize: '10px',
+                fontFamily: "'JetBrains Mono', monospace",
+                color: '#71F6D2',
+                backgroundColor: 'rgba(113, 246, 210, 0.12)',
+                padding: '2px 8px',
+                borderRadius: '4px'
+              }}>
+                SEALED
+              </span>
+            </div>
+
+            {/* Visualizer Body by Slide Type */}
+            <div style={{ padding: '24px', minHeight: '340px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              {/* SLIDE 0: MERKLE LEDGER STREAM */}
+              {activeSlide === 0 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontFamily: "'JetBrains Mono', monospace" }}>
+                  <div style={{ fontSize: '11px', color: '#64748B' }}>// HASH CHAIN VERIFIED BLOCKS</div>
+                  {[
+                    { blk: 39, hash: '0x32c1..90fa', evt: 'DIFF_APPLIED (auth/login.py)', status: 'SEALED' },
+                    { blk: 40, hash: '0x17b4..008e', evt: 'TOOL_EXEC (pytest -v tests/)', status: 'SEALED' },
+                    { blk: 41, hash: '0x8f2c..e14d', evt: 'STALL_ALERT (3x identical edit)', status: 'TRIPWIRE' }
+                  ].map((b) => (
+                    <div
+                      key={b.blk}
+                      style={{
+                        backgroundColor: b.blk === 41 ? 'rgba(239, 68, 68, 0.1)' : 'rgba(255, 255, 255, 0.04)',
+                        border: b.blk === 41 ? '1px solid rgba(239, 68, 68, 0.35)' : '1px solid rgba(255, 255, 255, 0.08)',
+                        borderRadius: '8px',
+                        padding: '10px 14px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        fontSize: '12px'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span style={{ color: '#0DACF1' }}>BLOCK #{b.blk}</span>
+                        <span style={{ color: '#E2E8F0' }}>{b.evt}</span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ color: '#64748B', fontSize: '11px' }}>{b.hash}</span>
+                        <span style={{
+                          fontSize: '10px',
+                          color: b.blk === 41 ? '#EF4444' : '#10B981',
+                          fontWeight: 700
+                        }}>
+                          {b.status}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                  <div style={{
+                    marginTop: '8px',
+                    padding: '8px 12px',
+                    borderRadius: '6px',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    border: '1px solid rgba(16, 185, 129, 0.25)',
+                    fontSize: '11px',
+                    color: '#10B981',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
+                  }}>
+                    <span>✓ Merkle Root: 0x8f2ce14da983b7</span>
+                    <span>100% Tamper Proof</span>
+                  </div>
+                </div>
+              )}
+
+              {/* SLIDE 1: RUNAWAY LOOP DIFF COMPARISON */}
+              {activeSlide === 1 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontFamily: "'JetBrains Mono', monospace" }}>
+                  <div style={{
+                    backgroundColor: 'rgba(239, 68, 68, 0.15)',
+                    border: '1px solid rgba(239, 68, 68, 0.4)',
+                    padding: '8px 12px',
+                    borderRadius: '8px',
+                    color: '#FCA5A5',
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
+                  }}>
+                    <span>⚠️ STALL ALERT: 3X IDENTICAL DIFFS DETECTED</span>
+                    <span style={{ color: '#EF4444' }}>HALTED AT 04:55</span>
+                  </div>
+
+                  <div style={{
+                    backgroundColor: 'rgba(0,0,0,0.6)',
+                    borderRadius: '8px',
+                    padding: '12px',
+                    fontSize: '11px',
+                    lineHeight: 1.6,
+                    color: '#94A3B8'
+                  }}>
+                    <div style={{ color: '#64748B' }}>--- a/core/token_auth.py (Cycle 1 vs Cycle 2 vs Cycle 3)</div>
+                    <div style={{ color: '#EF4444' }}>- if not token or token == &apos;invalid&apos;: raise AuthError()</div>
+                    <div style={{ color: '#10B981' }}>+ if token is None or len(token) == 0: raise AuthError()</div>
+                    <div style={{ color: '#EF4444', marginTop: '4px' }}>// Detected exact same diff reverted and re-applied 3x</div>
+                    <div style={{ color: '#71F6D2' }}>// Velocity: 0 progress / 2,400 tokens burned</div>
+                  </div>
+
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    fontSize: '11px',
+                    color: '#94A3B8',
+                    paddingTop: '6px'
+                  }}>
+                    <span>Risk Score: <strong style={{ color: '#EF4444' }}>0.85 (STALL_RISK)</strong></span>
+                    <span>Action: <strong>Circuit Breaker Tripped</strong></span>
+                  </div>
+                </div>
+              )}
+
+              {/* SLIDE 2: META MUSE SPARK FORENSICS */}
+              {activeSlide === 2 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontFamily: "'JetBrains Mono', monospace" }}>
+                  <div style={{
+                    backgroundColor: 'rgba(13, 172, 241, 0.12)',
+                    border: '1px solid rgba(13, 172, 241, 0.3)',
+                    padding: '10px 14px',
+                    borderRadius: '8px',
+                    fontSize: '12px'
+                  }}>
+                    <div style={{ color: '#71F6D2', fontSize: '10px', marginBottom: '2px' }}>// META MUSE SPARK LIVE INFERENCE RECEIPT</div>
+                    <div style={{ color: '#FFFFFF', fontWeight: 700 }}>Model: muse-spark-1.3 • Latency: 22.2s</div>
+                  </div>
+
+                  <div style={{
+                    backgroundColor: 'rgba(0,0,0,0.6)',
+                    borderRadius: '8px',
+                    padding: '14px',
+                    fontSize: '12px',
+                    lineHeight: 1.6,
+                    color: '#E2E8F0'
+                  }}>
+                    <div style={{ color: '#0DACF1', fontWeight: 600, marginBottom: '6px' }}>Headline Diagnosis:</div>
+                    <div style={{ color: '#F1F5F9', marginBottom: '10px' }}>
+                      &quot;Added unthrottled identical-diff alert without recovery, risking bus spam.&quot;
+                    </div>
+                    <div style={{ color: '#10B981', fontWeight: 600, marginBottom: '4px' }}>Prescribed Directive:</div>
+                    <div style={{ color: '#94A3B8', fontSize: '11px' }}>
+                      &quot;Stop editing token_auth.py. The issue is in test_index.cpp line 38 where result variable was unused.&quot;
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#64748B' }}>
+                    <span>Prompt Tokens: 506</span>
+                    <span>Completion: 1,751</span>
+                    <span style={{ color: '#10B981' }}>Est Cost: $0.0011</span>
+                  </div>
+                </div>
+              )}
+
+              {/* SLIDE 3: SURGICAL TIMELINE REWIND */}
+              {activeSlide === 3 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontFamily: "'JetBrains Mono', monospace" }}>
+                  <div style={{ fontSize: '11px', color: '#64748B' }}>// CODEBASE REWIND &amp; BRANCH SELECTOR</div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div style={{
+                      backgroundColor: rewindBranchActive ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255, 255, 255, 0.04)',
+                      border: rewindBranchActive ? '1px solid #10B981' : '1px solid rgba(255, 255, 255, 0.1)',
+                      borderRadius: '8px',
+                      padding: '12px 14px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      fontSize: '12px'
+                    }}>
+                      <div>
+                        <div style={{ color: '#71F6D2', fontWeight: 700 }}>Checkpoint #28 (04:15)</div>
+                        <div style={{ color: '#94A3B8', fontSize: '11px' }}>Healthy Build Before Infinite Loop</div>
+                      </div>
+                      <span style={{
+                        padding: '4px 10px',
+                        borderRadius: '4px',
+                        backgroundColor: '#10B981',
+                        color: '#090D16',
+                        fontWeight: 700,
+                        fontSize: '11px'
+                      }}>
+                        {rewindBranchActive ? 'FORK RESTORED' : 'RESTORE TARGET'}
+                      </span>
+                    </div>
+
+                    <div style={{
+                      backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                      border: '1px solid rgba(239, 68, 68, 0.25)',
+                      borderRadius: '8px',
+                      padding: '10px 14px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      fontSize: '11px',
+                      opacity: rewindBranchActive ? 0.4 : 1
+                    }}>
+                      <div>
+                        <div style={{ color: '#EF4444' }}>Checkpoint #29 (04:55)</div>
+                        <div style={{ color: '#64748B' }}>Runaway Loop Detected (Abandoned)</div>
+                      </div>
+                      <span style={{ color: '#EF4444' }}>PRUNED</span>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => setRewindBranchActive(!rewindBranchActive)}
+                    style={{
+                      backgroundColor: '#0064E0',
+                      border: 'none',
+                      color: '#ffffff',
+                      padding: '10px 16px',
+                      borderRadius: '6px',
+                      fontSize: '12px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '6px'
+                    }}
+                  >
+                    <span>↺</span>
+                    <span>{rewindBranchActive ? 'Reset Simulation' : 'Execute Surgical Rewind to #28'}</span>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </section>
 
-      {/* 8. TRY CHRONO PANORAMIC BANNER */}
-      <section style={{
-        maxWidth: '1280px',
-        margin: '0 auto',
-        padding: '0 36px 96px 36px'
-      }}>
-        <div style={{
-          backgroundColor: '#E0F2FE',
-          borderRadius: '24px',
-          padding: '64px 36px',
-          textAlign: 'center',
-          position: 'relative',
-          overflow: 'hidden'
-        }}>
-          {/* Subtle Watermarks */}
-          <div style={{ position: 'absolute', top: '24px', left: '36px', opacity: 0.2, color: '#0064E0' }}>
-            <IconClock size={36} />
-          </div>
-          <div style={{ position: 'absolute', bottom: '24px', left: '60px', opacity: 0.2, color: '#0064E0' }}>
-            <IconShield size={36} />
-          </div>
-          <div style={{ position: 'absolute', top: '30px', right: '48px', opacity: 0.2, color: '#0064E0' }}>
-            <IconZap size={36} />
-          </div>
-          <div style={{ position: 'absolute', bottom: '24px', right: '70px', opacity: 0.2, color: '#0064E0' }}>
-            <IconPlane size={36} />
-          </div>
-
-          {/* Center Chrono Logo */}
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
-            <ChronoLogo size={48} color="#0064E0" />
-          </div>
-
+      {/* ─────────────────────────────────────────────────────────────
+          4. STUDIO-GRADE INTERACTIVE FLIGHT COCKPIT
+      ───────────────────────────────────────────────────────────── */}
+      <section
+        id="cockpit-section"
+        style={{
+          maxWidth: '1280px',
+          margin: '0 auto',
+          padding: '60px 36px 90px 36px'
+        }}
+      >
+        <div style={{ marginBottom: '32px' }}>
           <div style={{
             fontSize: '12px',
             fontWeight: 700,
-            color: '#0064E0',
-            letterSpacing: '0.08em',
-            textTransform: 'uppercase',
-            marginBottom: '8px'
-          }}>
-            TRY CHRONO
-          </div>
-
-          <h2 style={{
-            fontSize: '38px',
-            fontWeight: 800,
-            color: '#0F172A',
-            letterSpacing: '-0.02em',
-            margin: '0 0 24px 0'
-          }}>
-            Ready to take control of your autonomous agents?
-          </h2>
-
-          <a
-            href={`${COCKPIT_URL}/dashboard`}
-            className="btn-press"
-            style={{
-              backgroundColor: '#0064E0',
-              color: '#ffffff',
-              textDecoration: 'none',
-              fontSize: '15px',
-              fontWeight: 700,
-              padding: '12px 36px',
-              borderRadius: '9999px',
-              display: 'inline-block',
-              boxShadow: '0 4px 12px rgba(0, 100, 224, 0.3)'
-            }}
-          >
-            Launch Cockpit
-          </a>
-        </div>
-      </section>
-
-      {/* 9. CHRONO FLIGHT RECORDER & COCKPIT TIMELINE DEMO */}
-      <section id="cockpit-section" style={{
-        maxWidth: '1280px',
-        margin: '0 auto',
-        padding: '0 36px 96px 36px'
-      }}>
-        <div style={{ marginBottom: '28px' }}>
-          <div style={{
-            fontSize: '12px',
-            fontWeight: 700,
-            color: '#0064E0',
-            letterSpacing: '0.08em',
+            color: '#71F6D2',
+            letterSpacing: '0.1em',
             textTransform: 'uppercase',
             marginBottom: '10px'
           }}>
             INTERACTIVE FLIGHT COCKPIT
           </div>
           <h2 style={{
-            fontSize: '36px',
+            fontSize: '38px',
             fontWeight: 800,
-            color: '#09090b',
-            letterSpacing: '-0.02em',
+            color: '#FFFFFF',
+            letterSpacing: '-0.025em',
             margin: '0 0 10px 0'
           }}>
-            Smooth, Instant Timeline Inspection
+            Smooth, instant timeline inspection
           </h2>
-          <p style={{
-            fontSize: '16px',
-            color: '#4B5563',
-            margin: 0
-          }}>
-            Continuous recording with automatic stall tripwire detection and instant root-cause analysis.
+          <p style={{ fontSize: '16px', color: '#94A3B8', margin: 0, maxWidth: '720px' }}>
+            Directly attached to your agent&apos;s live execution stream. Drag the playhead to inspect code diffs, verify tool receipts, or observe stall alerts as they fire.
           </p>
         </div>
 
-        {/* Cockpit Card Frame */}
+        {/* Cockpit Shell */}
         <div
-          ref={containerRef}
-          onMouseMove={handleMouseMove}
           onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={handleMouseLeave}
+          onMouseLeave={() => setIsHovered(false)}
           style={{
-            borderRadius: '16px',
-            border: '1px solid #D1D5DB',
-            backgroundColor: '#ffffff',
-            boxShadow: '0 12px 35px -5px rgba(0,0,0,0.1)',
+            backgroundColor: '#0E1424',
+            border: '1px solid rgba(255, 255, 255, 0.14)',
+            borderRadius: '24px',
             overflow: 'hidden',
-            transform: `perspective(1000px) rotateX(${mouseTilt.rx}deg) rotateY(${mouseTilt.ry}deg)`,
-            transition: isHovered ? 'transform 0.08s ease-out' : 'transform 0.35s ease-out'
+            boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.8)'
           }}
         >
-          {/* Header */}
+          {/* Top Console Bar */}
           <div style={{
-            height: '42px',
-            borderBottom: '1px solid #1E293B',
-            backgroundColor: '#0D1117',
-            padding: '0 18px',
+            backgroundColor: '#0A0E1A',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+            padding: '16px 24px',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'space-between'
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '12px'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#EF4444' }} />
-              <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#F59E0B' }} />
-              <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#10B981' }} />
-              <span style={{ fontSize: '12px', fontWeight: 600, color: '#94A3B8', marginLeft: '8px' }}>
-                Session: Autonomous Code Refactoring Task
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+              <div style={{ display: 'flex', gap: '6px' }}>
+                <span style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: '#EF4444' }} />
+                <span style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: '#F59E0B' }} />
+                <span style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: '#10B981' }} />
+              </div>
+              <span style={{
+                fontSize: '13px',
+                fontFamily: "'JetBrains Mono', monospace",
+                fontWeight: 600,
+                color: '#E2E8F0'
+              }}>
+                session_04n112tt8a // refactor_auth_pipeline.py
               </span>
             </div>
 
-            <span style={{
-              color: animStage === 'stalled' ? '#F85149' : (animStage === 'intervened' ? '#71F6D2' : '#0DACF1'),
-              fontWeight: 600,
-              fontSize: '11px'
-            }}>
-              {animStage === 'running' && 'NORMAL FLIGHT // EXECUTING TASKS'}
-              {animStage === 'stalled' && 'SAFETY ALERT // STALL LOOP DETECTED'}
-              {animStage === 'intervened' && 'COURSE-CORRECTED // SAFE EXECUTION RESUMED'}
-            </span>
+            {/* Dynamic Status Callout */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              {animStage === 'stalled' && (
+                <span style={{
+                  fontSize: '11px',
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontWeight: 700,
+                  color: '#EF4444',
+                  backgroundColor: 'rgba(239, 68, 68, 0.18)',
+                  border: '1px solid rgba(239, 68, 68, 0.4)',
+                  padding: '4px 10px',
+                  borderRadius: '6px'
+                }}>
+                  ⚠️ TRIPWIRE: STALL LOOP DETECTED (3X REPEAT)
+                </span>
+              )}
+              {animStage === 'intervened' && (
+                <span style={{
+                  fontSize: '11px',
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontWeight: 700,
+                  color: '#10B981',
+                  backgroundColor: 'rgba(16, 185, 129, 0.18)',
+                  border: '1px solid rgba(16, 185, 129, 0.4)',
+                  padding: '4px 10px',
+                  borderRadius: '6px'
+                }}>
+                  ✓ RECOVERY INJECTED &bull; COMPLETED
+                </span>
+              )}
+              <span style={{
+                fontSize: '13px',
+                fontFamily: "'JetBrains Mono', monospace",
+                color: '#71F6D2',
+                fontWeight: 700
+              }}>
+                {formattedTimestamp} / 05:20
+              </span>
+            </div>
           </div>
 
-          {/* Visual Activity Waveforms */}
-          <div style={{
-            height: '200px',
-            backgroundColor: '#090D16',
-            position: 'relative',
-            overflow: 'hidden',
-            padding: '18px 24px'
-          }}>
-            <div style={{ position: 'relative', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#64748B' }}>
-                <span>START OF RUN</span>
-                <span>BUILD STEP</span>
-                <span style={{ color: animStage === 'stalled' ? '#F85149' : '#64748B' }}>STALL DETECTED</span>
-                <span style={{ color: '#71F6D2' }}>COMPLETED</span>
-              </div>
+          {/* Timeline Visual Track */}
+          <div style={{ padding: '36px 32px' }}>
+            {/* Timeline Scrub Track */}
+            <div
+              onClick={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const pct = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
+                setPlayheadPercent(pct);
+                setIsAutoPlaying(false);
+              }}
+              style={{
+                position: 'relative',
+                height: '48px',
+                backgroundColor: 'rgba(0,0,0,0.45)',
+                borderRadius: '8px',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                cursor: 'pointer',
+                marginBottom: '28px'
+              }}
+            >
+              {/* Stall zone highlight */}
+              <div style={{
+                position: 'absolute',
+                left: '68%',
+                width: '12%',
+                top: 0,
+                bottom: 0,
+                backgroundColor: 'rgba(239, 68, 68, 0.25)',
+                borderLeft: '1px dashed #EF4444',
+                borderRight: '1px dashed #EF4444'
+              }} />
 
-              {/* Waveforms */}
-              <div style={{ height: '65px', position: 'relative', display: 'flex', alignItems: 'flex-end', gap: '3px' }}>
-                {Array.from({ length: 64 }).map((_, i) => {
-                  const h = 12 + Math.sin(i * 0.35) * 26 + (i > 40 && i < 50 ? 28 : 0);
-                  const isStallArea = i >= 42 && i <= 48;
-                  const isIntervenedArea = i > 48;
-                  let bg = 'rgba(13, 172, 241, 0.45)';
-                  if (isStallArea) bg = 'rgba(239, 68, 68, 0.8)';
-                  else if (isIntervenedArea) bg = 'rgba(113, 246, 210, 0.6)';
+              {/* Checkpoint Pins */}
+              {SAMPLE_BLOCKS.map((blk) => {
+                const leftPct = blk.index === 1 ? 4 : blk.index === 12 ? 35 : blk.index === 29 ? 72 : 94;
+                const isSelected = selectedBlock.index === blk.index;
+                return (
+                  <div
+                    key={blk.index}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedBlock(blk);
+                    }}
+                    style={{
+                      position: 'absolute',
+                      left: `${leftPct}%`,
+                      top: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      width: isSelected ? '24px' : '18px',
+                      height: isSelected ? '24px' : '18px',
+                      borderRadius: '50%',
+                      backgroundColor: blk.kind.includes('SAFETY') ? '#EF4444' : isSelected ? '#0082FB' : '#0DACF1',
+                      border: '3px solid #090D16',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '9px',
+                      fontWeight: 800,
+                      color: '#ffffff',
+                      zIndex: 3,
+                      transition: 'all 0.2s ease',
+                      boxShadow: isSelected ? '0 0 12px #0082FB' : 'none'
+                    }}
+                    title={`Checkpoint #${blk.index}: ${blk.kind}`}
+                  >
+                    #{blk.index}
+                  </div>
+                );
+              })}
 
-                  return (
-                    <div
-                      key={i}
-                      style={{
-                        flex: 1,
-                        height: `${h}px`,
-                        backgroundColor: bg,
-                        borderRadius: '1px 1px 0 0'
-                      }}
-                    />
-                  );
-                })}
-              </div>
-
-              {/* Scrubber Track */}
-              <div
-                onClick={(e) => {
-                  const rect = e.currentTarget.getBoundingClientRect();
-                  const pct = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
-                  handleManualSeek(pct);
-                }}
-                style={{
-                  position: 'relative',
-                  height: '24px',
-                  backgroundColor: '#161B22',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  border: '1px solid #30363D'
-                }}
-              >
+              {/* Scrub Playhead Indicator */}
+              <div style={{
+                position: 'absolute',
+                left: `${playheadPercent}%`,
+                top: '-6px',
+                bottom: '-6px',
+                width: '3px',
+                backgroundColor: '#71F6D2',
+                boxShadow: '0 0 14px #71F6D2',
+                zIndex: 4,
+                pointerEvents: 'none'
+              }}>
                 <div style={{
                   position: 'absolute',
-                  left: 0,
-                  top: 0,
-                  bottom: 0,
-                  width: `${playheadPercent}%`,
-                  backgroundColor: 'rgba(13, 172, 241, 0.2)',
-                  borderRight: '2px solid #0DACF1'
-                }} />
-
-                <div style={{
-                  position: 'absolute',
-                  left: `${playheadPercent}%`,
-                  top: '-7px',
+                  top: '-18px',
+                  left: '50%',
                   transform: 'translateX(-50%)',
-                  padding: '2px 7px',
-                  backgroundColor: '#0DACF1',
-                  color: '#ffffff',
-                  fontSize: '11px',
-                  fontWeight: 700,
-                  borderRadius: '3px'
+                  backgroundColor: '#71F6D2',
+                  color: '#090D16',
+                  fontSize: '10px',
+                  fontWeight: 800,
+                  fontFamily: "'JetBrains Mono', monospace",
+                  padding: '2px 6px',
+                  borderRadius: '4px',
+                  whiteSpace: 'nowrap'
                 }}>
                   {formattedTimestamp}
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Diagnostic Bar */}
-          <div style={{
-            backgroundColor: '#0D1117',
-            borderTop: '1px solid #21262D',
-            padding: '12px 20px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            fontSize: '12px',
-            color: '#C9D1D9'
-          }}>
-            <div>
-              <span style={{ color: '#8B949E' }}>STATUS: </span>
-              {animStage === 'stalled' && (
-                <span style={{ color: '#F85149' }}>
-                  Safety Alert: Agent repeated identical changes 3 times. Execution paused to protect budget.
-                </span>
-              )}
-              {animStage === 'intervened' && (
-                <span style={{ color: '#71F6D2' }}>
-                  Intervention #30: Operator rewound execution and updated instructions. Normal flight resumed.
-                </span>
-              )}
-              {animStage === 'running' && (
-                <span style={{ color: '#0DACF1' }}>
-                  Normal Execution: Tool execution completed successfully.
-                </span>
-              )}
+            {/* Playhead Controls & Inspector Details */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '1.2fr 1fr',
+              gap: '24px',
+              alignItems: 'center'
+            }}>
+              {/* Selected Checkpoint Inspector */}
+              <div style={{
+                backgroundColor: 'rgba(0, 0, 0, 0.4)',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                borderRadius: '12px',
+                padding: '16px 20px',
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: '12px'
+              }}>
+                <div style={{ color: '#64748B', marginBottom: '4px' }}>
+                  // Selected Block #{selectedBlock.index} &bull; {selectedBlock.kind} [{selectedBlock.timestamp}]
+                </div>
+                <div style={{ color: '#E2E8F0', marginBottom: '6px' }}>
+                  <span style={{ color: '#0DACF1' }}>Action:</span> {selectedBlock.actionSummary}
+                </div>
+                <div style={{ display: 'flex', gap: '14px', fontSize: '11px' }}>
+                  <span style={{ color: '#10B981' }}>✓ Integrity: Verified Unaltered</span>
+                  <span style={{ color: '#64748B' }}>Hash: {selectedBlock.hash || '0x8f2c..e14d'}</span>
+                </div>
+              </div>
+
+              {/* Interactive Scrub Controls */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '12px' }}>
+                <button
+                  onClick={() => setIsAutoPlaying(!isAutoPlaying)}
+                  style={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                    color: '#ffffff',
+                    padding: '8px 18px',
+                    borderRadius: '9999px',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    cursor: 'pointer'
+                  }}
+                >
+                  {isAutoPlaying ? 'Pause Playback' : 'Resume Playback'}
+                </button>
+
+                <a
+                  href={`${COCKPIT_URL}/dashboard`}
+                  style={{
+                    backgroundColor: '#0064E0',
+                    color: '#ffffff',
+                    textDecoration: 'none',
+                    padding: '8px 20px',
+                    borderRadius: '9999px',
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    boxShadow: '0 4px 12px rgba(0, 100, 224, 0.35)'
+                  }}
+                >
+                  Open Live Cockpit →
+                </a>
+              </div>
             </div>
-
-            <button
-              onClick={() => setIsAutoPlaying(!isAutoPlaying)}
-              style={{
-                background: '#21262D',
-                border: '1px solid #30363D',
-                color: '#F0F6FC',
-                padding: '4px 12px',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: '11px'
-              }}
-            >
-              {isAutoPlaying ? 'Pause' : 'Play'}
-            </button>
           </div>
         </div>
       </section>
 
-      {/* 10. AUDIT TRAIL & HISTORY INSPECTOR */}
-      <section id="audit-section" style={{
-        maxWidth: '1280px',
-        margin: '0 auto',
-        padding: '0 36px 96px 36px'
-      }}>
-        <div style={{
-          backgroundColor: '#ffffff',
-          borderRadius: '16px',
-          border: '1px solid #E5E7EB',
-          padding: '32px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
-            <div>
-              <div style={{ fontSize: '12px', fontWeight: 700, color: '#0064E0', letterSpacing: '0.04em' }}>
-                VERIFIED AUDIT LOG
-              </div>
-              <h2 style={{ fontSize: '26px', fontWeight: 800, color: '#09090b', margin: '4px 0 0 0' }}>
-                Tamper-Proof History Inspector
-              </h2>
-            </div>
+      {/* ─────────────────────────────────────────────────────────────
+          5. ENGINE ARCHITECTURE & FLEET GOVERNANCE
+          (Replaces generic "CHRONO FOR ENTERPRISE" & "TRY CHRONO")
+      ───────────────────────────────────────────────────────────── */}
+      <section
+        id="architecture"
+        style={{
+          maxWidth: '1280px',
+          margin: '0 auto',
+          padding: '60px 36px 90px 36px'
+        }}
+      >
+        <div style={{ marginBottom: '40px' }}>
+          <div style={{
+            fontSize: '12px',
+            fontWeight: 700,
+            color: '#71F6D2',
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+            marginBottom: '10px'
+          }}>
+            02 // ENGINE ARCHITECTURE
+          </div>
+          <h2 style={{
+            fontSize: '38px',
+            fontWeight: 800,
+            color: '#FFFFFF',
+            letterSpacing: '-0.025em',
+            margin: '0 0 10px 0'
+          }}>
+            Zero-overhead C++ core. Uncompromising agent safety.
+          </h2>
+          <p style={{ fontSize: '16px', color: '#94A3B8', margin: 0, maxWidth: '720px' }}>
+            Built as a native flight recorder that tails your agent&apos;s event stream out-of-band. Zero runtime dependencies, sub-millisecond cryptographic sealing, and direct streaming to your cockpit.
+          </p>
+        </div>
 
-            <button
-              onClick={handleRunVerify}
-              disabled={isVerifying}
-              className="btn-press"
-              style={{
-                padding: '10px 22px',
-                borderRadius: '9999px',
-                backgroundColor: isVerifying ? '#94A3B8' : '#0064E0',
-                color: '#ffffff',
-                border: 'none',
-                fontSize: '13px',
-                fontWeight: 700,
-                cursor: isVerifying ? 'not-allowed' : 'pointer'
-              }}
-            >
-              {isVerifying ? 'Verifying Log Integrity...' : 'Verify Ledger Integrity'}
-            </button>
+        {/* 3-Column Bento Tech Grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', marginBottom: '32px' }}>
+          {/* Card 1 */}
+          <div style={{
+            backgroundColor: '#0E1424',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: '18px',
+            padding: '32px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between'
+          }}>
+            <div>
+              <div style={{ fontSize: '11px', fontFamily: "'JetBrains Mono', monospace", color: '#0DACF1', marginBottom: '8px' }}>
+                SUBSYSTEM 01 // CORE
+              </div>
+              <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#ffffff', margin: '0 0 12px 0' }}>
+                chronod C++20 Daemon
+              </h3>
+              <p style={{ fontSize: '14px', color: '#94A3B8', lineHeight: 1.6, margin: 0 }}>
+                High-throughput zero-copy ring buffer with native Linux/macOS/Windows filesystem event listeners. Captures thousands of events per second with under 0.4% host CPU usage.
+              </p>
+            </div>
+            <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px solid rgba(255, 255, 255, 0.08)', fontSize: '12px', color: '#71F6D2', fontFamily: "'JetBrains Mono', monospace" }}>
+              Latency: &lt; 0.8ms &bull; Zero Overhead
+            </div>
           </div>
 
-          {verifyResult && (
+          {/* Card 2 */}
+          <div style={{
+            backgroundColor: '#0E1424',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: '18px',
+            padding: '32px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between'
+          }}>
+            <div>
+              <div style={{ fontSize: '11px', fontFamily: "'JetBrains Mono', monospace", color: '#71F6D2', marginBottom: '8px' }}>
+                SUBSYSTEM 02 // STREAMING
+              </div>
+              <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#ffffff', margin: '0 0 12px 0' }}>
+                Starlette 60fps SSE Bus
+              </h3>
+              <p style={{ fontSize: '14px', color: '#94A3B8', lineHeight: 1.6, margin: 0 }}>
+                Low-latency Server-Sent Events bridge that broadcasts sealed Merkle blocks and stall tripwire interrupts directly into the Next.js visual cockpit at 60fps.
+              </p>
+            </div>
+            <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px solid rgba(255, 255, 255, 0.08)', fontSize: '12px', color: '#0DACF1', fontFamily: "'JetBrains Mono', monospace" }}>
+              Protocol: SSE + IPC &bull; 60fps Stream
+            </div>
+          </div>
+
+          {/* Card 3 */}
+          <div style={{
+            backgroundColor: '#0E1424',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: '18px',
+            padding: '32px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between'
+          }}>
+            <div>
+              <div style={{ fontSize: '11px', fontFamily: "'JetBrains Mono', monospace", color: '#F5A3E0', marginBottom: '8px' }}>
+                SUBSYSTEM 03 // INTELLIGENCE
+              </div>
+              <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#ffffff', margin: '0 0 12px 0' }}>
+                Meta Muse Spark Pipeline
+              </h3>
+              <p style={{ fontSize: '14px', color: '#94A3B8', lineHeight: 1.6, margin: 0 }}>
+                On-demand cognitive diagnostics engine powered by Muse Spark. Translates token velocity dips and recurring error stacks into human-actionable directives.
+              </p>
+            </div>
+            <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px solid rgba(255, 255, 255, 0.08)', fontSize: '12px', color: '#F5A3E0', fontFamily: "'JetBrains Mono', monospace" }}>
+              Inference: Meta AI Model API
+            </div>
+          </div>
+        </div>
+
+        {/* Live Terminal Spec Window */}
+        <div style={{
+          backgroundColor: '#060911',
+          border: '1px solid rgba(255, 255, 255, 0.12)',
+          borderRadius: '16px',
+          padding: '24px',
+          fontFamily: "'JetBrains Mono', monospace",
+          fontSize: '12px',
+          lineHeight: 1.6
+        }}>
+          <div style={{ color: '#64748B', marginBottom: '8px' }}>// Terminal: Launching chronod flight recorder on live agent session</div>
+          <div><span style={{ color: '#10B981' }}>$</span> <span style={{ color: '#E2E8F0' }}>chronod --record --watch ./agent_transcript.jsonl --tripwire 0.85</span></div>
+          <div style={{ color: '#0DACF1', marginTop: '6px' }}>[chronod] Initialized ring buffer (capacity: 65,536 events)</div>
+          <div style={{ color: '#71F6D2' }}>[chronod] Merkle root established: 0x8f2ce14da983b7</div>
+          <div style={{ color: '#E2E8F0' }}>[chronod] Attached to agent PID 4819 &bull; Zero overhead mode active</div>
+          <div style={{ color: '#EF4444', marginTop: '4px' }}>[sentry] Checkpoint #29: Stall pattern detected (3x identical edits) &rarr; Paused</div>
+        </div>
+      </section>
+
+      {/* ─────────────────────────────────────────────────────────────
+          6. VERIFIED AUDIT LEDGER
+      ───────────────────────────────────────────────────────────── */}
+      <section
+        id="audit-section"
+        style={{
+          maxWidth: '1280px',
+          margin: '0 auto',
+          padding: '60px 36px 90px 36px'
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px', flexWrap: 'wrap', gap: '20px' }}>
+          <div>
             <div style={{
-              backgroundColor: '#F0FDF4',
-              border: '1px solid #BBF7D0',
-              borderRadius: '8px',
-              padding: '12px 16px',
+              fontSize: '12px',
+              fontWeight: 700,
+              color: '#71F6D2',
+              letterSpacing: '0.1em',
+              textTransform: 'uppercase',
+              marginBottom: '10px'
+            }}>
+              VERIFIED AUDIT LOG
+            </div>
+            <h2 style={{
+              fontSize: '38px',
+              fontWeight: 800,
+              color: '#FFFFFF',
+              letterSpacing: '-0.025em',
+              margin: '0 0 10px 0'
+            }}>
+              Tamper-proof history inspector
+            </h2>
+            <p style={{ fontSize: '16px', color: '#94A3B8', margin: 0, maxWidth: '640px' }}>
+              Inspect permanently recorded checkpoints. Click any block to view its cryptographic signature or run a live integrity check over the entire hash chain.
+            </p>
+          </div>
+
+          <button
+            onClick={handleVerifyLedger}
+            disabled={isVerifying}
+            className="btn-press"
+            style={{
+              backgroundColor: isVerifying ? '#1E293B' : '#0064E0',
+              border: '1px solid rgba(255, 255, 255, 0.18)',
+              color: '#ffffff',
+              padding: '12px 24px',
+              borderRadius: '9999px',
               fontSize: '13px',
-              color: '#15803D',
-              marginBottom: '20px',
+              fontWeight: 700,
+              cursor: isVerifying ? 'wait' : 'pointer',
               display: 'flex',
               alignItems: 'center',
               gap: '8px'
-            }}>
-              <IconCheck size={16} color="#15803D" /> {verifyResult}
-            </div>
-          )}
+            }}
+          >
+            <span>{isVerifying ? 'Verifying Chain...' : 'Verify Ledger Cryptography'}</span>
+          </button>
+        </div>
 
-          {/* 4 Clickable Checkpoint Cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '14px', marginBottom: '20px' }}>
-            {SAMPLE_BLOCKS.map((b) => (
+        {/* Verification Toast Banner */}
+        {verifyResult && (
+          <div style={{
+            backgroundColor: 'rgba(16, 185, 129, 0.15)',
+            border: '1px solid #10B981',
+            borderRadius: '12px',
+            padding: '14px 20px',
+            marginBottom: '24px',
+            color: '#A7F3D0',
+            fontSize: '13px',
+            fontFamily: "'JetBrains Mono', monospace",
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}>
+            <span>✓ {verifyResult}</span>
+            <span style={{ fontSize: '11px', color: '#10B981', fontWeight: 700 }}>PROOF VALIDATED</span>
+          </div>
+        )}
+
+        {/* Audit Log Table */}
+        <div style={{
+          backgroundColor: '#0E1424',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          borderRadius: '18px',
+          overflow: 'hidden'
+        }}>
+          {SAMPLE_BLOCKS.map((blk, idx) => {
+            const isSelected = selectedBlock.index === blk.index;
+            return (
               <div
-                key={b.index}
-                onClick={() => setSelectedBlock(b)}
+                key={blk.index}
+                onClick={() => setSelectedBlock(blk)}
                 style={{
-                  padding: '14px 16px',
-                  borderRadius: '8px',
-                  border: selectedBlock.index === b.index ? '2px solid #0064E0' : '1px solid #E5E7EB',
-                  backgroundColor: selectedBlock.index === b.index ? '#F0F9FF' : '#ffffff',
-                  cursor: 'pointer'
+                  padding: '20px 24px',
+                  borderBottom: idx < SAMPLE_BLOCKS.length - 1 ? '1px solid rgba(255, 255, 255, 0.06)' : 'none',
+                  backgroundColor: isSelected ? 'rgba(0, 100, 224, 0.12)' : 'transparent',
+                  display: 'grid',
+                  gridTemplateColumns: '100px 180px 1fr 140px',
+                  alignItems: 'center',
+                  gap: '16px',
+                  cursor: 'pointer',
+                  transition: 'background 0.15s ease'
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#64748B' }}>
-                  <span>Checkpoint #{b.index}</span>
-                  <span>{b.timestamp}</span>
+                <div style={{
+                  fontSize: '13px',
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontWeight: 700,
+                  color: isSelected ? '#71F6D2' : '#0DACF1'
+                }}>
+                  #{blk.index} ({blk.timestamp})
                 </div>
-                <div style={{ fontSize: '14px', fontWeight: 700, color: '#09090b', marginTop: '6px' }}>
-                  {b.kind}
+
+                <div style={{
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  color: blk.kind.includes('SAFETY') ? '#EF4444' : '#E2E8F0'
+                }}>
+                  {blk.kind}
                 </div>
-                <div style={{ fontSize: '11px', color: '#15803D', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <IconCheck size={12} color="#15803D" /> {b.status}
+
+                <div style={{ fontSize: '14px', color: '#94A3B8' }}>
+                  {blk.actionSummary}
+                </div>
+
+                <div style={{ textAlign: 'right' }}>
+                  <span style={{
+                    fontSize: '11px',
+                    fontFamily: "'JetBrains Mono', monospace",
+                    padding: '3px 8px',
+                    borderRadius: '4px',
+                    backgroundColor: blk.kind.includes('SAFETY') ? 'rgba(239, 68, 68, 0.18)' : 'rgba(16, 185, 129, 0.18)',
+                    color: blk.kind.includes('SAFETY') ? '#EF4444' : '#10B981',
+                    fontWeight: 600
+                  }}>
+                    {blk.status}
+                  </span>
                 </div>
               </div>
-            ))}
-          </div>
-
-          {/* Checkpoint Detail Box */}
-          <div style={{
-            backgroundColor: '#0D1117',
-            borderRadius: '8px',
-            padding: '16px 20px',
-            fontSize: '13px',
-            color: '#C9D1D9',
-            lineHeight: 1.6
-          }}>
-            <div style={{ color: '#8B949E', marginBottom: '6px' }}>// Inspecting Checkpoint #{selectedBlock.index} — {selectedBlock.kind}</div>
-            <div><span style={{ color: '#0DACF1' }}>Recorded Action:</span> {selectedBlock.actionSummary}</div>
-            <div><span style={{ color: '#71F6D2' }}>Integrity Status:</span> Cryptographically verified • Unaltered</div>
-          </div>
+            );
+          })}
         </div>
       </section>
 
-      {/* 11. CORE CAPABILITIES (REPLACED TECHNICAL SPEC JARGON WITH VALUE) */}
-      <section id="capabilities" style={{
-        maxWidth: '1280px',
-        margin: '0 auto',
-        padding: '0 36px 96px 36px'
-      }}>
-        <div style={{ marginBottom: '28px' }}>
-          <div style={{ fontSize: '12px', fontWeight: 700, color: '#0064E0', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '10px' }}>
+      {/* ─────────────────────────────────────────────────────────────
+          7. CORE CAPABILITIES & PRODUCT GUARANTEES
+      ───────────────────────────────────────────────────────────── */}
+      <section
+        id="capabilities"
+        style={{
+          maxWidth: '1280px',
+          margin: '0 auto',
+          padding: '60px 36px 90px 36px'
+        }}
+      >
+        <div style={{ marginBottom: '36px' }}>
+          <div style={{
+            fontSize: '12px',
+            fontWeight: 700,
+            color: '#71F6D2',
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+            marginBottom: '10px'
+          }}>
             CORE CAPABILITIES
           </div>
-          <h2 style={{ fontSize: '36px', fontWeight: 800, color: '#09090b', margin: '0 0 10px 0', letterSpacing: '-0.02em' }}>
-            Built for Complete Visibility and Control
+          <h2 style={{
+            fontSize: '38px',
+            fontWeight: 800,
+            color: '#FFFFFF',
+            letterSpacing: '-0.025em',
+            margin: '0 0 10px 0'
+          }}>
+            Built for complete visibility and control
           </h2>
-          <p style={{ fontSize: '16px', color: '#4B5563', margin: 0 }}>
+          <p style={{ fontSize: '16px', color: '#94A3B8', margin: 0, maxWidth: '720px' }}>
             Everything you need to supervise, debug, and govern autonomous agents in development and production.
           </p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px' }}>
-          <div style={{ border: '1px solid #E5E7EB', borderRadius: '16px', padding: '28px', backgroundColor: '#ffffff' }}>
-            <div style={{ fontSize: '12px', fontWeight: 700, color: '#0064E0', marginBottom: '6px' }}>
-              CAPABILITY 01
+        {/* 4 Precision Capability Cards */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px', marginBottom: '32px' }}>
+          {[
+            {
+              num: '01',
+              title: 'Continuous Flight Recording',
+              color: '#0DACF1',
+              desc: 'Captures every tool call, file edit, command output, and prompt transition in real time with zero slowdown on your agent’s execution.'
+            },
+            {
+              num: '02',
+              title: 'Permanent Tamper-Proof Logs',
+              color: '#10B981',
+              desc: 'Maintains an immutable record of every step taken. History cannot be silently modified or erased, ensuring reliable compliance and audit trails.'
+            },
+            {
+              num: '03',
+              title: 'Automatic Root-Cause Diagnosis',
+              color: '#F5A3E0',
+              desc: 'Translates complex failures into clear explanations. Automatically analyzes why an agent stalled or failed and suggests actionable fixes.'
+            },
+            {
+              num: '04',
+              title: 'Instant Rewind & Safe Branching',
+              color: '#0082FB',
+              desc: 'Scrub back to any healthy checkpoint, inject updated instructions, and fork execution cleanly without having to restart from scratch.'
+            }
+          ].map((cap) => (
+            <div
+              key={cap.num}
+              style={{
+                backgroundColor: '#0E1424',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                borderRadius: '16px',
+                padding: '30px'
+              }}
+            >
+              <div style={{
+                fontSize: '11px',
+                fontFamily: "'JetBrains Mono', monospace",
+                fontWeight: 700,
+                color: cap.color,
+                marginBottom: '8px'
+              }}>
+                CAPABILITY {cap.num}
+              </div>
+              <h3 style={{ fontSize: '19px', fontWeight: 700, color: '#FFFFFF', margin: '0 0 10px 0' }}>
+                {cap.title}
+              </h3>
+              <p style={{ fontSize: '14px', color: '#94A3B8', lineHeight: 1.6, margin: 0 }}>
+                {cap.desc}
+              </p>
             </div>
-            <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#09090b', margin: '0 0 10px 0' }}>
-              Continuous Flight Recording
-            </h3>
-            <p style={{ fontSize: '14px', color: '#4B5563', lineHeight: 1.6, margin: 0 }}>
-              Captures every tool call, file edit, command output, and prompt transition in real time with zero slowdown on your agent's execution.
-            </p>
-          </div>
-
-          <div style={{ border: '1px solid #E5E7EB', borderRadius: '16px', padding: '28px', backgroundColor: '#ffffff' }}>
-            <div style={{ fontSize: '12px', fontWeight: 700, color: '#10B981', marginBottom: '6px' }}>
-              CAPABILITY 02
-            </div>
-            <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#09090b', margin: '0 0 10px 0' }}>
-              Permanent Tamper-Proof Logs
-            </h3>
-            <p style={{ fontSize: '14px', color: '#4B5563', lineHeight: 1.6, margin: 0 }}>
-              Maintains an immutable record of every step taken. History cannot be silently modified or erased, ensuring reliable compliance and audit trails.
-            </p>
-          </div>
-
-          <div style={{ border: '1px solid #E5E7EB', borderRadius: '16px', padding: '28px', backgroundColor: '#ffffff' }}>
-            <div style={{ fontSize: '12px', fontWeight: 700, color: '#DB2777', marginBottom: '6px' }}>
-              CAPABILITY 03
-            </div>
-            <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#09090b', margin: '0 0 10px 0' }}>
-              Automatic Root-Cause Diagnosis
-            </h3>
-            <p style={{ fontSize: '14px', color: '#4B5563', lineHeight: 1.6, margin: 0 }}>
-              Translates complex failures into clear explanations. Automatically analyzes why an agent stalled or failed and suggests actionable fixes.
-            </p>
-          </div>
-
-          <div style={{ border: '1px solid #E5E7EB', borderRadius: '16px', padding: '28px', backgroundColor: '#ffffff' }}>
-            <div style={{ fontSize: '12px', fontWeight: 700, color: '#DC2626', marginBottom: '6px' }}>
-              CAPABILITY 04
-            </div>
-            <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#09090b', margin: '0 0 10px 0' }}>
-              Instant Rewind & Safe Branching
-            </h3>
-            <p style={{ fontSize: '14px', color: '#4B5563', lineHeight: 1.6, margin: 0 }}>
-              Scrub back to any healthy checkpoint, inject updated instructions, and fork execution cleanly without having to restart from scratch.
-            </p>
-          </div>
+          ))}
         </div>
 
-        {/* Core Product Guarantees (Clean, Jargon-Free Replacement for Specs Table) */}
+        {/* 5 Product Guarantees Bar */}
         <div style={{
-          marginTop: '32px',
-          backgroundColor: '#F8FAFC',
-          border: '1px solid #E2E8F0',
+          backgroundColor: '#0A0E1A',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
           borderRadius: '16px',
           padding: '28px 36px'
         }}>
-          <div style={{ fontSize: '12px', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', marginBottom: '16px', letterSpacing: '0.05em' }}>
+          <div style={{
+            fontSize: '11px',
+            fontFamily: "'JetBrains Mono', monospace",
+            fontWeight: 700,
+            color: '#64748B',
+            textTransform: 'uppercase',
+            marginBottom: '16px',
+            letterSpacing: '0.08em'
+          }}>
             CHRONO PRODUCT GUARANTEES
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '20px' }}>
             <div>
-              <div style={{ fontSize: '12px', color: '#64748B' }}>PERFORMANCE</div>
-              <div style={{ fontSize: '18px', fontWeight: 800, color: '#09090B', marginTop: '4px' }}>Zero Overhead</div>
-              <div style={{ fontSize: '12px', color: '#10B981', marginTop: '2px' }}>Runs silently in background</div>
+              <div style={{ fontSize: '11px', color: '#64748B', fontFamily: "'JetBrains Mono', monospace" }}>PERFORMANCE</div>
+              <div style={{ fontSize: '17px', fontWeight: 800, color: '#FFFFFF', marginTop: '4px' }}>Zero Overhead</div>
+              <div style={{ fontSize: '12px', color: '#10B981', marginTop: '2px' }}>&lt; 0.4% host CPU</div>
             </div>
 
             <div>
-              <div style={{ fontSize: '12px', color: '#64748B' }}>SCRUBBING</div>
-              <div style={{ fontSize: '18px', fontWeight: 800, color: '#09090B', marginTop: '4px' }}>Instant Rewind</div>
+              <div style={{ fontSize: '11px', color: '#64748B', fontFamily: "'JetBrains Mono', monospace" }}>SCRUBBING</div>
+              <div style={{ fontSize: '17px', fontWeight: 800, color: '#FFFFFF', marginTop: '4px' }}>Instant Rewind</div>
               <div style={{ fontSize: '12px', color: '#10B981', marginTop: '2px' }}>Jump to any checkpoint</div>
             </div>
 
             <div>
-              <div style={{ fontSize: '12px', color: '#64748B' }}>COST PROTECTION</div>
-              <div style={{ fontSize: '18px', fontWeight: 800, color: '#09090B', marginTop: '4px' }}>Circuit Breakers</div>
+              <div style={{ fontSize: '11px', color: '#64748B', fontFamily: "'JetBrains Mono', monospace" }}>COST SHIELD</div>
+              <div style={{ fontSize: '17px', fontWeight: 800, color: '#FFFFFF', marginTop: '4px' }}>Circuit Breakers</div>
               <div style={{ fontSize: '12px', color: '#10B981', marginTop: '2px' }}>Prevents loop runaway</div>
             </div>
 
             <div>
-              <div style={{ fontSize: '12px', color: '#64748B' }}>SECURITY</div>
-              <div style={{ fontSize: '18px', fontWeight: 800, color: '#09090B', marginTop: '4px' }}>Tamper-Proof</div>
+              <div style={{ fontSize: '11px', color: '#64748B', fontFamily: "'JetBrains Mono', monospace" }}>SECURITY</div>
+              <div style={{ fontSize: '17px', fontWeight: 800, color: '#FFFFFF', marginTop: '4px' }}>Tamper-Proof</div>
               <div style={{ fontSize: '12px', color: '#10B981', marginTop: '2px' }}>Verifiable audit trails</div>
             </div>
 
             <div>
-              <div style={{ fontSize: '12px', color: '#64748B' }}>COMPATIBILITY</div>
-              <div style={{ fontSize: '18px', fontWeight: 800, color: '#09090B', marginTop: '4px' }}>Universal</div>
-              <div style={{ fontSize: '12px', color: '#0064E0', marginTop: '2px' }}>Any agent harness or CLI</div>
+              <div style={{ fontSize: '11px', color: '#64748B', fontFamily: "'JetBrains Mono', monospace" }}>COMPATIBILITY</div>
+              <div style={{ fontSize: '17px', fontWeight: 800, color: '#FFFFFF', marginTop: '4px' }}>Universal</div>
+              <div style={{ fontSize: '12px', color: '#0DACF1', marginTop: '2px' }}>Any agent harness or CLI</div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 12. FREQUENTLY ASKED QUESTIONS */}
-      <section id="faq" style={{
-        maxWidth: '1280px',
-        margin: '0 auto',
-        padding: '0 36px 96px 36px'
-      }}>
-        <div style={{
-          fontSize: '12px',
-          fontWeight: 700,
-          color: '#0064E0',
-          letterSpacing: '0.08em',
-          textTransform: 'uppercase',
-          marginBottom: '10px'
-        }}>
-          FREQUENTLY ASKED QUESTIONS
+      {/* ─────────────────────────────────────────────────────────────
+          8. FREQUENTLY ASKED QUESTIONS
+      ───────────────────────────────────────────────────────────── */}
+      <section
+        id="faq"
+        style={{
+          maxWidth: '1280px',
+          margin: '0 auto',
+          padding: '60px 36px 90px 36px'
+        }}
+      >
+        <div style={{ marginBottom: '36px' }}>
+          <div style={{
+            fontSize: '12px',
+            fontWeight: 700,
+            color: '#71F6D2',
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+            marginBottom: '10px'
+          }}>
+            FREQUENTLY ASKED QUESTIONS
+          </div>
+          <h2 style={{
+            fontSize: '38px',
+            fontWeight: 800,
+            color: '#FFFFFF',
+            letterSpacing: '-0.025em',
+            margin: 0
+          }}>
+            Everything you need to know
+          </h2>
         </div>
-        <h2 style={{
-          fontSize: '36px',
-          fontWeight: 800,
-          color: '#09090b',
-          letterSpacing: '-0.02em',
-          margin: '0 0 36px 0'
-        }}>
-          Everything you need to know about Chrono
-        </h2>
 
-        <div style={{ borderTop: '1px solid #E5E7EB' }}>
-          {FAQ_ITEMS.map((item, index) => {
-            const isOpen = openFaq === index;
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          {FAQ_ITEMS.map((item, idx) => {
+            const isOpen = openFaq === idx;
             return (
               <div
-                key={index}
+                key={idx}
+                onClick={() => setOpenFaq(isOpen ? null : idx)}
                 style={{
-                  borderBottom: '1px solid #E5E7EB'
+                  backgroundColor: '#0E1424',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  borderRadius: '14px',
+                  padding: '22px 26px',
+                  cursor: 'pointer'
                 }}
               >
-                <button
-                  onClick={() => setOpenFaq(isOpen ? null : index)}
-                  style={{
-                    width: '100%',
-                    padding: '22px 0',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    backgroundColor: 'transparent',
-                    border: 'none',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    fontSize: '18px',
-                    fontWeight: 700,
-                    color: '#111827'
-                  }}
-                >
-                  <span>{item.question}</span>
-                  <span style={{ color: '#0064E0' }}>
-                    {isOpen ? <IconMinus size={20} /> : <IconPlus size={20} />}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <h3 style={{ fontSize: '17px', fontWeight: 700, color: '#FFFFFF', margin: 0 }}>
+                    {item.question}
+                  </h3>
+                  <span style={{ fontSize: '16px', color: '#0DACF1' }}>
+                    {isOpen ? '−' : '+'}
                   </span>
-                </button>
+                </div>
                 {isOpen && (
-                  <div style={{
-                    padding: '0 0 24px 0',
-                    fontSize: '15px',
-                    color: '#4B5563',
-                    lineHeight: 1.6,
-                    maxWidth: '880px'
+                  <p style={{
+                    fontSize: '14px',
+                    color: '#94A3B8',
+                    lineHeight: 1.65,
+                    margin: '14px 0 0 0'
                   }}>
                     {item.answer}
-                  </div>
+                  </p>
                 )}
               </div>
             );
@@ -2021,108 +1935,116 @@ export default function App() {
         </div>
       </section>
 
-      {/* 13. CHRONO PROFESSIONAL FOOTER */}
-      <footer style={{
-        borderTop: '1px solid #E5E7EB',
-        backgroundColor: '#ffffff',
-        padding: '64px 36px 36px 36px',
-        fontSize: '13px',
-        color: '#64748B'
+      {/* ─────────────────────────────────────────────────────────────
+          9. HIGH-IMPACT FINALE BANNER & MINIMALIST FOOTER
+      ───────────────────────────────────────────────────────────── */}
+      <section style={{
+        maxWidth: '1280px',
+        margin: '0 auto',
+        padding: '0 36px 100px 36px'
       }}>
         <div style={{
-          maxWidth: '1280px',
-          margin: '0 auto',
-          display: 'grid',
-          gridTemplateColumns: '1.2fr repeat(4, 1fr)',
-          gap: '32px',
-          marginBottom: '56px'
+          backgroundColor: '#0E1424',
+          backgroundImage: 'radial-gradient(ellipse at 50% 0%, rgba(0, 130, 251, 0.25) 0%, transparent 70%)',
+          border: '1px solid rgba(255, 255, 255, 0.14)',
+          borderRadius: '28px',
+          padding: '72px 36px',
+          textAlign: 'center',
+          position: 'relative',
+          overflow: 'hidden'
         }}>
-          {/* Brand & Mission */}
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#111827', marginBottom: '16px' }}>
-              <ChronoLogo size={28} color="#0064E0" />
-              <span style={{ fontSize: '18px', fontWeight: 800 }}>CHRONO</span>
-            </div>
-            <p style={{ fontSize: '13px', color: '#64748B', lineHeight: 1.6, margin: '0 0 16px 0' }}>
-              Flight Data Recording and Observability for Autonomous AI Agents.
-            </p>
-            <div style={{ display: 'flex', gap: '14px', color: '#6B7280' }}>
-              <span style={{ display: 'inline-flex', alignItems: 'center' }}><IconClock size={16} /></span>
-              <span style={{ display: 'inline-flex', alignItems: 'center' }}><IconPlane size={16} /></span>
-              <span style={{ display: 'inline-flex', alignItems: 'center' }}><IconLock size={16} /></span>
-              <span style={{ display: 'inline-flex', alignItems: 'center' }}><IconZap size={16} /></span>
-            </div>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
+            <ChronoLogo size={42} color="#0082FB" />
           </div>
 
-          {/* Product */}
-          <div>
-            <div style={{ fontSize: '13px', fontWeight: 700, color: '#111827', marginBottom: '14px' }}>Product</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <a href="#cockpit-section" style={{ color: '#64748B', textDecoration: 'none' }}>Flight Cockpit</a>
-              <a href="#audit-section" style={{ color: '#64748B', textDecoration: 'none' }}>Audit Trail</a>
-              <a href="#chrono-features" style={{ color: '#64748B', textDecoration: 'none' }}>Loop Protection</a>
-              <a href={`${COCKPIT_URL}/login`} style={{ color: '#64748B', textDecoration: 'none' }}>Operator Portal</a>
-            </div>
-          </div>
+          <h2 style={{
+            fontSize: '44px',
+            fontWeight: 800,
+            color: '#FFFFFF',
+            letterSpacing: '-0.03em',
+            margin: '0 0 16px 0'
+          }}>
+            Ready to take control of your autonomous agents?
+          </h2>
 
-          {/* Capabilities */}
-          <div>
-            <div style={{ fontSize: '13px', fontWeight: 700, color: '#111827', marginBottom: '14px' }}>Capabilities</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <a href="#capabilities" style={{ color: '#64748B', textDecoration: 'none' }}>Flight Recording</a>
-              <a href="#capabilities" style={{ color: '#64748B', textDecoration: 'none' }}>Tamper-Proof Logs</a>
-              <a href="#capabilities" style={{ color: '#64748B', textDecoration: 'none' }}>Root-Cause Analysis</a>
-              <a href="#capabilities" style={{ color: '#64748B', textDecoration: 'none' }}>Instant Rewind</a>
-            </div>
-          </div>
+          <p style={{
+            fontSize: '17px',
+            color: '#94A3B8',
+            maxWidth: '600px',
+            margin: '0 auto 36px auto',
+            lineHeight: 1.6
+          }}>
+            Seal your agent runs in an immutable black box. Detect runaway loops in real time, obtain instant Meta Muse Spark diagnoses, and rewind safely with zero data loss.
+          </p>
 
-          {/* Resources */}
-          <div>
-            <div style={{ fontSize: '13px', fontWeight: 700, color: '#111827', marginBottom: '14px' }}>Resources</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <a href="https://github.com/ShawnTheCreator/Chrono" target="_blank" rel="noreferrer" style={{ color: '#64748B', textDecoration: 'none' }}>GitHub Repository</a>
-              <a href="https://github.com/ShawnTheCreator/Chrono/blob/main/DESIGN.md" target="_blank" rel="noreferrer" style={{ color: '#64748B', textDecoration: 'none' }}>Design System</a>
-              <a href="#faq" style={{ color: '#64748B', textDecoration: 'none' }}>Frequently Asked Questions</a>
-              <a href={`${COCKPIT_URL}/dashboard`} style={{ color: '#64748B', textDecoration: 'none' }}>Live Demo</a>
-            </div>
-          </div>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
+            <a
+              href={`${COCKPIT_URL}/dashboard`}
+              className="btn-press shimmer-hover"
+              style={{
+                backgroundColor: '#0064E0',
+                backgroundImage: 'linear-gradient(135deg, #0082FB 0%, #0064E0 100%)',
+                color: '#ffffff',
+                textDecoration: 'none',
+                fontSize: '15px',
+                fontWeight: 700,
+                padding: '14px 34px',
+                borderRadius: '9999px',
+                boxShadow: '0 4px 18px rgba(0, 100, 224, 0.5)',
+                border: '1px solid rgba(255, 255, 255, 0.2)'
+              }}
+            >
+              Launch Cockpit →
+            </a>
 
-          {/* Overview */}
-          <div>
-            <div style={{ fontSize: '13px', fontWeight: 700, color: '#111827', marginBottom: '14px' }}>Overview</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <span style={{ color: '#64748B' }}>Zero Overhead Recording</span>
-              <span style={{ color: '#64748B' }}>Cryptographic Verification</span>
-              <span style={{ color: '#64748B' }}>Open Source (MIT)</span>
-              <span style={{ color: '#64748B' }}>Version 1.0.0</span>
-            </div>
+            <a
+              href={`${COCKPIT_URL}/login`}
+              style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                color: '#F8FAFC',
+                textDecoration: 'none',
+                fontSize: '15px',
+                fontWeight: 600,
+                padding: '14px 28px',
+                borderRadius: '9999px',
+                border: '1px solid rgba(255, 255, 255, 0.14)'
+              }}
+            >
+              Operator Portal
+            </a>
           </div>
         </div>
 
-        {/* Chrono Sub-Footer */}
-        <div style={{
-          maxWidth: '1280px',
-          margin: '0 auto',
-          paddingTop: '28px',
-          borderTop: '1px solid #E5E7EB',
+        {/* Minimalist Studio Footer */}
+        <footer style={{
+          marginTop: '60px',
+          paddingTop: '32px',
+          borderTop: '1px solid rgba(255, 255, 255, 0.08)',
           display: 'flex',
-          alignItems: 'center',
           justifyContent: 'space-between',
-          fontSize: '12px'
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '16px',
+          fontSize: '13px',
+          color: '#64748B'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <ChronoLogo size={20} color="#0064E0" />
-            <span style={{ fontWeight: 700, color: '#111827' }}>CHRONO FLIGHT DATA RECORDER</span>
-            <span>— The Flight Data Recorder for Autonomous AI Agents</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <ChronoLogo size={20} color="#0082FB" />
+            <span style={{ fontWeight: 700, color: '#E2E8F0' }}>CHRONO</span>
+            <span>&bull;</span>
+            <span>Flight Data Recorder for Autonomous Agents</span>
           </div>
 
-          <div style={{ display: 'flex', gap: '20px' }}>
-            <a href={`${COCKPIT_URL}/login`} style={{ color: '#111827', textDecoration: 'none', fontWeight: 500 }}>Operator Portal</a>
-            <a href={`${COCKPIT_URL}/dashboard`} style={{ color: '#111827', textDecoration: 'none', fontWeight: 500 }}>Cockpit Dashboard</a>
-            <a href="https://github.com/ShawnTheCreator/Chrono" target="_blank" rel="noreferrer" style={{ color: '#111827', textDecoration: 'none', fontWeight: 500 }}>GitHub</a>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+            <a href={`${COCKPIT_URL}/dashboard`} style={{ color: '#94A3B8', textDecoration: 'none' }}>Flight Cockpit</a>
+            <a href={`${COCKPIT_URL}/login`} style={{ color: '#94A3B8', textDecoration: 'none' }}>Operator Portal</a>
+            <a href="https://github.com/ShawnTheCreator/Chrono" target="_blank" rel="noreferrer" style={{ color: '#94A3B8', textDecoration: 'none' }}>GitHub</a>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", color: '#10B981', fontSize: '11px' }}>
+              REC ACTIVE // V2.4
+            </span>
           </div>
-        </div>
-      </footer>
+        </footer>
+      </section>
     </div>
   );
 }
