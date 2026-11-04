@@ -281,9 +281,8 @@ export default function CockpitDashboard() {
         {/* Left: Brand & Navigation */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div
-            onClick={() => store.resetToStandby()}
-            title="Return to Home"
-            style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+            title="Chrono Cockpit"
+            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
           >
             <ChronoLogo size={22} />
             <span style={{ fontSize: '13px', fontWeight: 800, color: theme.text.primary, letterSpacing: '-0.02em', fontFamily: '"JetBrains Mono", monospace' }}>
@@ -294,61 +293,71 @@ export default function CockpitDashboard() {
               fontWeight: 700,
               padding: '1px 5px',
               borderRadius: '3px',
-              background: state.activeMode === 'live' ? '#fee2e2' : state.activeMode === 'library' ? '#f3e8ff' : '#e0f2fe',
-              color: state.activeMode === 'live' ? '#b91c1c' : state.activeMode === 'library' ? '#7e22ce' : '#0369a1',
-              border: `1px solid ${state.activeMode === 'live' ? '#fca5a5' : state.activeMode === 'library' ? '#d8b4fe' : '#bae6fd'}`,
+              background: state.activeMode === 'live' ? '#fee2e2' : '#f3e8ff',
+              color: state.activeMode === 'live' ? '#b91c1c' : '#7e22ce',
+              border: `1px solid ${state.activeMode === 'live' ? '#fca5a5' : '#d8b4fe'}`,
               fontFamily: '"JetBrains Mono", monospace'
             }}>
-              {state.activeMode === 'live' ? 'RECORDING' : state.activeMode === 'library' ? 'PAST SESSION' : 'READY'}
+              {state.activeMode === 'live' ? 'RECORDING' : 'COCKPIT'}
             </span>
           </div>
 
           <div style={{ height: '14px', width: '1px', background: theme.border.default }} />
 
           {/* Simple Clean Breadcrumbs */}
-          {state.activeMode === 'standby' ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: theme.text.muted, fontFamily: '"JetBrains Mono", monospace' }}>
-              <span>Home</span>
-              <span>/</span>
-              <span style={{ color: theme.text.secondary, fontWeight: 500 }}>Ready</span>
-            </div>
-          ) : state.activeMode === 'live' ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: theme.text.muted, fontFamily: '"JetBrains Mono", monospace' }}>
-              <span>Live Run</span>
-              <span>/</span>
-              <span style={{ color: '#b91c1c', fontWeight: 600 }}>Step #{state.liveBlockCount}</span>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: theme.text.muted, fontFamily: '"JetBrains Mono", monospace' }}>
-              <span onClick={() => store.resetToStandby()} style={{ cursor: 'pointer', textDecoration: 'underline' }}>Sessions</span>
-              <span>/</span>
-              <span style={{ color: theme.text.primary, fontWeight: 500 }}>{activeSessionMeta.shortName || activeSessionMeta.label}</span>
-              <span>/</span>
-              <span style={{
-                color: theme.accent.green,
-                fontWeight: 600,
-                background: theme.bg.diffAdd,
-                padding: '1px 6px',
-                borderRadius: '3px',
-                border: `1px solid ${theme.border.diffAdd}`
-              }}>
-                {state.activeCheckpoint?.id || 'chk_04'}
-              </span>
-              <button
-                onClick={handleBookmarkToggle}
-                title={isBookmarked ? 'Bookmarked' : 'Bookmark this checkpoint'}
-                style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center' }}
-              >
-                <BookmarkIcon size={12} color={isBookmarked ? theme.accent.green : theme.text.muted} />
-              </button>
-            </div>
-          )}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: theme.text.muted, fontFamily: '"JetBrains Mono", monospace' }}>
+            <span>Session</span>
+            <span>/</span>
+            <span style={{ color: theme.text.primary, fontWeight: 500 }}>{activeSessionMeta.shortName || activeSessionMeta.label}</span>
+            <span>/</span>
+            <span style={{
+              color: theme.accent.green,
+              fontWeight: 600,
+              background: theme.bg.diffAdd,
+              padding: '1px 6px',
+              borderRadius: '3px',
+              border: `1px solid ${theme.border.diffAdd}`
+            }}>
+              {state.activeCheckpoint?.id || 'chk_04'}
+            </span>
+            <button
+              onClick={handleBookmarkToggle}
+              title={isBookmarked ? 'Bookmarked' : 'Bookmark this checkpoint'}
+              style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center' }}
+            >
+              <BookmarkIcon size={12} color={isBookmarked ? theme.accent.green : theme.text.muted} />
+            </button>
+          </div>
         </div>
 
         {/* Right: Actions & Simple Controls */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          {/* Live Recording Controls */}
-          {state.activeMode === 'live' && (
+          {/* Session Selector */}
+          <select
+            value={currentSessionId}
+            onChange={(e) => handleSessionChange(e.target.value)}
+            style={{
+              background: theme.bg.surface,
+              color: theme.text.primary,
+              border: `1px solid ${theme.border.default}`,
+              padding: '3px 8px',
+              borderRadius: '4px',
+              fontSize: '11px',
+              fontFamily: '"JetBrains Mono", monospace',
+              fontWeight: 500,
+              cursor: 'pointer',
+              outline: 'none'
+            }}
+          >
+            {sessionList.map((s: any) => (
+              <option key={s.id} value={s.id}>
+                {s.label || s.task_name || s.id}
+              </option>
+            ))}
+          </select>
+
+          {/* Live Recording Controls vs Run Live Demo */}
+          {state.activeMode === 'live' ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <button
                 onClick={handleStopAndSeal}
@@ -385,99 +394,16 @@ export default function CockpitDashboard() {
               >
                 ↺ Restart
               </button>
-              <button
-                onClick={() => store.resetToStandby()}
-                style={{
-                  background: 'transparent',
-                  color: theme.text.muted,
-                  border: `1px solid ${theme.border.default}`,
-                  padding: '3px 8px',
-                  borderRadius: '4px',
-                  fontSize: '11px',
-                  fontFamily: '"JetBrains Mono", monospace',
-                  cursor: 'pointer'
-                }}
-              >
-                ✕ Exit
-              </button>
             </div>
-          )}
-
-          {/* Past Session Controls */}
-          {state.activeMode === 'library' && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <button
-                onClick={() => store.resetToStandby()}
-                style={{
-                  background: theme.bg.surface,
-                  color: theme.text.secondary,
-                  border: `1px solid ${theme.border.default}`,
-                  padding: '3px 8px',
-                  borderRadius: '4px',
-                  fontSize: '11px',
-                  fontFamily: '"JetBrains Mono", monospace',
-                  cursor: 'pointer'
-                }}
-              >
-                ◀ Back
-              </button>
-
-              <select
-                value={currentSessionId}
-                onChange={(e) => handleSessionChange(e.target.value)}
-                style={{
-                  background: theme.bg.surface,
-                  color: theme.text.primary,
-                  border: `1px solid ${theme.border.default}`,
-                  padding: '3px 8px',
-                  borderRadius: '4px',
-                  fontSize: '11px',
-                  fontFamily: '"JetBrains Mono", monospace',
-                  fontWeight: 500,
-                  cursor: 'pointer',
-                  outline: 'none'
-                }}
-              >
-                {sessionList.map((s: any) => (
-                  <option key={s.id} value={s.id}>
-                    {s.label || s.task_name || s.id}
-                  </option>
-                ))}
-              </select>
-
-              <button
-                onClick={() => setShowVerifyModal(true)}
-                title="View verification report"
-                style={{
-                  background: '#f0fdf4',
-                  color: '#166534',
-                  border: '1px solid #bbf7d0',
-                  padding: '3px 8px',
-                  borderRadius: '4px',
-                  fontSize: '11px',
-                  fontFamily: '"JetBrains Mono", monospace',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px'
-                }}
-              >
-                <ShieldCheckIcon size={12} color="#166534" />
-                <span>Verified</span>
-              </button>
-            </div>
-          )}
-
-          {/* Standby Shortcut Buttons */}
-          {state.activeMode === 'standby' && (
+          ) : (
             <button
               onClick={handleStartLiveDemo}
+              title="Run Live Recording Demo"
               style={{
                 background: '#16a34a',
                 color: '#ffffff',
                 border: 'none',
-                padding: '4px 12px',
+                padding: '3px 10px',
                 borderRadius: '4px',
                 fontSize: '11px',
                 fontFamily: '"JetBrains Mono", monospace',
@@ -485,29 +411,50 @@ export default function CockpitDashboard() {
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '5px'
+                gap: '4px'
               }}
             >
               <span>▶</span>
-              <span>Live Demo</span>
+              <span>Run Live Demo</span>
             </button>
           )}
 
-          {/* Options Menu Button (in workspace modes) */}
-          {state.activeMode !== 'standby' && (
-            <div style={{ position: 'relative' }}>
-              <button
-                onClick={() => setShowOptionsMenu(!showOptionsMenu)}
-                title="Options & Layout"
-                style={{
-                  background: showOptionsMenu ? theme.bg.surface : 'transparent',
-                  border: showOptionsMenu ? `1px solid ${theme.border.default}` : 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  color: theme.text.primary,
-                  padding: '4px 6px',
-                  display: 'flex',
-                  alignItems: 'center'
+          <button
+            onClick={() => setShowVerifyModal(true)}
+            title="View verification report"
+            style={{
+              background: '#f0fdf4',
+              color: '#166534',
+              border: '1px solid #bbf7d0',
+              padding: '3px 8px',
+              borderRadius: '4px',
+              fontSize: '11px',
+              fontFamily: '"JetBrains Mono", monospace',
+              fontWeight: 600,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}
+          >
+            <ShieldCheckIcon size={12} color="#166534" />
+            <span>Verified</span>
+          </button>
+
+          {/* Options Menu Button */}
+          <div style={{ position: 'relative' }}>
+            <button
+              onClick={() => setShowOptionsMenu(!showOptionsMenu)}
+              title="Options & Layout"
+              style={{
+                background: showOptionsMenu ? theme.bg.surface : 'transparent',
+                border: showOptionsMenu ? `1px solid ${theme.border.default}` : 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                color: theme.text.primary,
+                padding: '4px 6px',
+                display: 'flex',
+                alignItems: 'center'
                 }}
               >
                 <MoreHorizontalIcon size={14} />
@@ -553,7 +500,6 @@ export default function CockpitDashboard() {
                 </div>
               )}
             </div>
-          )}
 
           <div style={{ height: '14px', width: '1px', background: theme.border.default }} />
 
@@ -623,235 +569,7 @@ export default function CockpitDashboard() {
         </div>
       </header>
 
-      {/* ========================================================================= */}
-      {/* STATE 1: CLEAN STANDBY GATEWAY (DEFAULT LANDING VIEW) */}
-      {/* ========================================================================= */}
-      {state.activeMode === 'standby' ? (
-        <div style={{
-          flex: 1,
-          overflowY: 'auto',
-          padding: '40px 24px',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          background: '#f8fafc'
-        }}>
-          <div style={{ maxWidth: '860px', width: '100%', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            
-            {/* Clean Hero Header */}
-            <div style={{
-              background: '#ffffff',
-              border: '1px solid #e2e8f0',
-              borderRadius: '10px',
-              padding: '28px 32px',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '10px'
-            }}>
-              <div style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '2px 8px',
-                borderRadius: '12px',
-                background: '#f1f5f9',
-                border: '1px solid #cbd5e1',
-                fontSize: '11px',
-                fontFamily: '"JetBrains Mono", monospace',
-                color: '#475569',
-                fontWeight: 600,
-                width: 'fit-content'
-              }}>
-                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#16a34a' }} />
-                <span>RECORDER READY</span>
-              </div>
-
-              <h1 style={{
-                fontSize: '22px',
-                fontWeight: 800,
-                color: '#0f172a',
-                margin: 0,
-                letterSpacing: '-0.02em',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px'
-              }}>
-                <ChronoLogo size={26} />
-                <span>Flight recorder for AI coding agents</span>
-              </h1>
-              <p style={{ fontSize: '13px', color: '#64748b', margin: 0, lineHeight: 1.5 }}>
-                Watch your AI code in real time, catch loops before they waste tokens, and review every change.
-              </p>
-            </div>
-
-            {/* Primary Action Card: Try Live Demo */}
-            <div style={{
-              background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)',
-              border: '1px solid #86efac',
-              borderRadius: '10px',
-              padding: '22px 28px',
-              boxShadow: '0 2px 8px rgba(34, 197, 94, 0.08)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: '24px'
-            }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                <div style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  fontSize: '10px',
-                  fontWeight: 700,
-                  color: '#15803d',
-                  background: '#dcfce7',
-                  border: '1px solid #bbf7d0',
-                  padding: '1px 8px',
-                  borderRadius: '10px',
-                  width: 'fit-content',
-                  fontFamily: '"JetBrains Mono", monospace'
-                }}>
-                  ★ 1-CLICK LIVE DEMO
-                </div>
-                <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#14532d', margin: 0 }}>
-                  See how Chrono catches an AI loop
-                </h2>
-                <p style={{ fontSize: '12px', color: '#166534', margin: 0, lineHeight: 1.4, maxWidth: '540px' }}>
-                  Watch a live demonstration: the AI writes code, makes a mistake, gets stuck repeating the same edit, and Chrono steps in with the fix.
-                </p>
-              </div>
-
-              <button
-                onClick={handleStartLiveDemo}
-                style={{
-                  background: '#16a34a',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '6px',
-                  padding: '10px 22px',
-                  fontSize: '12px',
-                  fontWeight: 700,
-                  fontFamily: '"JetBrains Mono", monospace',
-                  cursor: 'pointer',
-                  boxShadow: '0 4px 12px rgba(22, 163, 74, 0.25)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  flexShrink: 0
-                }}
-              >
-                <span>▶</span>
-                <span>Run Live Demo</span>
-              </button>
-            </div>
-
-            {/* Two Clean Cards: How it works vs Recent Sessions */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-              
-              {/* Left Column: How It Works */}
-              <div style={{
-                background: '#ffffff',
-                border: '1px solid #e2e8f0',
-                borderRadius: '10px',
-                padding: '20px 22px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '12px'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <h3 style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a', margin: 0 }}>
-                    How Chrono Works
-                  </h3>
-                  <span style={{ fontSize: '10px', color: '#94a3b8', fontFamily: '"JetBrains Mono", monospace' }}>3 steps</span>
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '12px', color: '#334155' }}>
-                  <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-                    <span style={{ background: '#e0f2fe', color: '#0369a1', width: '20px', height: '20px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 700, flexShrink: 0 }}>1</span>
-                    <div>
-                      <strong style={{ color: '#0f172a' }}>Silent Recording:</strong> Chrono tracks your AI's edits and commands as it works, with zero delay.
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-                    <span style={{ background: '#fee2e2', color: '#b91c1c', width: '20px', height: '20px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 700, flexShrink: 0 }}>2</span>
-                    <div>
-                      <strong style={{ color: '#0f172a' }}>Loop Detection:</strong> If the AI repeats the same bad edit 3 times, Chrono immediately flags it.
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-                    <span style={{ background: '#dcfce7', color: '#15803d', width: '20px', height: '20px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 700, flexShrink: 0 }}>3</span>
-                    <div>
-                      <strong style={{ color: '#0f172a' }}>Smart Fix:</strong> Chrono gives the AI clear guidance to break the loop and finish the task.
-                    </div>
-                  </div>
-                </div>
-
-                <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '10px', fontSize: '11px', color: '#94a3b8' }}>
-                  Compatible with Claude Code, Muse Code, and Antigravity.
-                </div>
-              </div>
-
-              {/* Right Column: Recent Sessions */}
-              <div style={{
-                background: '#ffffff',
-                border: '1px solid #e2e8f0',
-                borderRadius: '10px',
-                padding: '20px 22px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '12px'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <h3 style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a', margin: 0 }}>
-                    Recent Sessions
-                  </h3>
-                  <span style={{ fontSize: '10px', color: '#94a3b8', fontFamily: '"JetBrains Mono", monospace' }}>History</span>
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {sessionList.map((s: any) => (
-                    <div
-                      key={s.id}
-                      onClick={() => handleSessionChange(s.id)}
-                      style={{
-                        padding: '9px 12px',
-                        border: '1px solid #e2e8f0',
-                        borderRadius: '6px',
-                        background: '#f8fafc',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        transition: 'all 0.15s ease'
-                      }}
-                    >
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                        <span style={{ fontSize: '12px', fontWeight: 600, color: '#0f172a' }}>{s.label}</span>
-                        <span style={{ fontSize: '11px', color: '#64748b' }}>
-                          {s.description || s.task_name}
-                        </span>
-                      </div>
-                      <span style={{ color: '#0082FB', fontSize: '11px', fontWeight: 600, fontFamily: '"JetBrains Mono", monospace' }}>
-                        Open ▶
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-            </div>
-
-          </div>
-        </div>
-      ) : (
-        /* ========================================================================= */
-        /* STATES 2 & 3: LIVE DEMO OR PAST SESSION WORKSPACE */
-        /* ========================================================================= */
-        <>
-          {/* Active Mode Banner */}
+      {/* Active Mode Banner */}
           {state.activeMode === 'live' ? (
             <div style={{
               background: state.stalls.length > 0 ? '#fef2f2' : '#f0fdf4',
@@ -1241,8 +959,6 @@ export default function CockpitDashboard() {
               />
             </footer>
           )}
-        </>
-      )}
 
       {/* MODAL 1: Session Details Modal */}
       {showInfoModal && (

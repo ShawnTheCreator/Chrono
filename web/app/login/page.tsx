@@ -108,7 +108,7 @@ export default function LoginPage() {
   useEffect(() => {
     authClient.checkSession().then((res) => {
       if (res.authenticated) {
-        router.push('/dashboard');
+        router.push('/cockpit');
       }
     });
   }, [router]);
@@ -125,9 +125,9 @@ export default function LoginPage() {
       if (email.trim() && password.trim()) {
         const res = await authClient.login(email.trim(), password.trim());
         if (res.success) {
-          setSuccessMsg('Authenticated. Logging in...');
+          setSuccessMsg('Authenticated. Launching Cockpit...');
           setTimeout(() => {
-            router.push('/dashboard');
+            router.push('/cockpit');
           }, 350);
         } else {
           setError(res.error || 'Authentication failed. Please verify credentials.');
@@ -138,14 +138,14 @@ export default function LoginPage() {
       } else {
         // Frictionless instant operator login when submitted
         await authClient.loginAsDemoOperator();
-        setSuccessMsg('Operator session authenticated. Logging in...');
+        setSuccessMsg('Operator session authenticated. Launching Cockpit...');
         setTimeout(() => {
-          router.push('/dashboard');
+          router.push('/cockpit');
         }, 300);
       }
     } catch {
       await authClient.loginAsDemoOperator();
-      router.push('/dashboard');
+      router.push('/cockpit');
     } finally {
       setIsLoading(false);
     }
@@ -156,12 +156,12 @@ export default function LoginPage() {
     setError(null);
     try {
       await authClient.loginAsDemoOperator();
-      setSuccessMsg('Operator session authenticated. Logging in...');
+      setSuccessMsg('Operator session authenticated. Launching Cockpit...');
       setTimeout(() => {
-        router.push('/dashboard');
+        router.push('/cockpit');
       }, 300);
     } catch {
-      router.push('/dashboard');
+      router.push('/cockpit');
     } finally {
       setIsLoading(false);
     }

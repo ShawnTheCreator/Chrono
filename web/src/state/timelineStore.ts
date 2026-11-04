@@ -122,10 +122,10 @@ const DEFAULT_EVENTS: CEPEvent[] = [
 ];
 
 export class TimelineState {
-  // Mode state: boots into clean 'standby'
-  activeMode: CockpitMode = 'standby';
+  // Mode state: boots straight into Cockpit
+  activeMode: CockpitMode = 'library';
   liveBlockCount: number = 0;
-  liveStatusText: string = 'Ready. No session currently recording.';
+  liveStatusText: string = 'Cockpit Ready. Flight recorder active.';
   isLiveRecording: boolean = false;
   private liveInterval: any = null;
 
@@ -164,6 +164,8 @@ export class TimelineState {
   private playInterval: any = null;
 
   constructor() {
+    this.activeMode = 'library';
+    this.loadSessionById('chrono-feature-attempt-1');
     this.snapshot = this.createSnapshot();
   }
 
@@ -251,21 +253,7 @@ export class TimelineState {
       clearInterval(this.playInterval);
       this.playInterval = null;
     }
-    this.activeMode = 'standby';
-    this.isLiveRecording = false;
-    this.liveBlockCount = 0;
-    this.liveStatusText = 'Ready. No session currently recording.';
-    this.events = [];
-    this.checkpoints = [];
-    this.stalls = [];
-    this.activeCheckpoint = null;
-    this.activeEvent = null;
-    this.activeNarration = null;
-    this.activeIntervention = null;
-    this.currentTimestampNs = 0;
-    this.minTimestampNs = 0;
-    this.maxTimestampNs = 400000000000;
-    this.notify();
+    this.loadSessionById('chrono-feature-attempt-1');
   }
 
   startLiveSimulation() {
