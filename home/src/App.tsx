@@ -336,6 +336,9 @@ export default function App() {
   }, []);
 
   const [scrollY, setScrollY] = useState(0);
+  const transitionTrackRef = useRef<HTMLDivElement | null>(null);
+  const [section3Slide, setSection3Slide] = useState(100);
+  const [section2ScrollY, setSection2ScrollY] = useState(0);
 
   useEffect(() => {
     let ticking = false;
@@ -343,12 +346,44 @@ export default function App() {
       if (!ticking) {
         window.requestAnimationFrame(() => {
           setScrollY(window.scrollY);
+
+          if (transitionTrackRef.current) {
+            const rect = transitionTrackRef.current.getBoundingClientRect();
+            const vh = window.innerHeight;
+            const scrollDistance = rect.height - vh;
+            if (scrollDistance > 0) {
+              const rawProgress = Math.min(1, Math.max(0, -rect.top / scrollDistance));
+
+              // Phase 1: 0 to 0.32 (Viewing Section 2; smooth scroll down to view cards)
+              if (rawProgress <= 0.32) {
+                const p1 = rawProgress / 0.32;
+                setSection2ScrollY(-p1 * 140);
+                setSection3Slide(100);
+              }
+              // Phase 2: 0.32 to 0.88 (Section 2 is STAGNANT; Section 3 slides in from the right)
+              else if (rawProgress <= 0.88) {
+                setSection2ScrollY(-140); // Locked stagnant!
+                const p2 = (rawProgress - 0.32) / 0.56;
+                setSection3Slide((1 - p2) * 100);
+              }
+              // Phase 3: 0.88 to 1.0 (Section 3 is 100% covering Section 2)
+              else {
+                setSection2ScrollY(-140);
+                setSection3Slide(0);
+              }
+            } else {
+              setSection3Slide(100);
+              setSection2ScrollY(0);
+            }
+          }
+
           ticking = false;
         });
         ticking = true;
       }
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -641,8 +676,36 @@ export default function App() {
         boxShadow: '0 -30px 90px rgba(0, 0, 0, 0.45), 0 -4px 16px rgba(0, 0, 0, 0.15)',
         minHeight: '100vh'
       }}>
-        {/* 2. CHRONO COCKPIT MOTION GRAPHIC SHOWCASE */}
-      <section id="chrono-features" style={{
+        {/* 2 & 3: PINNED STAGE (SECTION 2 PINS STAGNANT, SECTION 3 SLIDES IN FROM RIGHT) */}
+      <div
+        ref={transitionTrackRef}
+        style={{
+          position: 'relative',
+          minHeight: '280vh',
+          backgroundColor: '#ffffff'
+        }}
+      >
+        <div style={{
+          position: 'sticky',
+          top: 0,
+          height: '100vh',
+          width: '100%',
+          overflow: 'hidden',
+          backgroundColor: '#ffffff'
+        }}>
+          {/* SECTION 2 (STAGNANT IN THE BACKGROUND ONCE REACHED) */}
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            transform: `translateY(${section2ScrollY}px)`,
+            willChange: 'transform',
+            backgroundColor: '#ffffff',
+            overflowY: 'auto'
+          }}>
+            <section id="chrono-features" style={{
         maxWidth: '1360px',
         margin: '0 auto',
         padding: '96px 36px 90px 36px',
@@ -1038,9 +1101,28 @@ export default function App() {
           </div>
         </div>
       </section>
+          </div>
 
-      {/* 3. SECURE AND IN CONTROL: TWO LARGE CARDS */}
-      <section style={{
+          {/* SECTION 3 (SLIDES IN FROM THE RIGHT COVERING SECTION 2) */}
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            transform: `translateX(${section3Slide}%)`,
+            willChange: 'transform',
+            backgroundColor: '#ffffff',
+            borderTopLeftRadius: '40px',
+            borderBottomLeftRadius: '40px',
+            boxShadow: '-30px 0 90px rgba(0, 0, 0, 0.45), -4px 0 16px rgba(0, 0, 0, 0.15)',
+            zIndex: 20,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            overflowY: 'auto'
+          }}>
+            <section style={{
         maxWidth: '1280px',
         margin: '0 auto',
         padding: '0 36px 96px 36px'
@@ -1159,6 +1241,9 @@ export default function App() {
           </div>
         </div>
       </section>
+          </div>
+        </div>
+      </div>
 
       {/* 4. CHRONO IN ACTION: SHOWCASE BANNER */}
       <section style={{
