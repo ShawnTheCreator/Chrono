@@ -63,36 +63,36 @@ Inspired by commercial aviation flight data recorders (FDR), Chrono establishes 
 ```mermaid
 flowchart TD
     subgraph AgentRuntime["1. Agent Runtime (Capture Layer)"]
-        Agent[Muse Code / Autonomous Runner] -->|Stream / Socket / PTY Pipe| Watcher[adapters/muse_code/session_watcher]
-        Watcher -->|Chrono Event Protocol (CEP v1)| Pipe[Standard Ingest Pipe]
+        Agent["Muse Code / Autonomous Runner"] -->|"Stream / Socket / PTY Pipe"| Watcher["adapters/muse_code/session_watcher"]
+        Watcher -->|"Chrono Event Protocol (CEP v1)"| Pipe["Standard Ingest Pipe"]
     end
 
     subgraph CoreRecorder["2. Flight Recorder Core (core/ - C++20 Zero-Dep)"]
-        Pipe -->|Lockless Enqueue| SPSC[LMAX SPSC Ring Buffer\n1,000,000+ eps throughput]
-        SPSC -->|Single-Writer Thread| Writer[HashChainWriter]
-        Writer -->|SHA-256 Merkle Linkage| BinaryLog[(session.chrono\nAppend-Only Immutable Ledger)]
-        Writer -->|O(log n) Sparse Index Table| BinaryIndex[(session.chronoi\nTimeline Index Table)]
-        Writer --> StallTrap[Graph Stall Detector\nBFS Circular Loop Check]
-        Writer --> Telemetry[Measured Telemetry Engine\nToken-Burn Velocity]
-        BinaryLog -.->|Cryptographic Audit| Verifier[verify_log API\nForensic Receipt Generator]
+        Pipe -->|"Lockless Enqueue"| SPSC["LMAX SPSC Ring Buffer - 1,000,000+ eps throughput"]
+        SPSC -->|"Single-Writer Thread"| Writer["HashChainWriter"]
+        Writer -->|"SHA-256 Merkle Linkage"| BinaryLog[("session.chrono - Append-Only Immutable Ledger")]
+        Writer -->|"O(log n) Sparse Index Table"| BinaryIndex[("session.chronoi - Timeline Index Table")]
+        Writer --> StallTrap["Graph Stall Detector - BFS Circular Loop Check"]
+        Writer --> Telemetry["Measured Telemetry Engine - Token-Burn Velocity"]
+        BinaryLog -.->|"Cryptographic Audit"| Verifier["verify_log API - Forensic Receipt Generator"]
     end
 
     subgraph BridgeService["3. Flight Instructor Bridge (bridge/ - FastAPI)"]
-        BinaryLog & BinaryIndex --> API[FastAPI Endpoints]
-        API --> PromptPipeline[Muse Spark Prompt Engine]
-        PromptPipeline --> MetaAPI[Meta Model API (api.meta.ai)\nmuse-spark-1.3]
-        MetaAPI --> CausalWhy[Causal Hypothesis: Why?]
-        MetaAPI --> Suggestion[Surgical Course-Correction]
-        MetaAPI --> SSE[Token-by-Token SSE Stream]
+        BinaryLog & BinaryIndex --> API["FastAPI Endpoints"]
+        API --> PromptPipeline["Muse Spark Prompt Engine"]
+        PromptPipeline --> MetaAPI["Meta Model API (api.meta.ai) - muse-spark-1.3"]
+        MetaAPI --> CausalWhy["Causal Hypothesis: Why?"]
+        MetaAPI --> Suggestion["Surgical Course-Correction"]
+        MetaAPI --> SSE["Token-by-Token SSE Stream"]
     end
 
     subgraph CockpitUI["4. The Cockpit (web/ - Next.js 14 App Router)"]
-        SSE & API --> Scrubber[Canvas Timeline Scrubber\n60 FPS Wheel + Drag]
-        Scrubber --> DiffView[Unified Checkpoint Diff Stage]
-        Scrubber --> TreeView[Content-Addressed Tree Panel]
-        Scrubber --> Transcript[Agent Thought Transcript]
-        Scrubber --> TelemetryView[Telemetry Velocity Curve]
-        Scrubber --> InstructorView[Flight Instructor Modal]
+        SSE & API --> Scrubber["Canvas Timeline Scrubber - 60 FPS Wheel + Drag"]
+        Scrubber --> DiffView["Unified Checkpoint Diff Stage"]
+        Scrubber --> TreeView["Content-Addressed Tree Panel"]
+        Scrubber --> Transcript["Agent Thought Transcript"]
+        Scrubber --> TelemetryView["Telemetry Velocity Curve"]
+        Scrubber --> InstructorView["Flight Instructor Modal"]
     end
 ```
 
