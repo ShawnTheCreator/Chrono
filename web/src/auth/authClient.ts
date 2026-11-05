@@ -129,12 +129,12 @@ class AuthClient {
 
   public async loginAsDemoOperator(): Promise<LoginResult> {
     const demoUser: AuthUser = {
-      email: 'operator@chrono.sec',
-      role: 'security_operator',
-      provider: 'local_terminal',
+      email: 'judge@meta-hackathon.dev',
+      role: 'judge',
+      provider: 'demo_bypass',
       created_at: Date.now()
     };
-    const token = 'chrono_op_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
+    const token = 'chrono_judge_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
     this.token = token;
     if (typeof window !== 'undefined') {
       localStorage.setItem('chrono_auth_token', token);

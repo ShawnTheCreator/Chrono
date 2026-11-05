@@ -115,8 +115,8 @@ def verify_password(password: str, stored_hash: str, stored_salt: str) -> bool:
     candidate_hash = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt_bytes, 100000).hex()
     return secrets.compare_digest(candidate_hash, stored_hash)
 
-# Default local operator (can be configured via environment or registration)
-_initial_pass = os.getenv("CHRONO_OPERATOR_PASSWORD", secrets.token_urlsafe(16))
+# Default local operator and demo judge credentials
+_initial_pass = os.getenv("CHRONO_OPERATOR_PASSWORD", "ChronoDemo2026!")
 _admin_hash, _admin_salt = hash_password(_initial_pass)
 REGISTERED_USERS: Dict[str, Dict[str, Any]] = {
     "operator@chrono.local": {
@@ -124,6 +124,13 @@ REGISTERED_USERS: Dict[str, Dict[str, Any]] = {
         "hash": _admin_hash,
         "salt": _admin_salt,
         "role": "operator",
+        "created_at": time.time()
+    },
+    "judge@meta-hackathon.dev": {
+        "email": "judge@meta-hackathon.dev",
+        "hash": _admin_hash,
+        "salt": _admin_salt,
+        "role": "judge",
         "created_at": time.time()
     }
 }

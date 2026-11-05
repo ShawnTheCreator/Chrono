@@ -81,8 +81,8 @@ const IconEye = ({ show }: { show: boolean }) => (
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('judge@meta-hackathon.dev');
+  const [password, setPassword] = useState('ChronoDemo2026!');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -108,7 +108,7 @@ export default function LoginPage() {
   useEffect(() => {
     authClient.checkSession().then((res) => {
       if (res.authenticated) {
-        router.push('/cockpit');
+        router.push('/dashboard');
       }
     });
   }, [router]);
@@ -125,27 +125,25 @@ export default function LoginPage() {
       if (email.trim() && password.trim()) {
         const res = await authClient.login(email.trim(), password.trim());
         if (res.success) {
-          setSuccessMsg('Authenticated. Launching Cockpit...');
+          setSuccessMsg('Authenticated as Hackathon Judge. Launching Cockpit...');
           setTimeout(() => {
-            router.push('/cockpit');
-          }, 350);
-        } else {
-          setError(res.error || 'Authentication failed. Please verify credentials.');
-          if (res.locked && res.retry_after) {
-            setLockoutSec(res.retry_after);
-          }
+            router.push('/dashboard');
+          }, 300);
+          return;
         }
-      } else {
-        // Frictionless instant operator login when submitted
-        await authClient.loginAsDemoOperator();
-        setSuccessMsg('Operator session authenticated. Launching Cockpit...');
-        setTimeout(() => {
-          router.push('/cockpit');
-        }, 300);
       }
+      // Instant frictionless fallback for hackathon judges
+      await authClient.loginAsDemoOperator();
+      setSuccessMsg('Judge credentials verified. Launching Cockpit...');
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 300);
     } catch {
       await authClient.loginAsDemoOperator();
-      router.push('/cockpit');
+      setSuccessMsg('Launching Cockpit...');
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 200);
     } finally {
       setIsLoading(false);
     }
@@ -156,19 +154,21 @@ export default function LoginPage() {
     setError(null);
     try {
       await authClient.loginAsDemoOperator();
-      setSuccessMsg('Operator session authenticated. Launching Cockpit...');
+      setSuccessMsg('Judge session authenticated. Launching Cockpit...');
       setTimeout(() => {
-        router.push('/cockpit');
+        router.push('/dashboard');
       }, 300);
     } catch {
-      router.push('/cockpit');
+      router.push('/dashboard');
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleForgotPassword = () => {
-    setError('Notice: You can click "Log in" directly to access the Cockpit without credentials.');
+    setEmail('judge@meta-hackathon.dev');
+    setPassword('ChronoDemo2026!');
+    setSuccessMsg('Demo credentials restored. Click "Log in" to launch Cockpit.');
   };
 
   return (
@@ -198,7 +198,7 @@ export default function LoginPage() {
           alignItems: 'center',
           justifyContent: 'center',
           gap: '10px',
-          marginBottom: '32px'
+          marginBottom: '20px'
         }}>
           <ChronoLogo size={32} />
           <h1 style={{
@@ -211,6 +211,23 @@ export default function LoginPage() {
             Login
           </h1>
         </div>
+
+          {/* Judge Quick-Access Callout */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            backgroundColor: '#f0fdf4',
+            border: '1px solid #bbf7d0',
+            borderRadius: '6px',
+            padding: '9px 12px',
+            marginBottom: '18px',
+            fontSize: '12px',
+            color: '#166534'
+          }}>
+            <span style={{ fontWeight: 600 }}>Demo credentials pre-filled</span>
+            <span style={{ fontSize: '11px', color: '#15803d', fontWeight: 500 }}>Click &quot;Log in&quot; to enter</span>
+          </div>
 
           {/* Feedback Messages */}
           {error && (
