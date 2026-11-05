@@ -52,7 +52,7 @@ Autonomous coding agents (e.g. Meta Muse Code, Devin, OpenDevin, Cursor Agent) e
 Inspired by commercial aviation flight data recorders (FDR), Chrono establishes an immutable, high-throughput audit substrate:
 - **Lockless C++20 Engine**: Intercepts events at wire speed (>1,000,000 eps) via an LMAX Disruptor-style single-writer SPSC ring buffer.
 - **Append-Only Merkle Ledger (`.chrono`)**: Every event is chained via SHA-256 cryptographic linkage, creating an auditable tamper-evident record.
-- **Sub-Microsecond Sparse Indexing (`.chronoi`)**: Binary sparse index yields 205 ns seek times across hundreds of thousands of frames ($>80,000\times$ faster than 60 FPS frame budgets).
+- **Sub-Microsecond Sparse Indexing (`.chronoi`)**: Binary sparse index yields 205 ns seek times across hundreds of thousands of frames (>80,000x faster than 60 FPS frame budgets).
 - **In-Flight Stall & Loop Trapping**: Graph-theoretic BFS cycle detection and sliding-window diff hashing detect circular handoffs and code thrashing in real time.
 - **The Flight Instructor (Meta Model API)**: Queries the cryptographic ledger directly through Meta Muse Spark (`muse-spark-1.3`), streaming plain-English causal hypotheses and recommending surgical interventions.
 
@@ -107,16 +107,20 @@ On the hot ingest path, thread contention is fatal to agent execution latency. C
 - Continuous sustained throughput exceeding **1,000,000 events/second** with zero dropped frames.
 
 ### 3.2 Append-Only SHA-256 Merkle Ledger (`.chrono`)
-Every runtime record is packaged into a binary envelope governed by the Chrono Event Protocol (CEP v1). Each block calculates:
+Every runtime record is packaged into a binary envelope governed by the Chrono Event Protocol (CEP v1). Each block satisfies the cryptographic linkage invariant:
 
-$$\text{CurrentHash}_i = \text{SHA-256}\Big(\text{Header}_i \parallel \text{PrevHash}_i \parallel \text{Payload}_i\Big)$$
+```text
+CurrentHash[i] = SHA-256( Header[i] || PrevHash[i] || Payload[i] )
+```
 
 Where:
-- $\text{PrevHash}_1 = \text{SHA-256}(\text{session\_id})$ (Genesis Block).
-- For all $i > 1$, $\text{PrevHash}_i \equiv \text{CurrentHash}_{i-1}$.
+- `PrevHash[1] = SHA-256(session_id)` (Genesis Block Root).
+- For all `i > 1`: `PrevHash[i] == CurrentHash[i - 1]` (Strict Cryptographic Chaining).
+- `SeqID[i] == SeqID[i - 1] + 1` (Strict Monotonic Sequence).
+- `Timestamp[i] >= Timestamp[i - 1]` (Monotonic Nanosecond Timeline).
 - Any mutation, byte truncation, or record transposition renders the entire subsequent chain mathematically invalid.
 
-### 3.3 Sub-Frame $O(\log n)$ Binary Sparse Indexing (`.chronoi`)
+### 3.3 Sub-Frame O(log n) Binary Sparse Indexing (`.chronoi`)
 Traditional observability tools parse entire log files sequentially to render timeline views. Chrono generates a parallel binary index table (`.chronoi`) storing 32-byte fixed-size entries:
 - Random seeking takes **205 nanoseconds** via binary search on monotonic timestamps.
 - Memory mapped (`mmap`) access ensures zero heap churn during timeline scrub operations.
@@ -124,8 +128,8 @@ Traditional observability tools parse entire log files sequentially to render ti
 
 ### 3.4 In-Flight Graph Stall & Oscillation Trap
 Chrono monitors incoming events in real time without post-processing:
-- **BFS Multi-Agent Cycle Traversal**: Parses inter-agent handoff edges to detect directed cycles ($A \to B \to A$) before execution times out.
-- **Sliding-Window Diff Hashing**: Hashes AST unified diffs with SHA-256 across a rolling window of 10 edits, firing immediate alerts when repetition thresholds ($\ge 3$ cycles) are reached.
+- **BFS Multi-Agent Cycle Traversal**: Parses inter-agent handoff edges to detect directed cycles (e.g. Agent A → Agent B → Agent A) before execution times out.
+- **Sliding-Window Diff Hashing**: Hashes AST unified diffs with SHA-256 across a rolling window of 10 edits, firing immediate alerts when repetition thresholds (≥ 3 cycles) are reached.
 
 ### 3.5 The Flight Instructor (Meta Model API Integration)
 Chrono bridges low-level C++ telemetry directly to **Meta Muse Spark** (`muse-spark-1.3`):
