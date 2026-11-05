@@ -392,7 +392,7 @@ def list_sessions():
     if muse_meta:
         sessions.append({
             "id": "muse-code-run",
-            "label": "Meta Muse Code 1.4 Run",
+            "label": "Meta Muse Code 1.4 Run (Live Agent)",
             "shortName": "Muse Code",
             "description": "Native Muse CLI run (41 verified blocks, model: muse-spark-1.3)",
             "task_name": muse_meta.get("task_name", "Inspect & Verify Chrono Stall Detector Logic"),
@@ -406,8 +406,8 @@ def list_sessions():
     live_meta = read_json_safe(FIXTURES_RECORDED / "run_meta.json") or {}
     sessions.append({
         "id": "live-agent-run",
-        "label": "Live Dogfood Run",
-        "shortName": "Live Agent",
+        "label": "Feature Build Session (Live Agent)",
+        "shortName": "Feature Build",
         "description": "Real recorded session (2,973 verified blocks)",
         "task_name": live_meta.get("task_name", "Autonomous Chrono Engineering & Hackathon Implementation"),
         "model": "gemini-3.8-flash-high (live autonomous trace)",

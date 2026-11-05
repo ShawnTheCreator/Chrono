@@ -148,9 +148,9 @@ export class TimelineState {
 
   // Backend hydrated properties
   availableSessions: any[] = [
+    { id: 'muse-code-run', label: 'Meta Muse Code 1.4 Run (Live Agent)', shortName: 'Muse Code', description: 'Live recorded Muse Code run: 41 events sealed with zero drops.', is_synthetic: false },
+    { id: 'live-agent-run', label: 'Feature Build Session (Live Agent)', shortName: 'Feature Build', description: 'Autonomous agent building recorder modules (2,973 actions recorded).', is_synthetic: false },
     { id: 'chrono-feature-attempt-1', label: 'Loop Recovery Session', shortName: 'Loop Recovery', description: 'AI got stuck in a repetitive edit loop; Chrono detected and guided recovery.', is_synthetic: true },
-    { id: 'live-agent-run', label: 'Feature Build Session', shortName: 'Live Agent', description: 'Autonomous agent building recorder modules (2,973 actions recorded).', is_synthetic: false },
-    { id: 'muse-code-run', label: 'Code Review Session', shortName: 'Muse Code', description: 'Agent verifying cycle detection logic (41 steps).', is_synthetic: false },
     { id: 'openrepo-maintenance-run', label: 'Performance Test Run', shortName: 'Stress Test', description: 'High-speed stress test verifying zero event drops.', is_synthetic: true }
   ];
   sessionTree: any[] = [];
@@ -165,7 +165,7 @@ export class TimelineState {
 
   constructor() {
     this.activeMode = 'library';
-    this.loadSessionById('chrono-feature-attempt-1');
+    this.loadSessionById('muse-code-run');
     this.snapshot = this.createSnapshot();
   }
 

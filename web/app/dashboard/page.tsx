@@ -79,9 +79,9 @@ const ChronoLogo = ({ size = 22 }: { size?: number }) => (
 );
 
 const SESSIONS = [
+  { id: 'muse-code-run', label: 'Meta Muse Code 1.4 Run (Live Agent)', shortName: 'Muse Code', description: 'Agent verifying cycle detection logic (41 steps).' },
+  { id: 'live-agent-run', label: 'Feature Build Session (Live Agent)', shortName: 'Feature Build', description: 'Autonomous agent building recorder modules (2,973 actions recorded).' },
   { id: 'chrono-feature-attempt-1', label: 'Loop Recovery Session', shortName: 'Loop Recovery', description: 'AI got stuck in a repetitive edit loop; Chrono detected and guided recovery.' },
-  { id: 'live-agent-run', label: 'Feature Build Session', shortName: 'Feature Build', description: 'Autonomous agent building recorder modules (2,973 actions recorded).' },
-  { id: 'muse-code-run', label: 'Code Review Session', shortName: 'Code Review', description: 'Agent verifying cycle detection logic (41 steps).' },
   { id: 'openrepo-maintenance-run', label: 'Performance Test Run', shortName: 'Stress Test', description: 'High-speed stress test verifying zero event drops.' }
 ];
 
@@ -96,7 +96,7 @@ export default function CockpitDashboard() {
     }
   }, []);
 
-  const [currentSessionId, setCurrentSessionId] = useState('chrono-feature-attempt-1');
+  const [currentSessionId, setCurrentSessionId] = useState('muse-code-run');
   const [activeTab, setActiveTab] = useState<'narration' | 'transcript' | 'telemetry'>('narration');
   const state = useTimelineStore();
 
